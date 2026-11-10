@@ -735,10 +735,43 @@
       </div>
     </div>
 
-    <!-- Hidden native file input for camera / photo album -->
+    <!-- Hidden native file inputs for camera & gallery -->
+    <!-- Direct Camera Shutter (launches phone back camera immediately) -->
+    <input type="file" id="directCameraInput" accept="image/*" capture="environment" class="hidden">
+    <!-- Photo Gallery Picker -->
     <input type="file" id="cameraFileInput" accept="image/*" class="hidden">
-    <!-- Hidden native file input for dining photo replacement -->
+    
+    <!-- Hidden inputs for dining photos -->
+    <input type="file" id="diningCameraInput" accept="image/*" capture="environment" class="hidden">
     <input type="file" id="diningFileInput" accept="image/*" class="hidden">
+
+    <!-- ================= NATIVE MOBILE ACTION SHEET: PHOTO SOURCE ================= -->
+    <div id="photoSourceModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end justify-center p-3 sm:p-4" onclick="closePhotoSourceModal(event)">
+      <div class="w-full max-w-sm bg-dark-850 border border-white/15 rounded-3xl p-4 space-y-2 shadow-2xl animate-in slide-in-from-bottom-5 duration-200" onclick="event.stopPropagation()">
+        <div class="text-center pb-2 border-b border-white/10">
+          <h4 id="photoSourceModalTitle" class="text-sm font-bold text-white">Add Check-In Story</h4>
+          <p class="text-[11px] text-slate-400">Choose how you want to add your photo</p>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <!-- Take Live Photo Button -->
+          <button onclick="pickFromLiveCamera()" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-gold-500 to-gold-400 text-dark-950 font-bold text-xs tap-effect flex items-center justify-center gap-2 shadow-lg shadow-gold-500/20">
+            <i class="ph-bold ph-camera text-base"></i>
+            <span>Take Live Photo (Open Camera)</span>
+          </button>
+
+          <!-- Choose from Gallery Button -->
+          <button onclick="pickFromPhotoGallery()" class="w-full py-3 px-4 rounded-2xl bg-dark-750 border border-white/10 text-white font-semibold text-xs tap-effect flex items-center justify-center gap-2 hover:bg-dark-700">
+            <i class="ph-bold ph-image text-base text-gold-400"></i>
+            <span>Choose from Photo Gallery</span>
+          </button>
+        </div>
+
+        <button onclick="closePhotoSourceModal(null, true)" class="w-full py-2.5 rounded-2xl bg-dark-900 text-slate-400 font-medium text-xs tap-effect mt-1">
+          Cancel
+        </button>
+      </div>
+    </div>
 
   </div>
 
@@ -887,6 +920,7 @@
 
     let diningPhotos = {};
     let activeDiningSlot = null;
+    let photoPickerTargetType = 'checkin'; // 'checkin' or 'dining'
 
     function loadDiningPhotos() {
       try {
@@ -927,12 +961,17 @@
 
     function triggerDiningPhotoUpload(slotId) {
       activeDiningSlot = slotId;
-      const input = document.getElementById('diningFileInput');
-      input.value = '';
-      input.click();
+      photoPickerTargetType = 'dining';
+      const modal = document.getElementById('photoSourceModal');
+      const title = document.getElementById('photoSourceModalTitle');
+      if (title) title.textContent = 'Update Dining Photo';
+      if (modal) modal.classList.remove('hidden');
     }
 
-    document.getElementById('diningFileInput').addEventListener('change', async function(e) {
+    document.getElementById('diningFileInput').addEventListener('change', handleDiningPhotoChosen);
+    document.getElementById('diningCameraInput').addEventListener('change', handleDiningPhotoChosen);
+
+    async function handleDiningPhotoChosen(e) {
       const file = e.target.files[0];
       if (!file || !activeDiningSlot) return;
 
@@ -951,8 +990,10 @@
         console.error('Failed to update dining photo:', err);
         showToast('Could not process photo');
         setCloudStatus('Sync error', 'text-rose-400');
+      } finally {
+        e.target.value = '';
       }
-    });
+    }
 
     function previewDiningPhoto(slotId, title) {
       const imgSrc = diningPhotos[slotId] || defaultDiningPhotos[slotId];
@@ -1404,9 +1445,45 @@
     // Trigger file picker for checkin capture
     function triggerCheckinSnap(slotId) {
       activeSlotForPhoto = slotId;
-      const input = document.getElementById('cameraFileInput');
-      input.value = '';
-      input.click();
+      photoPickerTargetType = 'checkin';
+      const modal = document.getElementById('photoSourceModal');
+      const title = document.getElementById('photoSourceModalTitle');
+      if (title) title.textContent = 'Add Check-In Story';
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    // Modal controls for Photo Source Sheet
+    function closePhotoSourceModal(event, force = false) {
+      if (force || (event && event.target.id === 'photoSourceModal')) {
+        const modal = document.getElementById('photoSourceModal');
+        if (modal) modal.classList.add('hidden');
+      }
+    }
+
+    function pickFromLiveCamera() {
+      closePhotoSourceModal(null, true);
+      if (photoPickerTargetType === 'dining') {
+        const input = document.getElementById('diningCameraInput');
+        input.value = '';
+        input.click();
+      } else {
+        const input = document.getElementById('directCameraInput');
+        input.value = '';
+        input.click();
+      }
+    }
+
+    function pickFromPhotoGallery() {
+      closePhotoSourceModal(null, true);
+      if (photoPickerTargetType === 'dining') {
+        const input = document.getElementById('diningFileInput');
+        input.value = '';
+        input.click();
+      } else {
+        const input = document.getElementById('cameraFileInput');
+        input.value = '';
+        input.click();
+      }
     }
 
     // Render cards for the currently selected day with multi-photo gallery
@@ -1669,28 +1746,11 @@
       renderAlbumView();
     }
 
-    function deleteScheduleCard(cardId) {
-      if (confirm('Delete this stop from the itinerary?')) {
-        scheduleCards = scheduleCards.filter(c => c.id !== cardId);
-        saveScheduleStorage();
-        if (window.firebaseSyncSchedule) {
-          window.firebaseSyncSchedule(scheduleCards);
-        }
-        if (checkinData[cardId]) {
-          delete checkinData[cardId];
-          saveCheckinStorage();
-          if (window.firebaseDeleteCheckin) {
-            window.firebaseDeleteCheckin(cardId);
-          }
-        }
-        showToast('Stop deleted');
-        renderItinerary();
-        renderAlbumView();
-      }
-    }
+    // Handle check-in photo selection from either direct camera or gallery
+    document.getElementById('cameraFileInput').addEventListener('change', handleCheckinPhotoChosen);
+    document.getElementById('directCameraInput').addEventListener('change', handleCheckinPhotoChosen);
 
-    // Handle multi-photo selection and append to stop
-    document.getElementById('cameraFileInput').addEventListener('change', async function(e) {
+    async function handleCheckinPhotoChosen(e) {
       const files = Array.from(e.target.files || []);
       if (!files.length || !activeSlotForPhoto) return;
 
@@ -1758,7 +1818,7 @@
       } finally {
         e.target.value = '';
       }
-    });
+    }
 
     // Delete a single photo from a checkin stop
     async function deleteSinglePhoto(slotId, photoId, event) {
