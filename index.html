@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Las Vegas Trip Itinerary | Nov 27 - Dec 1</title>
+  <style>
+    :root {
+      --primary: #c59b27;
+      --primary-hover: #dfb238;
+      --primary-light: #fef9e7;
+      --dark: #121212;
+      --card-bg: #1c1c1f;
+      --card-border: #2e2e33;
+      --text-main: #f0f0f2;
+      --text-muted: #a0a0aa;
+      --accent-red: #ef4444;
+      --accent-blue: #38bdf8;
+      --accent-purple: #a855f7;
+      --accent-green: #22c55e;
+      --accent-amber: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--dark);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    header {
+      position: relative;
+      text-align: center;
+      padding: 48px 24px 38px;
+      background: linear-gradient(rgba(18, 18, 18, 0.78), rgba(18, 18, 18, 0.92)),
+                  url('https://images.unsplash.com/photo-1581351123004-757df051db8e?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+
+    header h1 {
+      font-size: 2.3rem;
+      letter-spacing: -0.5px;
+      color: #fff;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+    }
+
+    header .highlight {
+      color: var(--primary);
+    }
+
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 18px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 500;
+      color: #f1f5f9;
+    }
+
+    .toolbar-banner {
+      background: linear-gradient(135deg, rgba(197, 155, 39, 0.15), rgba(35, 35, 40, 0.8));
+      border: 1px solid var(--primary);
+      border-radius: 14px;
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .toolbar-banner p {
+      font-size: 0.92rem;
+      color: #fef9e7;
+    }
+
+    .toolbar-banner .btn-reset {
+      background: #2a2a30;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #f87171;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .toolbar-banner .btn-reset:hover {
+      background: #3f2222;
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 36px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      border-bottom: 2px solid var(--card-border);
+      padding-bottom: 10px;
+    }
+
+    .hint-bar {
+      font-size: 0.88rem;
+      color: var(--accent-blue);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-banner {
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      display: block;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card ul {
+      list-style-type: none;
+    }
+
+    .card ul li {
+      margin-bottom: 11px;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .card ul li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .card strong {
+      color: var(--text-main);
+    }
+
+    .timeline-day {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .day-hero {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .day-header {
+      background: #232328;
+      padding: 16px 20px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .day-header span.date-tag {
+      font-size: 0.85rem;
+      background: var(--primary);
+      color: #000;
+      padding: 4px 11px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .day-content {
+      padding: 8px 16px;
+    }
+
+    details.event-accordion {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 10px 0;
+    }
+
+    details.event-accordion:last-child {
+      border-bottom: none;
+    }
+
+    summary.event-summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 8px;
+      border-radius: 8px;
+      user-select: none;
+      transition: background 0.15s ease;
+    }
+
+    summary.event-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary.event-summary:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .event-time {
+      flex: 0 0 155px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--accent-blue);
+      padding-top: 1px;
+    }
+
+    .summary-title-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-title-wrapper h4 {
+      font-size: 1rem;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .chevron-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--primary);
+      font-size: 0.85rem;
+      transition: transform 0.2s ease, background 0.2s ease;
+      flex-shrink: 0;
+      margin-left: 10px;
+    }
+
+    details.event-accordion[open] .chevron-btn {
+      transform: rotate(180deg);
+      background: var(--primary);
+      color: #000;
+    }
+
+    .accordion-body {
+      padding: 12px 10px 14px 177px;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .accordion-body p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      line-height: 1.55;
+    }
+
+    /* Picture Upload Section in each card */
+    .img-upload-container {
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .event-image {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      display: block;
+    }
+
+    .upload-action-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .upload-btn-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .upload-btn-label:hover {
+      background: var(--primary);
+      color: #000;
+      border-color: var(--primary);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .upload-status {
+      font-size: 0.78rem;
+      color: var(--accent-green);
+      font-weight: 500;
+      display: none;
+    }
+
+    .tag-concert { color: var(--accent-purple); font-weight: 600; }
+    .tag-food { color: #fb923c; font-weight: 600; }
+    .tag-free { color: var(--accent-green); font-weight: 600; }
+    .tag-wakeup { color: var(--accent-amber); font-weight: 700; }
+
+    footer {
+      text-align: center;
+      padding: 28px 0 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--card-border);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 640px) {
+      summary.event-summary {
+        flex-direction: column;
+        gap: 6px;
+        position: relative;
+        padding-right: 36px;
+      }
+      .event-time {
+        flex: auto;
+      }
+      .chevron-btn {
+        position: absolute;
+        right: 8px;
+        top: 12px;
+      }
+      .accordion-body {
+        padding: 8px 6px 12px 6px;
+      }
+      header h1 {
+        font-size: 1.8rem;
+      }
+      .day-hero {
+        height: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🎲 Las Vegas <span class="highlight">Trip Plan</span></h1>
+      <p style="color: var(--text-muted); margin-top: 4px;">Toledo & DTW Departure • Interactive Photo Upload & Schedule</p>
+      <div class="meta-bar">
+        <span class="badge">📍 Toledo, OH</span>
+        <span class="badge">🛫 DTW ➔ LAS (8:39 AM)</span>
+        <span class="badge">🛬 LAS ➔ DTW (Dec 1 @ 12:59 AM)</span>
+        <span class="badge">🏨 Luxor Resort</span>
+        <span class="badge">🎤 Vũ Trụ Say Hi (Nov 28)</span>
+      </div>
+    </header>
+
+    <!-- INTERACTIVE PHOTO UPLOAD TOOLBAR -->
+    <div class="toolbar-banner">
+      <div>
+        <p><strong>📷 Personalize Your Photos:</strong> Click <em>"📸 Replace Photo"</em> on any stop to upload your own picture directly from your phone camera or computer. Changes automatically save in your browser!</p>
+      </div>
+      <button class="btn-reset" onclick="resetAllCustomPhotos()">Reset Default Photos</button>
+    </div>
+
+    <!-- HIGHLIGHT SPOTS -->
+    <div class="section-title">🍜 Food & Drink Bucket List</div>
+    <div class="grid-2">
+      <div class="card">
+        <img class="card-banner" id="img-slot-food" src="https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=700&q=80" alt="Street Food & Tacos">
+        <div class="upload-action-bar">
+          <label class="upload-btn-label">
+            📸 Replace Food Banner
+            <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-food')">
+          </label>
+        </div>
+        <h3 style="margin-top: 12px;"><span style="color:#fb923c;">🥢</span> Must-Eat Spots</h3>
+        <ul>
+          <li><strong>Famous Foods Street Eats:</strong> Located at Resorts World. Hawker-style Southeast Asian market (claypot rice, skewers, Hainanese chicken).</li>
+          <li><strong>Tacos El Gordo:</strong> Authentic Tijuana adobada carved fresh off the trompo (North Strip location right across from Resorts World).</li>
+          <li><strong>Phở Đà Lạt:</strong> Authentic Vietnamese beef phở & com tam on W Flamingo Rd (Chinatown corridor).</li>
+          <li><strong>Molly Tea (茉莉奶白):</strong> Popular fresh floral/jasmine milk-tea foam boba on S Jones Blvd.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <img class="card-banner" id="img-slot-shows" src="https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=700&q=80" alt="Las Vegas Strip & Fountains">
+        <div class="upload-action-bar">
+          <label class="upload-btn-label">
+            📸 Replace Sights Banner
+            <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-shows')">
+          </label>
+        </div>
+        <h3 style="margin-top: 12px;"><span style="color:var(--accent-green);">✨</span> Free Shows & Sights</h3>
+        <ul>
+          <li><strong>Bellagio Fountains & Conservatory:</strong> Spectacular dancing water show + botanical holiday exhibit.</li>
+          <li><strong>Fall of Atlantis:</strong> Animatronic fire & water mythological show at The Forum Shops (Caesars Palace).</li>
+          <li><strong>Circus Circus Midway:</strong> Free daily world-class acrobatics and trapeze performances.</li>
+          <li><strong>Wynn Lake of Dreams:</strong> Holographic visuals, animatronics, and 40-ft waterfall spectacle.</li>
+          <li><strong>Fremont Street Viva Vision:</strong> 5-block overhead LED light canopy shows.</li>
+          <li><strong>Flamingo Wildlife Habitat:</strong> Real Chilean flamingos, pelicans, and waterfalls.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- DAILY ITINERARY -->
+    <div class="section-title">📅 Day-by-Day Interactive Schedule</div>
+    <div class="hint-bar">
+      <span>💡 Tap any time slot to expand details & replace pictures with your own photos!</span>
+    </div>
+
+    <!-- DAY 1 -->
+    <div class="timeline-day">
+      <img class="day-hero" id="img-slot-day1-hero" src="https://images.unsplash.com/photo-1605833556294-ea5c7a74f57d?auto=format&fit=crop&w=900&q=80" alt="Las Vegas Welcome Sign & Strip">
+      <div class="day-header">
+        <div>Day 1: Toledo Departure, Early Arrival & South Strip</div>
+        <span class="date-tag">Fri, Nov 27</span>
+      </div>
+      <div class="day-content">
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">3:30 AM EST</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-wakeup">⏰ Wake Up:</span> Toledo, OH</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Wake up early and finish packing. Toledo to DTW airport is ~50 miles (approx. 50-minute drive via I-75 N / I-275 N).</p>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">4:15 AM EST</div>
+            <div class="summary-title-wrapper">
+              <h4>Drive from Toledo to DTW Airport</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Arrive at Detroit Metro Airport by 5:10 AM – 5:15 AM to park, check bags, and clear TSA security.</p>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">6:41 AM EST</div>
+            <div class="summary-title-wrapper">
+              <h4>Flight Departs DTW ✈️</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Non-stop flight across time zones (DTW ➔ LAS, gaining 3 hours).</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-flight" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" alt="Airplane Flight">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-flight')">
+                </label>
+                <span class="upload-status" id="status-img-slot-flight">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">8:39 AM – 9:45 AM PST</div>
+            <div class="summary-title-wrapper">
+              <h4>Touchdown at LAS & Head to Luxor</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Land at Harry Reid Airport (LAS) at 8:39 AM. Collect baggage, catch a quick 10-minute Uber/Lyft to <strong>Luxor Hotel</strong>, and check luggage with the bell desk.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-luxor" src="https://images.unsplash.com/photo-1594911772125-07fc7a2d8d9f?auto=format&fit=crop&w=800&q=80" alt="Luxor Hotel Las Vegas Pyramid">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-luxor')">
+                </label>
+                <span class="upload-status" id="status-img-slot-luxor">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">10:00 AM – 1:00 PM PST</div>
+            <div class="summary-title-wrapper">
+              <h4>Bonus Morning: Mandalay Place & Luxor Atrium</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>You have an extra 5 hours before room check-in! Grab breakfast/brunch along The Shoppes at Mandalay Place, check out the Luxor pyramid atrium, or wander through Excalibur.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-atrium" src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80" alt="Hotel Atrium and Resort">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-atrium')">
+                </label>
+                <span class="upload-status" id="status-img-slot-atrium">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">1:00 PM – 3:00 PM PST</div>
+            <div class="summary-title-wrapper">
+              <h4>Lunch & Check Room Status</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Grab lunch (e.g., Public House or Border Grill at Mandalay Bay). Check the MGM app to see if early room readiness is available.</p>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">3:00 PM – 5:30 PM PST</div>
+            <div class="summary-title-wrapper">
+              <h4>Check-in at Luxor & Power Nap</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Verify ID at the Mobile Check-in desk, get your keys, unpack, and take a well-deserved power nap after your 3:30 AM wake-up.</p>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">6:00 PM – 9:30 PM PST</div>
+            <div class="summary-title-wrapper">
+              <h4>South Strip Sightseeing & Dinner</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Stroll New York-New York (Brooklyn Bridge replica) and The Park district. Enjoy a fun, casual first-night dinner.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-nyny" src="https://images.unsplash.com/photo-1541336032412-2048a678540d?auto=format&fit=crop&w=800&q=80" alt="New York-New York Las Vegas">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-nyny')">
+                </label>
+                <span class="upload-status" id="status-img-slot-nyny">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">10:30 PM – 11:30 PM PST</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-free">Free Sight:</span> Welcome to Las Vegas Sign (Night)</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>4-minute rideshare south from Luxor. Visiting late at night beats all bus tours and lines with illuminated vintage neon photos!</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-vegassign" src="https://images.unsplash.com/photo-1506059612708-99d6c258160e?auto=format&fit=crop&w=800&q=80" alt="Welcome to Fabulous Las Vegas Sign Neon Night">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-vegassign')">
+                </label>
+                <span class="upload-status" id="status-img-slot-vegassign">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="timeline-day">
+      <img class="day-hero" id="img-slot-day2-hero" src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&w=900&q=80" alt="Live Concert & Bellagio Fountains">
+      <div class="day-header">
+        <div>Day 2: Chinatown Food & Concert Night</div>
+        <span class="date-tag">Sat, Nov 28</span>
+      </div>
+      <div class="day-content">
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">8:30 AM – 9:15 AM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-wakeup">⏰ Wake Up:</span> Morning Refresh</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Wake up, grab coffee at Luxor, and get dressed. <em>(Note: If you preferred the early morning 7:30 AM Las Vegas Sign photo run instead of Friday night, wake up at 7:00 AM).</em></p>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">10:00 AM – 11:30 AM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-free">Free Sights:</span> Bellagio Conservatory & Flamingo Habitat</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Stroll through the seasonal botanical gardens inside Bellagio, then cross the street to see the Chilean pink flamingos at the Flamingo Wildlife Habitat.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-flamingos" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80" alt="Flamingo Wildlife Habitat Garden">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-flamingos')">
+                </label>
+                <span class="upload-status" id="status-img-slot-flamingos">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">12:00 PM – 2:30 PM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-food">Food Run:</span> Phở Đà Lạt + Molly Tea</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>10-minute Uber west to Chinatown. Enjoy hot bowls of phở at <strong>Phở Đà Lạt</strong>, then head to <strong>Molly Tea</strong> for fresh jasmine milk-tea with foam.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-phoboba" src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80" alt="Vietnamese Pho Soup & Boba Tea">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-phoboba')">
+                </label>
+                <span class="upload-status" id="status-img-slot-phoboba">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">3:00 PM – 4:30 PM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-free">Free Show:</span> Fall of Atlantis (Caesars Forum Shops)</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Catch the animatronic fire, water, and 9-foot moving statue show near the giant aquarium inside Caesars Forum Shops (plays hourly on the hour).</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-caesars" src="https://images.unsplash.com/photo-1579208575657-c595a05383b7?auto=format&fit=crop&w=800&q=80" alt="Caesars Palace Roman Architecture">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-caesars')">
+                </label>
+                <span class="upload-status" id="status-img-slot-caesars">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">5:00 PM – 6:30 PM</div>
+            <div class="summary-title-wrapper">
+              <h4>Pre-Concert Rest & Miracle Mile Shops</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Head to Planet Hollywood. Grab snacks/refreshments inside Miracle Mile Shops and get ready for the show.</p>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">7:00 PM – 10:30 PM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-concert">Main Event:</span> "Vũ Trụ Say Hi" Concert 🎤</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Concert at <strong>PH Live at Planet Hollywood</strong>.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-concert" src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=80" alt="Live Music Concert Lights">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-concert')">
+                </label>
+                <span class="upload-status" id="status-img-slot-concert">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">10:30 PM – 11:00 PM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-free">Free Show:</span> Bellagio Dancing Fountains</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Step outside Planet Hollywood onto the boulevard to catch the late-night fountain show dancing to music.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-bellagio" src="https://images.unsplash.com/photo-1583344604928-85474722513f?auto=format&fit=crop&w=800&q=80" alt="Bellagio Fountains at Night">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-bellagio')">
+                </label>
+                <span class="upload-status" id="status-img-slot-bellagio">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="timeline-day">
+      <img class="day-hero" id="img-slot-day3-hero" src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80" alt="Fremont Street Neon & Night Lights">
+      <div class="day-header">
+        <div>Day 3: LINQ, Venetian & Downtown Fremont</div>
+        <span class="date-tag">Sun, Nov 29</span>
+      </div>
+      <div class="day-content">
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">9:30 AM – 10:15 AM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-wakeup">⏰ Wake Up:</span> Rest & Recharge</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Sleep in slightly after the late concert night. Enjoy breakfast or a quick pastry at the hotel before heading mid-strip.</p>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">11:30 AM – 3:30 PM</div>
+            <div class="summary-title-wrapper">
+              <h4>LINQ Promenade, Zipline & Venetian Canals</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Stroll the LINQ Promenade (option to ride Fly LINQ). Explore the Venetian Grand Canal Shoppes, watch the gondolas, and see the free Streetmosphere performers in St. Mark's Square.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-venetian" src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80" alt="Venetian Grand Canal Gondolas Las Vegas">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-venetian')">
+                </label>
+                <span class="upload-status" id="status-img-slot-venetian">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">5:00 PM – 10:30 PM</div>
+            <div class="summary-title-wrapper">
+              <h4>Fremont Street & SlotZilla Zipline</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Head downtown to Fremont Street. Fly superman-style on the <strong>SlotZilla Zipline</strong> under the LED canopy. Watch the free <strong>Viva Vision Light Shows</strong> (hourly after 6 PM) and check out the Golden Nugget shark tank pool.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-fremont" src="https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=800&q=80" alt="Fremont Street Viva Vision Canopy Experience">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-fremont')">
+                </label>
+                <span class="upload-status" id="status-img-slot-fremont">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div class="timeline-day">
+      <img class="day-hero" id="img-slot-day4-hero" src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=900&q=80" alt="Resorts World, Dining & Vegas Night">
+      <div class="day-header">
+        <div>Day 4: North Strip Feasts, Wynn & Departure</div>
+        <span class="date-tag">Mon, Nov 30</span>
+      </div>
+      <div class="day-content">
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">9:30 AM – 10:00 AM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-wakeup">⏰ Wake Up:</span> Relaxed Morning</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Sleep in comfortably — since your room is booked through Tuesday, there is no morning checkout rush. Take your time getting ready.</p>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">11:30 AM – 1:30 PM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-free">Free Show:</span> Circus Circus Midway</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Watch world-class trapeze artists, jugglers, and aerialists perform free on the center stage.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-circus" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80" alt="Circus Acrobat Performance">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-circus')">
+                </label>
+                <span class="upload-status" id="status-img-slot-circus">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">1:45 PM – 4:00 PM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-food">Lunch:</span> Famous Foods Street Eats (Resorts World)</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Walk south into Resorts World. Sample dishes from Southeast Asian hawker stalls (claypot rice, noodles, dumplings).</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-rw" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80" alt="Resorts World Street Food Market">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-rw')">
+                </label>
+                <span class="upload-status" id="status-img-slot-rw">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">4:30 PM – 6:00 PM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-food">Dinner:</span> Tacos El Gordo</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Cross Las Vegas Blvd directly opposite Resorts World. Order their signature adobada pork tacos fresh from the spit.</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-tacos" src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80" alt="Authentic Mexican Adobada Tacos">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-tacos')">
+                </label>
+                <span class="upload-status" id="status-img-slot-tacos">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion" open>
+          <summary class="event-summary">
+            <div class="event-time">6:30 PM – 8:00 PM</div>
+            <div class="summary-title-wrapper">
+              <h4><span class="tag-free">Free Show:</span> Wynn Lake of Dreams</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Walk down to Wynn to watch the multimedia animatronic and light show over the outdoor waterfall (every 30 mins after sunset).</p>
+            <div class="img-upload-container">
+              <img class="event-image" id="img-slot-wynn" src="https://images.unsplash.com/photo-1508873696983-2df5293cb325?auto=format&fit=crop&w=800&q=80" alt="Waterfall Light Show Wynn Lake of Dreams">
+              <div class="upload-action-bar">
+                <label class="upload-btn-label">
+                  📸 Replace Photo
+                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-wynn')">
+                </label>
+                <span class="upload-status" id="status-img-slot-wynn">Saved!</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">8:30 PM – 10:30 PM</div>
+            <div class="summary-title-wrapper">
+              <h4>Return to Room, Pack & Digital Check-out</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Head back to Luxor, shower, change into comfy flight clothes, pack bags, and check out directly via the MGM app.</p>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">10:45 PM</div>
+            <div class="summary-title-wrapper">
+              <h4>Rideshare to LAS Airport</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>10-minute drive to Harry Reid Airport (LAS) to breeze through TSA before midnight.</p>
+          </div>
+        </details>
+
+        <details class="event-accordion">
+          <summary class="event-summary">
+            <div class="event-time">12:59 AM (Tue Dec 1)</div>
+            <div class="summary-title-wrapper">
+              <h4>Flight Departs to DTW ✈️</h4>
+              <span class="chevron-btn">▼</span>
+            </div>
+          </summary>
+          <div class="accordion-body">
+            <p>Board flight back to Detroit (landing at 1:23 PM, then drive back to Toledo).</p>
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <!-- PRACTICAL TRAVEL TIPS -->
+    <div class="section-title">💡 Pro Tips For Your Trip</div>
+    <div class="card">
+      <ul>
+        <li><strong>Toledo to DTW Drive:</strong> Allow at least 50–55 minutes via I-75 N to I-275 N at that early hour, plus parking shuttle time.</li>
+        <li><strong>Early Arrival Advantage:</strong> Arriving at 8:39 AM means you gain over 3 extra hours in Vegas on Friday morning! Drop bags at the Luxor bell desk immediately and enjoy brunch or sightseeing.</li>
+        <li><strong>MGM Digital Check-in ID Rule:</strong> First-time users still need to swing by the quick Mobile Check-In desk with a physical government ID + payment card to verify before digital keys unlock.</li>
+        <li><strong>Tacos El Gordo Lines:</strong> Each meat has its own line. Go straight to the <em>Adobada</em> line, order your tacos, take the plate, and pay at the register.</li>
+        <li><strong>SlotZilla Booking:</strong> Thanksgiving weekend gets busy; reserve your SlotZilla nighttime slot online in advance.</li>
+      </ul>
+    </div>
+
+    <footer>
+      Have an unforgettable time in Vegas! 🎰✨
+    </footer>
+  </div>
+
+  <!-- SCRIPT FOR LOCAL PHOTO UPLOAD & PERSISTENCE -->
+  <script>
+    // Handle image upload, preview, and save to LocalStorage
+    function uploadPhoto(event, imgElementId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Data = e.target.result;
+        const targetImg = document.getElementById(imgElementId);
+        if (targetImg) {
+          targetImg.src = base64Data;
+          try {
+            localStorage.setItem('vegas_trip_img_' + imgElementId, base64Data);
+            const statusEl = document.getElementById('status-' + imgElementId);
+            if (statusEl) {
+              statusEl.style.display = 'inline';
+              setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
+            }
+          } catch (err) {
+            console.warn('Storage limit reached, image previewed only:', err);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Load saved images on start
+    window.addEventListener('DOMContentLoaded', () => {
+      const allImages = document.querySelectorAll('img[id^="img-slot-"]');
+      allImages.forEach(img => {
+        const savedData = localStorage.getItem('vegas_trip_img_' + img.id);
+        if (savedData) {
+          img.src = savedData;
+        }
+      });
+    });
+
+    // Reset all customized photos to default
+    function resetAllCustomPhotos() {
+      if (confirm("Reset all uploaded pictures back to default?")) {
+        const allImages = document.querySelectorAll('img[id^="img-slot-"]');
+        allImages.forEach(img => {
+          localStorage.removeItem('vegas_trip_img_' + img.id);
+        });
+        location.reload();
+      }
+    }
+  </script>
+<!-- Load Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+  // 1. Paste your config here
+  const firebaseConfig = {
+  apiKey: "AIzaSyAoSe3ptwtsq-AznzSy8hk2F6WrbRGumeM",
+  authDomain: "vegassayhi.firebaseapp.com",
+  projectId: "vegassayhi",
+  storageBucket: "vegassayhi.firebasestorage.app",
+  messagingSenderId: "97224365863",
+  appId: "1:97224365863:web:b9f677d5c6b8b464663b02",
+  measurementId: "G-Z6ZBGSWBFJ"
+};
+
+  // 2. Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  // 3. Listen for changes in real time across all devices
+  onSnapshot(doc(db, "trip", "photos"), (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      // data contains your image URLs, updating all screens instantly
+      if (data.luxor) document.getElementById("img-slot-luxor").src = data.luxor;
+    }
+  });
+
+  // 4. Function to upload an image from any device
+  window.uploadToFirebase = async function(event, slotId) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Upload to Storage
+    const storageRef = ref(storage, `photos/${slotId}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+
+    // Save URL to Firestore
+    await setDoc(doc(db, "trip", "photos"), {
+      [slotId]: downloadURL
+    }, { merge: true });
+  };
+</script>
+</body>
+</html>
