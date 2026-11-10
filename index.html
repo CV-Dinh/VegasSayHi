@@ -129,11 +129,12 @@
           </div>
         </div>
 
-        <!-- Vegas Local Time (PST) ticker -->
-        <div class="text-right">
+        <!-- Vegas Local Time (PST) ticker + Cloud Status -->
+        <div class="text-right flex flex-col items-end">
           <div id="vegasClock" class="font-mono text-xs font-bold text-gold-400 tracking-wider">--:-- PST</div>
-          <div class="text-[10px] text-slate-400 font-medium flex items-center justify-end gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Vegas Time
+          <div id="cloudSyncStatus" class="text-[10px] text-emerald-400 font-medium flex items-center justify-end gap-1 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Cloud Sync</span>
           </div>
         </div>
       </div>
@@ -792,15 +793,21 @@
       const file = e.target.files[0];
       if (!file || !activeDiningSlot) return;
 
-      showToast('Compressing & Updating Photo...');
+      showToast('Compressing & Syncing to Cloud...');
+      setCloudStatus('Syncing photo...', 'text-amber-400');
       try {
         const compressed = await compressImageFile(file, 1000, 1000, 0.75);
         diningPhotos[activeDiningSlot] = compressed;
         saveDiningPhotos();
-        showToast('Dining photo updated! 🍽️📸');
+        
+        // Sync to Firebase so all devices see the updated dining photo
+        await syncDiningPhotoToFirebase(activeDiningSlot, compressed);
+        showToast('Dining photo synced to all devices! 🍽️☁️');
+        setCloudStatus('Cloud Sync', 'text-emerald-400');
       } catch (err) {
         console.error('Failed to update dining photo:', err);
         showToast('Could not process photo');
+        setCloudStatus('Sync error', 'text-rose-400');
       }
     });
 
@@ -815,15 +822,16 @@
       const deleteBtn = document.getElementById('lightboxDeleteBtn');
 
       modalTitle.textContent = title;
-      time.textContent = diningPhotos[slotId] ? 'Custom Uploaded Photo' : 'Default Stock Photo';
+      time.textContent = diningPhotos[slotId] ? 'Custom Uploaded Photo (Synced)' : 'Default Stock Photo';
       img.src = imgSrc;
 
       deleteBtn.textContent = 'Reset to Default';
-      deleteBtn.onclick = () => {
+      deleteBtn.onclick = async () => {
         if (diningPhotos[slotId]) {
           delete diningPhotos[slotId];
           saveDiningPhotos();
-          showToast('Photo reset to default');
+          await removeDiningPhotoFromFirebase(slotId);
+          showToast('Photo reset & synced across devices');
         }
         closeLightbox(null, true);
       };
@@ -832,10 +840,13 @@
     }
 
     function resetAllDiningPhotos() {
-      if (confirm('Reset all custom dining photos back to default?')) {
+      if (confirm('Reset all custom dining photos back to default across all devices?')) {
         diningPhotos = {};
         saveDiningPhotos();
-        showToast('All dining photos reset to default');
+        if (window.firebaseResetAllDining) {
+          window.firebaseResetAllDining();
+        }
+        showToast('All dining photos reset');
       }
     }
 
@@ -1355,6 +1366,14 @@
       updateCheckinProgress();
     }
 
+    // Cloud status helper
+    function setCloudStatus(msg, colorClass = 'text-emerald-400') {
+      const el = document.getElementById('cloudSyncStatus');
+      if (!el) return;
+      el.className = `text-[10px] font-medium flex items-center justify-end gap-1 mt-0.5 ${colorClass}`;
+      el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass.replace('text-', 'bg-')} animate-pulse"></span><span>${msg}</span>`;
+    }
+
     // Modal Add / Edit Card Handling
     function openCardModal(day = null, cardId = null) {
       const modal = document.getElementById('cardEditorModal');
@@ -1454,6 +1473,11 @@
 
       renderAlbumView();
       closeCardModal(null, true);
+
+      // Sync updated cards to Firebase Firestore
+      if (window.firebaseSyncSchedule) {
+        window.firebaseSyncSchedule(scheduleCards);
+      }
     }
 
     // Delete single schedule card
@@ -1468,11 +1492,19 @@
         if (checkinData[cardId]) {
           delete checkinData[cardId];
           saveCheckinStorage();
+          if (window.firebaseDeleteCheckin) {
+            window.firebaseDeleteCheckin(cardId);
+          }
         }
 
         renderItinerary();
         renderAlbumView();
         showToast('Stop removed from itinerary');
+
+        // Sync deletion across devices
+        if (window.firebaseSyncSchedule) {
+          window.firebaseSyncSchedule(scheduleCards);
+        }
       }
     }
 
@@ -1527,7 +1559,8 @@
       const file = e.target.files[0];
       if (!file || !activeSlotForPhoto) return;
 
-      showToast('Compressing & Saving...');
+      showToast('Compressing & Syncing...');
+      setCloudStatus('Syncing check-in...', 'text-amber-400');
 
       try {
         const compressedData = await compressImageFile(file);
@@ -1539,7 +1572,7 @@
         const dateOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
         const checkinTimestamp = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
 
-        checkinData[activeSlotForPhoto] = {
+        const checkinObj = {
           photo: compressedData,
           title: title,
           scheduledTime: scheduledTime,
@@ -1547,11 +1580,20 @@
           rawTime: Date.now()
         };
 
+        checkinData[activeSlotForPhoto] = checkinObj;
         saveCheckinStorage();
-        showToast('Check-in Photo Saved! 📸');
+
+        // Push checkin to Firebase Cloud
+        if (window.firebaseSyncCheckin) {
+          await window.firebaseSyncCheckin(activeSlotForPhoto, checkinObj);
+        }
+
+        showToast('Check-in Photo Synced to All Devices! 📸☁️');
+        setCloudStatus('Cloud Sync', 'text-emerald-400');
       } catch (err) {
         console.error('Image processing error:', err);
         showToast('Error saving picture. Please try again.');
+        setCloudStatus('Sync error', 'text-rose-400');
       }
     });
 
@@ -1624,6 +1666,9 @@
       if (confirm('Delete this check-in photo?')) {
         delete checkinData[slotId];
         saveCheckinStorage();
+        if (window.firebaseDeleteCheckin) {
+          window.firebaseDeleteCheckin(slotId);
+        }
         showToast('Check-in deleted');
       }
     }
@@ -1633,6 +1678,9 @@
       if (confirm('Clear ALL check-in photos from your trip album?')) {
         checkinData = {};
         saveCheckinStorage();
+        if (window.firebaseClearAllCheckins) {
+          window.firebaseClearAllCheckins();
+        }
         showToast('Trip album cleared');
       }
     }
@@ -2041,6 +2089,189 @@
       renderAlbumView();
       updateCheckinProgress();
     });
+  </script>
+
+  <!-- ================= FIREBASE REAL-TIME CLOUD SYNC ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      updateDoc, 
+      deleteField, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Your Firebase Project Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoSe3ptwtsq-AznzSy8hk2F6WrbRGumeM",
+      authDomain: "vegassayhi.firebaseapp.com",
+      projectId: "vegassayhi",
+      storageBucket: "vegassayhi.firebasestorage.app",
+      messagingSenderId: "97224365863",
+      appId: "1:97224365863:web:b9f677d5c6b8b464663b02",
+      measurementId: "G-Z6ZBGSWBFJ"
+    };
+
+    let app, db;
+    try {
+      app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      setCloudStatus('Cloud Sync', 'text-emerald-400');
+    } catch (e) {
+      console.error("Firebase initialization failed:", e);
+      setCloudStatus('Offline Mode', 'text-slate-400');
+    }
+
+    if (db) {
+      // 1. Real-time Listener for Dining Photos
+      onSnapshot(doc(db, "trip", "dining_photos"), (docSnap) => {
+        if (docSnap.exists()) {
+          const cloudDining = docSnap.data();
+          let changed = false;
+          Object.keys(cloudDining).forEach(key => {
+            if (cloudDining[key] && diningPhotos[key] !== cloudDining[key]) {
+              diningPhotos[key] = cloudDining[key];
+              changed = true;
+            }
+          });
+          // Also check for deletions/resets
+          Object.keys(diningPhotos).forEach(key => {
+            if (!cloudDining[key]) {
+              delete diningPhotos[key];
+              changed = true;
+            }
+          });
+
+          if (changed) {
+            saveDiningPhotos();
+          }
+        }
+      }, (error) => {
+        console.warn("Dining photos cloud sync notice:", error);
+      });
+
+      // 2. Real-time Listener for Check-Ins
+      onSnapshot(doc(db, "trip", "checkins"), (docSnap) => {
+        if (docSnap.exists()) {
+          const cloudCheckins = docSnap.data();
+          let changed = false;
+          Object.keys(cloudCheckins).forEach(slotId => {
+            if (cloudCheckins[slotId] && (!checkinData[slotId] || checkinData[slotId].rawTime !== cloudCheckins[slotId].rawTime)) {
+              checkinData[slotId] = cloudCheckins[slotId];
+              changed = true;
+            }
+          });
+          // Handle deleted checkins
+          Object.keys(checkinData).forEach(slotId => {
+            if (!cloudCheckins[slotId]) {
+              delete checkinData[slotId];
+              changed = true;
+            }
+          });
+
+          if (changed) {
+            saveCheckinStorage();
+          }
+        }
+      }, (error) => {
+        console.warn("Checkins cloud sync notice:", error);
+      });
+
+      // 3. Real-time Listener for Dynamic Cards / Schedule Changes
+      onSnapshot(doc(db, "trip", "itinerary"), (docSnap) => {
+        if (docSnap.exists()) {
+          const cloudItinerary = docSnap.data();
+          if (cloudItinerary && Array.isArray(cloudItinerary.cards) && cloudItinerary.cards.length > 0) {
+            if (JSON.stringify(scheduleCards) !== JSON.stringify(cloudItinerary.cards)) {
+              scheduleCards = cloudItinerary.cards;
+              saveScheduleStorage();
+              renderItinerary();
+              renderAlbumView();
+              updateCheckinProgress();
+            }
+          }
+        }
+      }, (error) => {
+        console.warn("Itinerary cloud sync notice:", error);
+      });
+    }
+
+    // Expose helpers globally to hook into UI events
+    window.syncDiningPhotoToFirebase = async function(slotId, base64Data) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "dining_photos"), {
+          [slotId]: base64Data
+        }, { merge: true });
+      } catch (err) {
+        console.error("Firestore syncDiningPhoto error:", err);
+      }
+    };
+
+    window.removeDiningPhotoFromFirebase = async function(slotId) {
+      if (!db) return;
+      try {
+        await updateDoc(doc(db, "trip", "dining_photos"), {
+          [slotId]: deleteField()
+        });
+      } catch (err) {
+        console.error("Firestore removeDiningPhoto error:", err);
+      }
+    };
+
+    window.firebaseResetAllDining = async function() {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "dining_photos"), {});
+      } catch (err) {
+        console.error("Firestore resetAllDining error:", err);
+      }
+    };
+
+    window.firebaseSyncCheckin = async function(slotId, checkinObj) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "checkins"), {
+          [slotId]: checkinObj
+        }, { merge: true });
+      } catch (err) {
+        console.error("Firestore syncCheckin error:", err);
+      }
+    };
+
+    window.firebaseDeleteCheckin = async function(slotId) {
+      if (!db) return;
+      try {
+        await updateDoc(doc(db, "trip", "checkins"), {
+          [slotId]: deleteField()
+        });
+      } catch (err) {
+        console.error("Firestore deleteCheckin error:", err);
+      }
+    };
+
+    window.firebaseClearAllCheckins = async function() {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "checkins"), {});
+      } catch (err) {
+        console.error("Firestore clearAllCheckins error:", err);
+      }
+    };
+
+    window.firebaseSyncSchedule = async function(cardsList) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "itinerary"), {
+          cards: cardsList,
+          updatedAt: Date.now()
+        }, { merge: true });
+      } catch (err) {
+        console.error("Firestore syncSchedule error:", err);
+      }
+    };
   </script>
 </body>
 </html>
