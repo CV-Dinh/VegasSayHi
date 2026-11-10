@@ -107,6 +107,13 @@
       margin: 8px 10px;
       line-height: 1.4;
     }
+    /* Instagram Story Gradient Rings & Story Cards */
+    .story-ring-gradient {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    }
+    .story-ring-gold {
+      background: linear-gradient(135deg, #c59b27, #f6d878, #e5be47, #f59e0b);
+    }
   </style>
 </head>
 <body class="font-sans antialiased text-slate-100 min-h-screen bg-dark-950 selection:bg-gold-500/30">
@@ -1395,47 +1402,83 @@
 
         let checkinSlotHtml = '';
         if (photos.length > 0) {
-          const photoThumbnails = photos.map((p, idx) => `
-            <div class="relative flex-shrink-0 group">
-              <img src="${p.dataUrl}" onclick="openLightbox('${card.id}', ${idx})" alt="Check-in Photo" class="w-16 h-16 rounded-xl object-cover border border-emerald-500/40 cursor-pointer tap-effect">
-              <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] shadow tap-effect hover:scale-110" title="Delete photo">
+          const featuredPhoto = photos[photos.length - 1]; // most recent photo
+          
+          const storyAvatars = photos.map((p, idx) => `
+            <div class="relative flex-shrink-0 flex flex-col items-center group cursor-pointer tap-effect" onclick="openLightbox('${card.id}', ${idx})">
+              <div class="w-13 h-13 p-[2px] rounded-full story-ring-gradient shadow-md">
+                <div class="p-[2px] bg-dark-900 rounded-full">
+                  <img src="${p.dataUrl}" alt="Story" class="w-11 h-11 rounded-full object-cover">
+                </div>
+              </div>
+              <span class="text-[9px] text-slate-300 font-medium mt-1 truncate max-w-[52px]">Story ${idx + 1}</span>
+              <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/80 text-white border border-white/20 flex items-center justify-center text-[9px] shadow hover:scale-110" title="Delete">
                 <i class="ph-bold ph-x"></i>
               </button>
             </div>
           `).join('');
 
           checkinSlotHtml = `
-            <div class="space-y-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2.5">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-mono">
-                    <i class="ph-bold ph-check"></i> ${photos.length} Photo${photos.length > 1 ? 's' : ''} Checked In
-                  </span>
-                </div>
-                <div class="flex items-center gap-1">
-                  <button onclick="triggerCheckinSnap('${card.id}')" class="tap-effect px-2.5 py-1 rounded-lg bg-emerald-400 text-dark-950 text-[11px] font-bold flex items-center gap-1 shadow-sm">
-                    <i class="ph-bold ph-plus-circle"></i> Add Photo
-                  </button>
-                  <button onclick="deleteAllCheckinPhotosForStop('${card.id}')" class="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center justify-center text-xs tap-effect hover:bg-rose-500/25" title="Remove all photos">
-                    <i class="ph-bold ph-trash"></i>
-                  </button>
+            <div class="space-y-2.5">
+              <!-- Instagram Story Hero Card -->
+              <div class="relative rounded-2xl overflow-hidden border border-white/10 group cursor-pointer tap-effect shadow-lg" onclick="openLightbox('${card.id}', ${photos.length - 1})">
+                <img src="${featuredPhoto.dataUrl}" alt="Latest Story" class="w-full h-44 object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-between p-3">
+                  <!-- Story Pill & Count -->
+                  <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white border border-white/15 font-mono">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      ${photos.length} Stor${photos.length > 1 ? 'ies' : 'y'} Check-in
+                    </span>
+                    <button onclick="deleteAllCheckinPhotosForStop('${card.id}'); event.stopPropagation();" class="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md text-slate-300 hover:text-rose-400 border border-white/15 flex items-center justify-center text-xs tap-effect" title="Delete all">
+                      <i class="ph-bold ph-trash"></i>
+                    </button>
+                  </div>
+                  <!-- Story Caption Timestamp -->
+                  <div class="flex items-end justify-between">
+                    <div>
+                      <p class="text-[10px] text-slate-300 font-mono flex items-center gap-1">
+                        <i class="ph-bold ph-clock text-gold-400"></i> ${featuredPhoto.checkinTimestamp}
+                      </p>
+                      <p class="text-xs font-bold text-white tracking-tight mt-0.5">Tap to view full story ➔</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                ${photoThumbnails}
-                <button onclick="triggerCheckinSnap('${card.id}')" class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-emerald-500/30 hover:border-emerald-400/60 bg-emerald-500/5 flex flex-col items-center justify-center text-emerald-400 tap-effect transition-colors">
-                  <i class="ph-bold ph-camera-plus text-lg"></i>
-                  <span class="text-[9px] font-bold mt-0.5">Add</span>
-                </button>
+
+              <!-- Instagram Story Highlights Bubbles -->
+              <div class="flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5">
+                <!-- Add Story Bubble -->
+                <div onclick="triggerCheckinSnap('${card.id}')" class="flex-shrink-0 flex flex-col items-center cursor-pointer tap-effect">
+                  <div class="w-13 h-13 p-[2px] rounded-full border-2 border-dashed border-gold-400/60 bg-gold-400/5 flex items-center justify-center">
+                    <div class="w-11 h-11 rounded-full bg-dark-800 flex items-center justify-center text-gold-400">
+                      <i class="ph-bold ph-plus text-base"></i>
+                    </div>
+                  </div>
+                  <span class="text-[9px] text-gold-400 font-semibold mt-1">Add Story</span>
+                </div>
+                ${storyAvatars}
               </div>
             </div>
           `;
         } else {
           checkinSlotHtml = `
-            <button onclick="triggerCheckinSnap('${card.id}')" class="w-full tap-effect py-2.5 rounded-xl bg-dark-750/70 border border-white/10 hover:border-gold-500/40 text-xs font-semibold text-slate-300 hover:text-gold-400 flex items-center justify-center gap-1.5 transition-colors">
-              <i class="ph-bold ph-camera text-gold-400 text-sm"></i>
-              <span>Snap Check-In Photos</span>
-            </button>
+            <div onclick="triggerCheckinSnap('${card.id}')" class="cursor-pointer tap-effect p-3 rounded-2xl bg-gradient-to-r from-dark-800 to-dark-750 border border-white/10 hover:border-gold-500/40 flex items-center justify-between transition-all group">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full story-ring-gradient p-[2px] flex items-center justify-center shadow-md">
+                  <div class="w-full h-full bg-dark-900 rounded-full flex items-center justify-center text-white">
+                    <i class="ph-bold ph-plus text-sm group-hover:scale-110 transition-transform"></i>
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white group-hover:text-gold-400 transition-colors">Add Check-In Story</h4>
+                  <p class="text-[10px] text-slate-400">Snap or select photos for this stop</p>
+                </div>
+              </div>
+              <span class="text-gold-400 text-xs font-bold flex items-center gap-1 font-mono">
+                📸 <i class="ph-bold ph-caret-right"></i>
+              </span>
+            </div>
           `;
         }
 
