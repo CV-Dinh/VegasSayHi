@@ -593,9 +593,20 @@
         <img id="lightboxImage" src="" alt="Full view" class="max-w-full max-h-[70vh] rounded-2xl object-contain shadow-2xl border border-white/10">
       </div>
 
-      <div class="flex items-center justify-between gap-3 pb-safe pt-2">
+      <!-- Lightbox Photo Navigation & Controls -->
+      <div id="lightboxNavControls" class="flex items-center justify-between px-2 pb-2 text-white">
+        <button id="lightboxPrevBtn" onclick="prevLightboxPhoto(event)" class="px-3 py-1.5 rounded-xl bg-dark-750 border border-white/10 text-xs font-bold tap-effect flex items-center gap-1">
+          <i class="ph-bold ph-caret-left"></i> Prev
+        </button>
+        <span id="lightboxCounter" class="text-xs font-mono text-slate-300">1 / 1</span>
+        <button id="lightboxNextBtn" onclick="nextLightboxPhoto(event)" class="px-3 py-1.5 rounded-xl bg-dark-750 border border-white/10 text-xs font-bold tap-effect flex items-center gap-1">
+          Next <i class="ph-bold ph-caret-right"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between gap-3 pb-safe pt-1">
         <button id="lightboxDeleteBtn" class="flex-1 py-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-bold tap-effect flex items-center justify-center gap-1.5">
-          <i class="ph-bold ph-trash"></i> Delete Photo
+          <i class="ph-bold ph-trash"></i> Delete This Photo
         </button>
         <button onclick="closeLightbox(null, true)" class="flex-1 py-2.5 rounded-xl bg-dark-750 text-white text-xs font-bold border border-white/10 tap-effect">
           Done
@@ -714,8 +725,8 @@
       </div>
     </div>
 
-    <!-- Hidden native file input for snap or pick -->
-    <input type="file" id="cameraFileInput" accept="image/*" class="hidden">
+    <!-- Hidden native file input for snap or pick (multiple allowed) -->
+    <input type="file" id="cameraFileInput" accept="image/*" multiple class="hidden">
     <!-- Hidden native file input for dining photo replacement -->
     <input type="file" id="diningFileInput" accept="image/*" class="hidden">
 
@@ -729,10 +740,81 @@
 
   <!-- ================= JAVASCRIPT APP LOGIC ================= -->
   <script>
+    // Global Cloud status helper available immediately across all scripts
+    window.setCloudStatus = function(msg, colorClass = 'text-emerald-400') {
+      const el = document.getElementById('cloudSyncStatus');
+      if (!el) return;
+      el.className = `text-[10px] font-medium flex items-center justify-end gap-1 mt-0.5 ${colorClass}`;
+      el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass.replace('text-', 'bg-')} animate-pulse"></span><span>${msg}</span>`;
+    };
+
+    // Client-side canvas image compression helper
+    window.compressImageFile = function(file, maxW = 900, maxH = 900, quality = 0.72) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = function() {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxW) {
+                height = Math.round((height * maxW) / width);
+                width = maxW;
+              }
+            } else {
+              if (height > maxH) {
+                width = Math.round((width * maxH) / height);
+                height = maxH;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+
+    // Vegas live clock ticker (PST)
+    function updateVegasClock() {
+      const clockEl = document.getElementById('vegasClock');
+      if (!clockEl) return;
+      const options = {
+        timeZone: 'America/Los_Angeles',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      };
+      try {
+        const timeStr = new Intl.DateTimeFormat('en-US', options).format(new Date());
+        clockEl.textContent = `${timeStr} PST`;
+      } catch (err) {
+        clockEl.textContent = 'PST';
+      }
+    }
+    setInterval(updateVegasClock, 1000);
+    updateVegasClock();
+
     // In-memory checkin state (stored in localStorage under 'vegas_checkins_v1')
+    // Data structure: { [slotId]: { title, scheduledTime, photos: [ { id, dataUrl, checkinTimestamp, rawTime } ] } }
     let checkinData = {};
     let activeSlotForPhoto = null;
     let currentSelectedDay = 'fri';
+
+    // Lightbox navigation state
+    let activeLightboxSlotId = null;
+    let activeLightboxPhotoIdx = 0;
+    let isDiningLightbox = false;
 
     // Default stock photos for dining section
     const defaultDiningPhotos = {
@@ -815,11 +897,15 @@
       const imgSrc = diningPhotos[slotId] || defaultDiningPhotos[slotId];
       if (!imgSrc) return;
 
+      isDiningLightbox = true;
       const modal = document.getElementById('photoLightboxModal');
       const img = document.getElementById('lightboxImage');
       const modalTitle = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
       const deleteBtn = document.getElementById('lightboxDeleteBtn');
+      const navControls = document.getElementById('lightboxNavControls');
+
+      if (navControls) navControls.classList.add('hidden');
 
       modalTitle.textContent = title;
       time.textContent = diningPhotos[slotId] ? 'Custom Uploaded Photo (Synced)' : 'Default Stock Photo';
@@ -1162,29 +1248,29 @@
         console.warn('LocalStorage error while saving cards:', e);
       }
     }
-
-    // Local Las Vegas Clock Ticker (PST/PDT)
-    function updateVegasTime() {
-      const clock = document.getElementById('vegasClock');
-      if (!clock) return;
-      const now = new Date();
-      const options = {
-        timeZone: 'America/Los_Angeles',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      };
-      clock.textContent = new Intl.DateTimeFormat('en-US', options).format(now) + ' PST';
-    }
-    setInterval(updateVegasTime, 1000);
-    updateVegasTime();
-
-    // Load persisted check-ins
+    // Load persisted check-ins and normalize legacy single-photo entries to photos array
     function loadCheckinStorage() {
       try {
         const stored = localStorage.getItem('vegas_checkins_v1');
         if (stored) {
-          checkinData = JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          Object.keys(parsed).forEach(slotId => {
+            const entry = parsed[slotId];
+            if (entry && !Array.isArray(entry.photos)) {
+              if (entry.photo) {
+                entry.photos = [{
+                  id: 'p-' + (entry.rawTime || Date.now()),
+                  dataUrl: entry.photo,
+                  checkinTimestamp: entry.checkinTimestamp || 'Checked In',
+                  rawTime: entry.rawTime || Date.now()
+                }];
+                delete entry.photo;
+              } else {
+                entry.photos = [];
+              }
+            }
+          });
+          checkinData = parsed;
         }
       } catch (e) {
         console.warn('Could not read check-in storage:', e);
@@ -1244,16 +1330,25 @@
             tagBg: 'bg-gold-400/15 text-gold-300',
             border: 'border-gold-500/25'
           };
+        case 'travel':
         default:
           return {
-            timeColor: 'text-slate-300',
-            tagBg: 'bg-white/10 text-slate-200',
+            timeColor: 'text-sky-400',
+            tagBg: 'bg-sky-400/15 text-sky-300',
             border: 'border-white/10'
           };
       }
     }
 
-    // Render cards for the currently selected day
+    // Trigger file picker for checkin capture
+    function triggerCheckinSnap(slotId) {
+      activeSlotForPhoto = slotId;
+      const input = document.getElementById('cameraFileInput');
+      input.value = '';
+      input.click();
+    }
+
+    // Render cards for the currently selected day with multi-photo gallery
     function renderItinerary() {
       const container = document.getElementById('itineraryContainer');
       if (!container) return;
@@ -1280,6 +1375,7 @@
       container.innerHTML = cards.map(card => {
         const style = getCategoryStyle(card.category);
         const checkin = checkinData[card.id];
+        const photos = (checkin && Array.isArray(checkin.photos)) ? checkin.photos : [];
 
         let actionButtonsHtml = '';
         if (card.mapStop) {
@@ -1298,35 +1394,47 @@
         }
 
         let checkinSlotHtml = '';
-        if (checkin && checkin.photo) {
+        if (photos.length > 0) {
+          const photoThumbnails = photos.map((p, idx) => `
+            <div class="relative flex-shrink-0 group">
+              <img src="${p.dataUrl}" onclick="openLightbox('${card.id}', ${idx})" alt="Check-in Photo" class="w-16 h-16 rounded-xl object-cover border border-emerald-500/40 cursor-pointer tap-effect">
+              <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] shadow tap-effect hover:scale-110" title="Delete photo">
+                <i class="ph-bold ph-x"></i>
+              </button>
+            </div>
+          `).join('');
+
           checkinSlotHtml = `
-            <div class="flex items-center justify-between gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2">
-              <div class="flex items-center gap-2.5 overflow-hidden">
-                <img src="${checkin.photo}" onclick="openLightbox('${card.id}')" alt="Check-in Photo" class="w-12 h-12 rounded-lg object-cover border border-emerald-500/50 cursor-pointer tap-effect flex-shrink-0">
-                <div class="min-w-0">
-                  <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-400/20 px-1.5 py-0.2 rounded uppercase tracking-wider">
-                    <i class="ph-bold ph-check"></i> Checked In
+            <div class="space-y-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-mono">
+                    <i class="ph-bold ph-check"></i> ${photos.length} Photo${photos.length > 1 ? 's' : ''} Checked In
                   </span>
-                  <div class="text-[11px] text-slate-300 font-mono truncate mt-0.5">
-                    ${checkin.checkinTimestamp}
-                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="triggerCheckinSnap('${card.id}')" class="tap-effect px-2.5 py-1 rounded-lg bg-emerald-400 text-dark-950 text-[11px] font-bold flex items-center gap-1 shadow-sm">
+                    <i class="ph-bold ph-plus-circle"></i> Add Photo
+                  </button>
+                  <button onclick="deleteAllCheckinPhotosForStop('${card.id}')" class="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center justify-center text-xs tap-effect hover:bg-rose-500/25" title="Remove all photos">
+                    <i class="ph-bold ph-trash"></i>
+                  </button>
                 </div>
               </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0">
-                <button onclick="triggerCheckinSnap('${card.id}')" class="w-7 h-7 rounded-lg bg-dark-750 text-slate-300 border border-white/10 flex items-center justify-center text-xs tap-effect hover:text-white" title="Change Photo">
-                  <i class="ph-bold ph-arrows-clockwise"></i>
-                </button>
-                <button onclick="deleteCheckin('${card.id}')" class="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center justify-center text-xs tap-effect hover:bg-rose-500/25" title="Remove Check-in">
-                  <i class="ph-bold ph-trash"></i>
+              <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                ${photoThumbnails}
+                <button onclick="triggerCheckinSnap('${card.id}')" class="flex-shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-emerald-500/30 hover:border-emerald-400/60 bg-emerald-500/5 flex flex-col items-center justify-center text-emerald-400 tap-effect transition-colors">
+                  <i class="ph-bold ph-camera-plus text-lg"></i>
+                  <span class="text-[9px] font-bold mt-0.5">Add</span>
                 </button>
               </div>
             </div>
           `;
         } else {
           checkinSlotHtml = `
-            <button onclick="triggerCheckinSnap('${card.id}')" class="w-full tap-effect py-2 rounded-xl bg-dark-750/70 border border-white/10 hover:border-gold-500/40 text-xs font-semibold text-slate-300 hover:text-gold-400 flex items-center justify-center gap-1.5 transition-colors">
+            <button onclick="triggerCheckinSnap('${card.id}')" class="w-full tap-effect py-2.5 rounded-xl bg-dark-750/70 border border-white/10 hover:border-gold-500/40 text-xs font-semibold text-slate-300 hover:text-gold-400 flex items-center justify-center gap-1.5 transition-colors">
               <i class="ph-bold ph-camera text-gold-400 text-sm"></i>
-              <span>Snap Check-In Photo</span>
+              <span>Snap Check-In Photos</span>
             </button>
           `;
         }
@@ -1364,14 +1472,6 @@
       }).join('');
 
       updateCheckinProgress();
-    }
-
-    // Cloud status helper
-    function setCloudStatus(msg, colorClass = 'text-emerald-400') {
-      const el = document.getElementById('cloudSyncStatus');
-      if (!el) return;
-      el.className = `text-[10px] font-medium flex items-center justify-end gap-1 mt-0.5 ${colorClass}`;
-      el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass.replace('text-', 'bg-')} animate-pulse"></span><span>${msg}</span>`;
     }
 
     // Modal Add / Edit Card Handling
@@ -1463,32 +1563,22 @@
       }
 
       saveScheduleStorage();
-
-      // If card was assigned to a different day, switch to that day view
-      if (day !== currentSelectedDay) {
-        switchDay(day);
-      } else {
-        renderItinerary();
-      }
-
-      renderAlbumView();
-      closeCardModal(null, true);
-
-      // Sync updated cards to Firebase Firestore
       if (window.firebaseSyncSchedule) {
         window.firebaseSyncSchedule(scheduleCards);
       }
+
+      closeCardModal(null, true);
+      renderItinerary();
+      renderAlbumView();
     }
 
-    // Delete single schedule card
     function deleteScheduleCard(cardId) {
-      const card = scheduleCards.find(c => c.id === cardId);
-      const title = card ? card.title : 'this stop';
-      if (confirm(`Delete "${title}" from your itinerary?`)) {
+      if (confirm('Delete this stop from the itinerary?')) {
         scheduleCards = scheduleCards.filter(c => c.id !== cardId);
         saveScheduleStorage();
-
-        // Also clean up check-in photo if any
+        if (window.firebaseSyncSchedule) {
+          window.firebaseSyncSchedule(scheduleCards);
+        }
         if (checkinData[cardId]) {
           delete checkinData[cardId];
           saveCheckinStorage();
@@ -1496,108 +1586,105 @@
             window.firebaseDeleteCheckin(cardId);
           }
         }
-
+        showToast('Stop deleted');
         renderItinerary();
         renderAlbumView();
-        showToast('Stop removed from itinerary');
-
-        // Sync deletion across devices
-        if (window.firebaseSyncSchedule) {
-          window.firebaseSyncSchedule(scheduleCards);
-        }
       }
     }
 
-    // Client-side image compression using canvas
-    function compressImageFile(file, maxWidth = 900, maxHeight = 900, quality = 0.72) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = event => {
-          const img = new Image();
-          img.src = event.target.result;
-          img.onload = () => {
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-              if (width > maxWidth) {
-                height = Math.round((height * maxWidth) / width);
-                width = maxWidth;
-              }
-            } else {
-              if (height > maxHeight) {
-                width = Math.round((width * maxHeight) / height);
-                height = maxHeight;
-              }
-            }
-
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-            resolve(compressedBase64);
-          };
-          img.onerror = err => reject(err);
-        };
-        reader.onerror = err => reject(err);
-      });
-    }
-
-    // Trigger photo upload or camera snap for a given slot
-    function triggerCheckinSnap(slotId) {
-      activeSlotForPhoto = slotId;
-      const input = document.getElementById('cameraFileInput');
-      input.value = '';
-      input.click();
-    }
-
-    // Handle photo file selection
+    // Handle multi-photo selection and append to stop
     document.getElementById('cameraFileInput').addEventListener('change', async function(e) {
-      const file = e.target.files[0];
-      if (!file || !activeSlotForPhoto) return;
+      const files = Array.from(e.target.files || []);
+      if (!files.length || !activeSlotForPhoto) return;
 
-      showToast('Compressing & Syncing...');
+      showToast(`Compressing ${files.length} photo${files.length > 1 ? 's' : ''}...`);
       setCloudStatus('Syncing check-in...', 'text-amber-400');
 
       try {
-        const compressedData = await compressImageFile(file);
         const card = scheduleCards.find(c => c.id === activeSlotForPhoto);
         const title = card ? card.title : 'Vegas Activity';
         const scheduledTime = card ? card.timeLabel : '';
 
-        const now = new Date();
-        const dateOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-        const checkinTimestamp = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
-
-        const checkinObj = {
-          photo: compressedData,
-          title: title,
-          scheduledTime: scheduledTime,
-          checkinTimestamp: checkinTimestamp,
-          rawTime: Date.now()
-        };
-
-        checkinData[activeSlotForPhoto] = checkinObj;
-        saveCheckinStorage();
-
-        // Push checkin to Firebase Cloud
-        if (window.firebaseSyncCheckin) {
-          await window.firebaseSyncCheckin(activeSlotForPhoto, checkinObj);
+        if (!checkinData[activeSlotForPhoto]) {
+          checkinData[activeSlotForPhoto] = {
+            title: title,
+            scheduledTime: scheduledTime,
+            photos: []
+          };
+        } else if (!Array.isArray(checkinData[activeSlotForPhoto].photos)) {
+          checkinData[activeSlotForPhoto].photos = [];
         }
 
-        showToast('Check-in Photo Synced to All Devices! 📸☁️');
+        const now = new Date();
+        const dateOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+        const formattedTimestamp = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
+
+        for (const file of files) {
+          const compressedData = await compressImageFile(file, 900, 900, 0.72);
+          checkinData[activeSlotForPhoto].photos.push({
+            id: 'p-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+            dataUrl: compressedData,
+            checkinTimestamp: formattedTimestamp,
+            rawTime: Date.now()
+          });
+        }
+
+        checkinData[activeSlotForPhoto].title = title;
+        checkinData[activeSlotForPhoto].scheduledTime = scheduledTime;
+
+        saveCheckinStorage();
+
+        // Push full multi-photo checkin record to Firestore
+        if (window.firebaseSyncCheckin) {
+          await window.firebaseSyncCheckin(activeSlotForPhoto, checkinData[activeSlotForPhoto]);
+        }
+
+        showToast(`${files.length} photo${files.length > 1 ? 's' : ''} added & synced! 📸☁️`);
         setCloudStatus('Cloud Sync', 'text-emerald-400');
       } catch (err) {
         console.error('Image processing error:', err);
-        showToast('Error saving picture. Please try again.');
+        showToast('Error saving picture(s). Please try again.');
         setCloudStatus('Sync error', 'text-rose-400');
       }
     });
 
-    // Render the Scrapbook / Album View
+    // Delete a single photo from a checkin stop
+    async function deleteSinglePhoto(slotId, photoId, event) {
+      if (event) event.stopPropagation();
+      const checkin = checkinData[slotId];
+      if (!checkin || !Array.isArray(checkin.photos)) return;
+
+      if (confirm('Delete this photo?')) {
+        checkin.photos = checkin.photos.filter(p => p.id !== photoId);
+        if (checkin.photos.length === 0) {
+          delete checkinData[slotId];
+          saveCheckinStorage();
+          if (window.firebaseDeleteCheckin) {
+            await window.firebaseDeleteCheckin(slotId);
+          }
+        } else {
+          saveCheckinStorage();
+          if (window.firebaseSyncCheckin) {
+            await window.firebaseSyncCheckin(slotId, checkin);
+          }
+        }
+        showToast('Photo removed');
+      }
+    }
+
+    // Delete all checkin photos for a stop
+    async function deleteAllCheckinPhotosForStop(slotId) {
+      if (confirm('Remove all check-in photos for this stop?')) {
+        delete checkinData[slotId];
+        saveCheckinStorage();
+        if (window.firebaseDeleteCheckin) {
+          await window.firebaseDeleteCheckin(slotId);
+        }
+        showToast('Check-ins cleared for stop');
+      }
+    }
+
+    // Render the Scrapbook / Album View showing ALL individual photos
     function renderAlbumView() {
       const albumGrid = document.getElementById('albumGrid');
       const emptyState = document.getElementById('albumEmptyState');
@@ -1606,12 +1693,33 @@
       const remainingStat = document.getElementById('albumRemainingStat');
       const storageStat = document.getElementById('albumStorageStat');
 
-      const entries = Object.entries(checkinData).filter(([_, item]) => item && item.photo);
+      // Flatten every photo across all stops
+      const flattenedPhotos = [];
+      Object.entries(checkinData).forEach(([slotId, entry]) => {
+        if (entry && Array.isArray(entry.photos)) {
+          entry.photos.forEach((photo, pIdx) => {
+            if (photo && photo.dataUrl) {
+              flattenedPhotos.push({
+                slotId,
+                photoIndex: pIdx,
+                photoId: photo.id,
+                dataUrl: photo.dataUrl,
+                title: entry.title || 'Vegas Activity',
+                scheduledTime: entry.scheduledTime || '',
+                checkinTimestamp: photo.checkinTimestamp || 'Checked In',
+                rawTime: photo.rawTime || 0
+              });
+            }
+          });
+        }
+      });
+
       const totalSlots = scheduleCards.length || 17;
-      const count = entries.length;
+      const count = flattenedPhotos.length;
 
       if (countStat) countStat.textContent = count;
-      if (remainingStat) remainingStat.textContent = Math.max(0, totalSlots - count);
+      const completedStops = Object.keys(checkinData).filter(k => checkinData[k] && Array.isArray(checkinData[k].photos) && checkinData[k].photos.length > 0).length;
+      if (remainingStat) remainingStat.textContent = Math.max(0, totalSlots - completedStops);
 
       // Estimate bytes stored
       const rawString = JSON.stringify(checkinData);
@@ -1629,13 +1737,13 @@
       if (albumBadge) albumBadge.classList.remove('hidden');
 
       // Sort chronological
-      entries.sort((a, b) => (a[1].rawTime || 0) - (b[1].rawTime || 0));
+      flattenedPhotos.sort((a, b) => (a.rawTime || 0) - (b.rawTime || 0));
 
       if (albumGrid) {
-        albumGrid.innerHTML = entries.map(([slotId, item]) => `
+        albumGrid.innerHTML = flattenedPhotos.map(item => `
           <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-2">
-            <div class="relative rounded-xl overflow-hidden group cursor-pointer tap-effect" onclick="openLightbox('${slotId}')">
-              <img src="${item.photo}" class="w-full h-36 object-cover" alt="${item.title}">
+            <div class="relative rounded-xl overflow-hidden group cursor-pointer tap-effect" onclick="openLightbox('${item.slotId}', ${item.photoIndex})">
+              <img src="${item.dataUrl}" class="w-full h-36 object-cover" alt="${item.title}">
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
                 <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
               </div>
@@ -1652,7 +1760,7 @@
     // Update overall progress bar
     function updateCheckinProgress() {
       const totalSlots = scheduleCards.length || 17;
-      const completed = Object.keys(checkinData).filter(k => checkinData[k] && checkinData[k].photo).length;
+      const completed = Object.keys(checkinData).filter(k => checkinData[k] && Array.isArray(checkinData[k].photos) && checkinData[k].photos.length > 0).length;
       const pct = totalSlots > 0 ? Math.round((completed / totalSlots) * 100) : 0;
 
       const text = document.getElementById('progressCheckinText');
@@ -1661,53 +1769,76 @@
       if (bar) bar.style.width = `${pct}%`;
     }
 
-    // Delete single checkin
-    function deleteCheckin(slotId) {
-      if (confirm('Delete this check-in photo?')) {
-        delete checkinData[slotId];
-        saveCheckinStorage();
-        if (window.firebaseDeleteCheckin) {
-          window.firebaseDeleteCheckin(slotId);
-        }
-        showToast('Check-in deleted');
-      }
-    }
-
-    // Clear all checkins
-    function clearAllCheckinPhotos() {
-      if (confirm('Clear ALL check-in photos from your trip album?')) {
-        checkinData = {};
-        saveCheckinStorage();
-        if (window.firebaseClearAllCheckins) {
-          window.firebaseClearAllCheckins();
-        }
-        showToast('Trip album cleared');
-      }
-    }
-
-    // Lightbox Fullscreen viewer
-    let currentLightboxSlot = null;
-    function openLightbox(slotId) {
+    // Lightbox Fullscreen viewer with multi-photo gallery navigation
+    function openLightbox(slotId, photoIdx = 0) {
       const checkin = checkinData[slotId];
-      if (!checkin || !checkin.photo) return;
-      currentLightboxSlot = slotId;
+      if (!checkin || !Array.isArray(checkin.photos) || !checkin.photos.length) return;
 
-      const modal = document.getElementById('photoLightboxModal');
+      isDiningLightbox = false;
+      activeLightboxSlotId = slotId;
+      activeLightboxPhotoIdx = Math.max(0, Math.min(photoIdx, checkin.photos.length - 1));
+
+      updateLightboxDisplay();
+      document.getElementById('photoLightboxModal').classList.remove('hidden');
+    }
+
+    function updateLightboxDisplay() {
+      if (isDiningLightbox) return;
+      const checkin = checkinData[activeLightboxSlotId];
+      if (!checkin || !Array.isArray(checkin.photos) || !checkin.photos[activeLightboxPhotoIdx]) {
+        closeLightbox(null, true);
+        return;
+      }
+
+      const photo = checkin.photos[activeLightboxPhotoIdx];
       const img = document.getElementById('lightboxImage');
       const title = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
+      const counter = document.getElementById('lightboxCounter');
+      const navControls = document.getElementById('lightboxNavControls');
       const deleteBtn = document.getElementById('lightboxDeleteBtn');
 
+      if (navControls) {
+        if (checkin.photos.length > 1) {
+          navControls.classList.remove('hidden');
+          if (counter) counter.textContent = `${activeLightboxPhotoIdx + 1} / ${checkin.photos.length}`;
+        } else {
+          navControls.classList.add('hidden');
+        }
+      }
+
       title.textContent = checkin.title;
-      time.textContent = 'Checked In: ' + checkin.checkinTimestamp;
-      img.src = checkin.photo;
+      time.textContent = 'Checked In: ' + photo.checkinTimestamp;
+      img.src = photo.dataUrl;
 
-      deleteBtn.onclick = () => {
-        deleteCheckin(slotId);
-        closeLightbox(null, true);
+      deleteBtn.textContent = 'Delete This Photo';
+      deleteBtn.onclick = async () => {
+        const photoToDeleteId = photo.id;
+        await deleteSinglePhoto(activeLightboxSlotId, photoToDeleteId);
+        const updatedCheckin = checkinData[activeLightboxSlotId];
+        if (updatedCheckin && Array.isArray(updatedCheckin.photos) && updatedCheckin.photos.length > 0) {
+          activeLightboxPhotoIdx = Math.max(0, activeLightboxPhotoIdx - 1);
+          updateLightboxDisplay();
+        } else {
+          closeLightbox(null, true);
+        }
       };
+    }
 
-      modal.classList.remove('hidden');
+    function prevLightboxPhoto(event) {
+      if (event) event.stopPropagation();
+      const checkin = checkinData[activeLightboxSlotId];
+      if (!checkin || !Array.isArray(checkin.photos) || checkin.photos.length <= 1) return;
+      activeLightboxPhotoIdx = (activeLightboxPhotoIdx - 1 + checkin.photos.length) % checkin.photos.length;
+      updateLightboxDisplay();
+    }
+
+    function nextLightboxPhoto(event) {
+      if (event) event.stopPropagation();
+      const checkin = checkinData[activeLightboxSlotId];
+      if (!checkin || !Array.isArray(checkin.photos) || checkin.photos.length <= 1) return;
+      activeLightboxPhotoIdx = (activeLightboxPhotoIdx + 1) % checkin.photos.length;
+      updateLightboxDisplay();
     }
 
     function closeLightbox(event, force = false) {
@@ -2088,6 +2219,7 @@
       renderItinerary();
       renderAlbumView();
       updateCheckinProgress();
+      updateVegasClock();
     });
   </script>
 
@@ -2118,10 +2250,10 @@
     try {
       app = initializeApp(firebaseConfig);
       db = getFirestore(app);
-      setCloudStatus('Cloud Sync', 'text-emerald-400');
+      window.setCloudStatus('Cloud Sync', 'text-emerald-400');
     } catch (e) {
       console.error("Firebase initialization failed:", e);
-      setCloudStatus('Offline Mode', 'text-slate-400');
+      window.setCloudStatus('Offline Mode', 'text-slate-400');
     }
 
     if (db) {
@@ -2152,17 +2284,33 @@
         console.warn("Dining photos cloud sync notice:", error);
       });
 
-      // 2. Real-time Listener for Check-Ins
+      // 2. Real-time Listener for Check-Ins (supports multi-photo arrays)
       onSnapshot(doc(db, "trip", "checkins"), (docSnap) => {
         if (docSnap.exists()) {
           const cloudCheckins = docSnap.data();
           let changed = false;
           Object.keys(cloudCheckins).forEach(slotId => {
-            if (cloudCheckins[slotId] && (!checkinData[slotId] || checkinData[slotId].rawTime !== cloudCheckins[slotId].rawTime)) {
-              checkinData[slotId] = cloudCheckins[slotId];
-              changed = true;
+            const cloudEntry = cloudCheckins[slotId];
+            if (cloudEntry) {
+              // Normalize legacy single-photo payload if necessary
+              if (!Array.isArray(cloudEntry.photos) && cloudEntry.photo) {
+                cloudEntry.photos = [{
+                  id: 'p-' + (cloudEntry.rawTime || Date.now()),
+                  dataUrl: cloudEntry.photo,
+                  checkinTimestamp: cloudEntry.checkinTimestamp || 'Checked In',
+                  rawTime: cloudEntry.rawTime || Date.now()
+                }];
+                delete cloudEntry.photo;
+              }
+
+              const localEntry = checkinData[slotId];
+              if (!localEntry || JSON.stringify(localEntry.photos) !== JSON.stringify(cloudEntry.photos)) {
+                checkinData[slotId] = cloudEntry;
+                changed = true;
+              }
             }
           });
+
           // Handle deleted checkins
           Object.keys(checkinData).forEach(slotId => {
             if (!cloudCheckins[slotId]) {
