@@ -494,8 +494,24 @@
           </button>
         </div>
 
-        <!-- Filter Chips for Map -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
+        <!-- Google Maps Switcher Bar & Open in App Button -->
+        <div class="glass-card rounded-2xl p-2.5 flex items-center justify-between gap-2 border border-white/10">
+          <div class="flex items-center gap-1 bg-dark-900 p-1 rounded-xl border border-white/10 text-xs">
+            <button id="btn-map-mode-interactive" onclick="switchMapProvider('interactive')" class="px-2.5 py-1 rounded-lg font-bold bg-gold-500 text-dark-950 tap-effect transition-all flex items-center gap-1">
+              <i class="ph-bold ph-map-pin"></i> Custom Pins
+            </button>
+            <button id="btn-map-mode-gmaps" onclick="switchMapProvider('gmaps')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1">
+              <i class="ph-bold ph-google-logo text-emerald-400"></i> Google Maps
+            </button>
+          </div>
+          <a id="btn-open-in-google-maps" href="https://www.google.com/maps/search/Las+Vegas+Strip" target="_blank" class="tap-effect text-[11px] px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold flex items-center gap-1 hover:bg-emerald-500/25">
+            <i class="ph-bold ph-arrow-square-out text-sm"></i>
+            <span>Open in App</span>
+          </a>
+        </div>
+
+        <!-- Filter Chips for Map (Pins mode) -->
+        <div id="map-filter-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
           <button onclick="filterMapCategory('all')" id="map-filter-all" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-bold bg-gold-500 text-dark-950">
             All (14)
           </button>
@@ -513,14 +529,30 @@
           </button>
         </div>
 
-        <!-- Interactive Map Container -->
-        <div class="glass-card rounded-2xl overflow-hidden border-white/15 p-1 relative shadow-2xl">
+        <!-- Interactive Map Container (Pins Mode) -->
+        <div id="container-leaflet-map" class="glass-card rounded-2xl overflow-hidden border-white/15 p-1 relative shadow-2xl">
           <div id="leafletMap" style="height: 380px; width: 100%; border-radius: 12px; z-index: 10;"></div>
           <!-- Floating Legend Pill -->
           <div class="absolute bottom-3 left-3 z-20 glass-card px-2.5 py-1 rounded-lg border border-white/10 text-[10px] flex items-center gap-2 text-slate-300 pointer-events-none">
             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gold-400"></span> Hotel / Strip</span>
             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Free Shows</span>
             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Food</span>
+          </div>
+        </div>
+
+        <!-- Google Maps Direct Live Embed Container -->
+        <div id="container-google-map" class="hidden glass-card rounded-2xl overflow-hidden border-white/15 p-1 relative shadow-2xl">
+          <iframe 
+            id="googleMapsIframe"
+            src="https://maps.google.com/maps?q=36.1150,-115.1720&z=13&output=embed" 
+            style="height: 380px; width: 100%; border-radius: 12px; border: 0;" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+          <div class="p-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/5 mt-1">
+            <span class="flex items-center gap-1"><i class="ph-bold ph-google-logo text-emerald-400"></i> Google Maps Live View</span>
+            <span class="text-gold-400 font-medium">Pan & zoom freely</span>
           </div>
         </div>
 
@@ -2280,6 +2312,35 @@
       });
     }
 
+    // Google Maps view switcher
+    let currentMapMode = 'interactive';
+
+    function switchMapProvider(mode) {
+      currentMapMode = mode;
+      const btnInteractive = document.getElementById('btn-map-mode-interactive');
+      const btnGmaps = document.getElementById('btn-map-mode-gmaps');
+      const containerLeaflet = document.getElementById('container-leaflet-map');
+      const containerGmaps = document.getElementById('container-google-map');
+      const filterChips = document.getElementById('map-filter-chips-container');
+
+      if (mode === 'gmaps') {
+        btnInteractive.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1';
+        btnGmaps.className = 'px-2.5 py-1 rounded-lg font-bold bg-emerald-500 text-dark-950 tap-effect transition-all flex items-center gap-1';
+        containerLeaflet.classList.add('hidden');
+        containerGmaps.classList.remove('hidden');
+        filterChips.classList.add('opacity-40', 'pointer-events-none');
+      } else {
+        btnInteractive.className = 'px-2.5 py-1 rounded-lg font-bold bg-gold-500 text-dark-950 tap-effect transition-all flex items-center gap-1';
+        btnGmaps.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1';
+        containerLeaflet.classList.remove('hidden');
+        containerGmaps.classList.add('hidden');
+        filterChips.classList.remove('opacity-40', 'pointer-events-none');
+        if (leafletMapInstance) {
+          setTimeout(() => leafletMapInstance.invalidateSize(), 150);
+        }
+      }
+    }
+
     function filterMapCategory(cat) {
       document.querySelectorAll('.map-chip').forEach(c => {
         c.classList.remove('bg-gold-500', 'text-dark-950');
@@ -2304,11 +2365,25 @@
       switchTab('map');
       setTimeout(() => {
         const target = tripDestinations.find(d => d.id === stopId);
-        if (target && leafletMapInstance) {
-          leafletMapInstance.flyTo([target.lat, target.lng], 16, { duration: 1 });
-          const marker = mapMarkers.find(m => m.destinationId === stopId);
-          if (marker) {
-            setTimeout(() => marker.openPopup(), 900);
+        if (target) {
+          // Update the "Open in App" button with direct Google Maps turn-by-turn navigation link
+          const openInGmapsBtn = document.getElementById('btn-open-in-google-maps');
+          if (openInGmapsBtn) {
+            openInGmapsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${target.lat},${target.lng}`;
+          }
+
+          // If in Google Maps iframe mode, reload iframe centered on this stop
+          const gmapsIframe = document.getElementById('googleMapsIframe');
+          if (gmapsIframe) {
+            gmapsIframe.src = `https://maps.google.com/maps?q=${target.lat},${target.lng}&z=16&output=embed`;
+          }
+
+          if (currentMapMode === 'interactive' && leafletMapInstance) {
+            leafletMapInstance.flyTo([target.lat, target.lng], 16, { duration: 1 });
+            const marker = mapMarkers.find(m => m.destinationId === stopId);
+            if (marker) {
+              setTimeout(() => marker.openPopup(), 900);
+            }
           }
         }
       }, 150);
