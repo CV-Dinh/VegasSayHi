@@ -105,22 +105,6 @@
       color: #fef9e7;
     }
 
-    .toolbar-banner .btn-reset {
-      background: #2a2a30;
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #f87171;
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s ease;
-    }
-
-    .toolbar-banner .btn-reset:hover {
-      background: #3f2222;
-    }
-
     .section-title {
       font-size: 1.35rem;
       font-weight: 700;
@@ -334,7 +318,6 @@
       line-height: 1.55;
     }
 
-    /* Picture Upload Section in each card */
     .img-upload-container {
       position: relative;
       margin-top: 10px;
@@ -383,9 +366,9 @@
     }
 
     .upload-status {
-      font-size: 0.78rem;
-      color: var(--accent-green);
-      font-weight: 500;
+      font-size: 0.8rem;
+      color: var(--accent-amber);
+      font-weight: 600;
       display: none;
     }
 
@@ -435,7 +418,7 @@
   <div class="container">
     <header>
       <h1>🎲 Las Vegas <span class="highlight">Trip Plan</span></h1>
-      <p style="color: var(--text-muted); margin-top: 4px;">Toledo & DTW Departure • Interactive Photo Upload & Schedule</p>
+      <p style="color: var(--text-muted); margin-top: 4px;">Toledo & DTW Departure • Live Multi-Device Photo Sync</p>
       <div class="meta-bar">
         <span class="badge">📍 Toledo, OH</span>
         <span class="badge">🛫 DTW ➔ LAS (8:39 AM)</span>
@@ -445,12 +428,8 @@
       </div>
     </header>
 
-    <!-- INTERACTIVE PHOTO UPLOAD TOOLBAR -->
     <div class="toolbar-banner">
-      <div>
-        <p><strong>📷 Personalize Your Photos:</strong> Click <em>"📸 Replace Photo"</em> on any stop to upload your own picture directly from your phone camera or computer. Changes automatically save in your browser!</p>
-      </div>
-      <button class="btn-reset" onclick="resetAllCustomPhotos()">Reset Default Photos</button>
+      <p><strong>☁️ Live Cloud Sync Active:</strong> Any picture you upload will sync to Firebase and immediately show up on your friend's phone or computer!</p>
     </div>
 
     <!-- HIGHLIGHT SPOTS -->
@@ -461,8 +440,9 @@
         <div class="upload-action-bar">
           <label class="upload-btn-label">
             📸 Replace Food Banner
-            <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-food')">
+            <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-food')">
           </label>
+          <span class="upload-status" id="status-img-slot-food"></span>
         </div>
         <h3 style="margin-top: 12px;"><span style="color:#fb923c;">🥢</span> Must-Eat Spots</h3>
         <ul>
@@ -478,8 +458,9 @@
         <div class="upload-action-bar">
           <label class="upload-btn-label">
             📸 Replace Sights Banner
-            <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-shows')">
+            <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-shows')">
           </label>
+          <span class="upload-status" id="status-img-slot-shows"></span>
         </div>
         <h3 style="margin-top: 12px;"><span style="color:var(--accent-green);">✨</span> Free Shows & Sights</h3>
         <ul>
@@ -496,7 +477,7 @@
     <!-- DAILY ITINERARY -->
     <div class="section-title">📅 Day-by-Day Interactive Schedule</div>
     <div class="hint-bar">
-      <span>💡 Tap any time slot to expand details & replace pictures with your own photos!</span>
+      <span>💡 Tap any time slot to view or upload photos!</span>
     </div>
 
     <!-- DAY 1 -->
@@ -549,9 +530,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-flight')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-flight')">
                 </label>
-                <span class="upload-status" id="status-img-slot-flight">Saved!</span>
+                <span class="upload-status" id="status-img-slot-flight"></span>
               </div>
             </div>
           </div>
@@ -572,9 +553,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-luxor')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-luxor')">
                 </label>
-                <span class="upload-status" id="status-img-slot-luxor">Saved!</span>
+                <span class="upload-status" id="status-img-slot-luxor"></span>
               </div>
             </div>
           </div>
@@ -595,9 +576,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-atrium')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-atrium')">
                 </label>
-                <span class="upload-status" id="status-img-slot-atrium">Saved!</span>
+                <span class="upload-status" id="status-img-slot-atrium"></span>
               </div>
             </div>
           </div>
@@ -644,9 +625,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-nyny')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-nyny')">
                 </label>
-                <span class="upload-status" id="status-img-slot-nyny">Saved!</span>
+                <span class="upload-status" id="status-img-slot-nyny"></span>
               </div>
             </div>
           </div>
@@ -667,9 +648,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-vegassign')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-vegassign')">
                 </label>
-                <span class="upload-status" id="status-img-slot-vegassign">Saved!</span>
+                <span class="upload-status" id="status-img-slot-vegassign"></span>
               </div>
             </div>
           </div>
@@ -696,7 +677,7 @@
             </div>
           </summary>
           <div class="accordion-body">
-            <p>Wake up, grab coffee at Luxor, and get dressed. <em>(Note: If you preferred the early morning 7:30 AM Las Vegas Sign photo run instead of Friday night, wake up at 7:00 AM).</em></p>
+            <p>Wake up, grab coffee at Luxor, and get dressed.</p>
           </div>
         </details>
 
@@ -715,9 +696,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-flamingos')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-flamingos')">
                 </label>
-                <span class="upload-status" id="status-img-slot-flamingos">Saved!</span>
+                <span class="upload-status" id="status-img-slot-flamingos"></span>
               </div>
             </div>
           </div>
@@ -738,9 +719,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-phoboba')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-phoboba')">
                 </label>
-                <span class="upload-status" id="status-img-slot-phoboba">Saved!</span>
+                <span class="upload-status" id="status-img-slot-phoboba"></span>
               </div>
             </div>
           </div>
@@ -761,9 +742,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-caesars')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-caesars')">
                 </label>
-                <span class="upload-status" id="status-img-slot-caesars">Saved!</span>
+                <span class="upload-status" id="status-img-slot-caesars"></span>
               </div>
             </div>
           </div>
@@ -797,9 +778,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-concert')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-concert')">
                 </label>
-                <span class="upload-status" id="status-img-slot-concert">Saved!</span>
+                <span class="upload-status" id="status-img-slot-concert"></span>
               </div>
             </div>
           </div>
@@ -820,9 +801,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-bellagio')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-bellagio')">
                 </label>
-                <span class="upload-status" id="status-img-slot-bellagio">Saved!</span>
+                <span class="upload-status" id="status-img-slot-bellagio"></span>
               </div>
             </div>
           </div>
@@ -868,9 +849,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-venetian')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-venetian')">
                 </label>
-                <span class="upload-status" id="status-img-slot-venetian">Saved!</span>
+                <span class="upload-status" id="status-img-slot-venetian"></span>
               </div>
             </div>
           </div>
@@ -891,9 +872,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-fremont')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-fremont')">
                 </label>
-                <span class="upload-status" id="status-img-slot-fremont">Saved!</span>
+                <span class="upload-status" id="status-img-slot-fremont"></span>
               </div>
             </div>
           </div>
@@ -939,9 +920,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-circus')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-circus')">
                 </label>
-                <span class="upload-status" id="status-img-slot-circus">Saved!</span>
+                <span class="upload-status" id="status-img-slot-circus"></span>
               </div>
             </div>
           </div>
@@ -962,9 +943,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-rw')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-rw')">
                 </label>
-                <span class="upload-status" id="status-img-slot-rw">Saved!</span>
+                <span class="upload-status" id="status-img-slot-rw"></span>
               </div>
             </div>
           </div>
@@ -985,9 +966,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-tacos')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-tacos')">
                 </label>
-                <span class="upload-status" id="status-img-slot-tacos">Saved!</span>
+                <span class="upload-status" id="status-img-slot-tacos"></span>
               </div>
             </div>
           </div>
@@ -1008,9 +989,9 @@
               <div class="upload-action-bar">
                 <label class="upload-btn-label">
                   📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="uploadPhoto(event, 'img-slot-wynn')">
+                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-wynn')">
                 </label>
-                <span class="upload-status" id="status-img-slot-wynn">Saved!</span>
+                <span class="upload-status" id="status-img-slot-wynn"></span>
               </div>
             </div>
           </div>
@@ -1075,102 +1056,76 @@
     </footer>
   </div>
 
-  <!-- SCRIPT FOR LOCAL PHOTO UPLOAD & PERSISTENCE -->
-  <script>
-    // Handle image upload, preview, and save to LocalStorage
-    function uploadPhoto(event, imgElementId) {
+  <!-- FIREBASE SCRIPTS -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+    // Your exact Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoSe3ptwtsq-AznzSy8hk2F6WrbRGumeM",
+      authDomain: "vegassayhi.firebaseapp.com",
+      projectId: "vegassayhi",
+      storageBucket: "vegassayhi.firebasestorage.app",
+      messagingSenderId: "97224365863",
+      appId: "1:97224365863:web:b9f677d5c6b8b464663b02",
+      measurementId: "G-Z6ZBGSWBFJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // 1. Listen for real-time changes across all connected devices
+    onSnapshot(doc(db, "trip", "photos"), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        // Dynamically update every image matching the slot key
+        for (const [slotId, url] of Object.entries(data)) {
+          const imgEl = document.getElementById(slotId);
+          if (imgEl && url) {
+            imgEl.src = url;
+          }
+        }
+      }
+    });
+
+    // 2. Global Upload Function wired to each slot
+    window.uploadToFirebase = async function(event, slotId) {
       const file = event.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const base64Data = e.target.result;
-        const targetImg = document.getElementById(imgElementId);
-        if (targetImg) {
-          targetImg.src = base64Data;
-          try {
-            localStorage.setItem('vegas_trip_img_' + imgElementId, base64Data);
-            const statusEl = document.getElementById('status-' + imgElementId);
-            if (statusEl) {
-              statusEl.style.display = 'inline';
-              setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
-            }
-          } catch (err) {
-            console.warn('Storage limit reached, image previewed only:', err);
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // Load saved images on start
-    window.addEventListener('DOMContentLoaded', () => {
-      const allImages = document.querySelectorAll('img[id^="img-slot-"]');
-      allImages.forEach(img => {
-        const savedData = localStorage.getItem('vegas_trip_img_' + img.id);
-        if (savedData) {
-          img.src = savedData;
-        }
-      });
-    });
-
-    // Reset all customized photos to default
-    function resetAllCustomPhotos() {
-      if (confirm("Reset all uploaded pictures back to default?")) {
-        const allImages = document.querySelectorAll('img[id^="img-slot-"]');
-        allImages.forEach(img => {
-          localStorage.removeItem('vegas_trip_img_' + img.id);
-        });
-        location.reload();
+      const statusEl = document.getElementById('status-' + slotId);
+      if (statusEl) {
+        statusEl.textContent = '⏳ Uploading to Cloud...';
+        statusEl.style.display = 'inline';
       }
-    }
+
+      try {
+        // Upload image to Firebase Cloud Storage
+        const fileExt = file.name.split('.').pop();
+        const storageRef = ref(storage, `photos/${slotId}_${Date.now()}.${fileExt}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        // Update Firestore database document
+        await setDoc(doc(db, "trip", "photos"), {
+          [slotId]: downloadURL
+        }, { merge: true });
+
+        if (statusEl) {
+          statusEl.textContent = '✅ Synced to all devices!';
+          setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+        }
+      } catch (err) {
+        console.error("Firebase upload failed:", err);
+        if (statusEl) {
+          statusEl.textContent = '❌ Upload failed (check rules)';
+        }
+        alert("Upload failed: " + err.message + "\n\nMake sure your Firestore and Storage Rules allow read/write in Firebase Console!");
+      }
+    };
   </script>
-<!-- Load Firebase SDKs -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-
-  // 1. Paste your config here
-  const firebaseConfig = {
-  apiKey: "AIzaSyAoSe3ptwtsq-AznzSy8hk2F6WrbRGumeM",
-  authDomain: "vegassayhi.firebaseapp.com",
-  projectId: "vegassayhi",
-  storageBucket: "vegassayhi.firebasestorage.app",
-  messagingSenderId: "97224365863",
-  appId: "1:97224365863:web:b9f677d5c6b8b464663b02",
-  measurementId: "G-Z6ZBGSWBFJ"
-};
-
-  // 2. Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-
-  // 3. Listen for changes in real time across all devices
-  onSnapshot(doc(db, "trip", "photos"), (docSnap) => {
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      // data contains your image URLs, updating all screens instantly
-      if (data.luxor) document.getElementById("img-slot-luxor").src = data.luxor;
-    }
-  });
-
-  // 4. Function to upload an image from any device
-  window.uploadToFirebase = async function(event, slotId) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Upload to Storage
-    const storageRef = ref(storage, `photos/${slotId}_${file.name}`);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
-
-    // Save URL to Firestore
-    await setDoc(doc(db, "trip", "photos"), {
-      [slotId]: downloadURL
-    }, { merge: true });
-  };
-</script>
 </body>
 </html>
