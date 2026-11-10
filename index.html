@@ -2,1130 +2,2045 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Las Vegas Trip Itinerary | Nov 27 - Dec 1</title>
-  <style>
-    :root {
-      --primary: #c59b27;
-      --primary-hover: #dfb238;
-      --primary-light: #fef9e7;
-      --dark: #121212;
-      --card-bg: #1c1c1f;
-      --card-border: #2e2e33;
-      --text-main: #f0f0f2;
-      --text-muted: #a0a0aa;
-      --accent-red: #ef4444;
-      --accent-blue: #38bdf8;
-      --accent-purple: #a855f7;
-      --accent-green: #22c55e;
-      --accent-amber: #f59e0b;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      background-color: var(--dark);
-      color: var(--text-main);
-      line-height: 1.6;
-      padding: 24px 16px;
-    }
-
-    .container {
-      max-width: 880px;
-      margin: 0 auto;
-    }
-
-    header {
-      position: relative;
-      text-align: center;
-      padding: 48px 24px 38px;
-      background: linear-gradient(rgba(18, 18, 18, 0.78), rgba(18, 18, 18, 0.92)),
-                  url('https://images.unsplash.com/photo-1581351123004-757df051db8e?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
-      border: 1px solid var(--card-border);
-      border-radius: 18px;
-      margin-bottom: 24px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-    }
-
-    header h1 {
-      font-size: 2.3rem;
-      letter-spacing: -0.5px;
-      color: #fff;
-      margin-bottom: 8px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.6);
-    }
-
-    header .highlight {
-      color: var(--primary);
-    }
-
-    .meta-bar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 18px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-weight: 500;
-      color: #f1f5f9;
-    }
-
-    .toolbar-banner {
-      background: linear-gradient(135deg, rgba(197, 155, 39, 0.15), rgba(35, 35, 40, 0.8));
-      border: 1px solid var(--primary);
-      border-radius: 14px;
-      padding: 14px 20px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .toolbar-banner p {
-      font-size: 0.92rem;
-      color: #fef9e7;
-    }
-
-    .section-title {
-      font-size: 1.35rem;
-      font-weight: 700;
-      margin: 36px 0 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      border-bottom: 2px solid var(--card-border);
-      padding-bottom: 10px;
-    }
-
-    .hint-bar {
-      font-size: 0.88rem;
-      color: var(--accent-blue);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .card-banner {
-      width: 100%;
-      height: 170px;
-      object-fit: cover;
-      border-radius: 10px;
-      margin-bottom: 14px;
-      display: block;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 18px;
-      margin-bottom: 24px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 20px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card h3 {
-      font-size: 1.15rem;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .card ul {
-      list-style-type: none;
-    }
-
-    .card ul li {
-      margin-bottom: 11px;
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      position: relative;
-      padding-left: 18px;
-    }
-
-    .card ul li::before {
-      content: "•";
-      position: absolute;
-      left: 0;
-      color: var(--primary);
-      font-weight: bold;
-      font-size: 1.2rem;
-      line-height: 1;
-    }
-
-    .card strong {
-      color: var(--text-main);
-    }
-
-    .timeline-day {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      margin-bottom: 24px;
-      overflow: hidden;
-    }
-
-    .day-hero {
-      width: 100%;
-      height: 190px;
-      object-fit: cover;
-      display: block;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .day-header {
-      background: #232328;
-      padding: 16px 20px;
-      font-size: 1.15rem;
-      font-weight: 700;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .day-header span.date-tag {
-      font-size: 0.85rem;
-      background: var(--primary);
-      color: #000;
-      padding: 4px 11px;
-      border-radius: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .day-content {
-      padding: 8px 16px;
-    }
-
-    details.event-accordion {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-      padding: 10px 0;
-    }
-
-    details.event-accordion:last-child {
-      border-bottom: none;
-    }
-
-    summary.event-summary {
-      cursor: pointer;
-      list-style: none;
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 8px;
-      border-radius: 8px;
-      user-select: none;
-      transition: background 0.15s ease;
-    }
-
-    summary.event-summary::-webkit-details-marker {
-      display: none;
-    }
-
-    summary.event-summary:hover {
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .event-time {
-      flex: 0 0 155px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--accent-blue);
-      padding-top: 1px;
-    }
-
-    .summary-title-wrapper {
-      flex: 1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .summary-title-wrapper h4 {
-      font-size: 1rem;
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .chevron-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--primary);
-      font-size: 0.85rem;
-      transition: transform 0.2s ease, background 0.2s ease;
-      flex-shrink: 0;
-      margin-left: 10px;
-    }
-
-    details.event-accordion[open] .chevron-btn {
-      transform: rotate(180deg);
-      background: var(--primary);
-      color: #000;
-    }
-
-    .accordion-body {
-      padding: 12px 10px 14px 177px;
-      animation: fadeIn 0.25s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .accordion-body p {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      line-height: 1.55;
-    }
-
-    .img-upload-container {
-      position: relative;
-      margin-top: 10px;
-    }
-
-    .event-image {
-      width: 100%;
-      max-height: 250px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-      display: block;
-    }
-
-    .upload-action-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .upload-btn-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #e2e8f0;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .upload-btn-label:hover {
-      background: var(--primary);
-      color: #000;
-      border-color: var(--primary);
-    }
-
-    .file-input {
-      display: none;
-    }
-
-    .upload-status {
-      font-size: 0.8rem;
-      color: var(--accent-amber);
-      font-weight: 600;
-      display: none;
-    }
-
-    .tag-concert { color: var(--accent-purple); font-weight: 600; }
-    .tag-food { color: #fb923c; font-weight: 600; }
-    .tag-free { color: var(--accent-green); font-weight: 600; }
-    .tag-wakeup { color: var(--accent-amber); font-weight: 700; }
-
-    footer {
-      text-align: center;
-      padding: 28px 0 16px;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      border-top: 1px solid var(--card-border);
-      margin-top: 40px;
-    }
-
-    @media (max-width: 640px) {
-      summary.event-summary {
-        flex-direction: column;
-        gap: 6px;
-        position: relative;
-        padding-right: 36px;
-      }
-      .event-time {
-        flex: auto;
-      }
-      .chevron-btn {
-        position: absolute;
-        right: 8px;
-        top: 12px;
-      }
-      .accordion-body {
-        padding: 8px 6px 12px 6px;
-      }
-      header h1 {
-        font-size: 1.8rem;
-      }
-      .day-hero {
-        height: 150px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="container">
-    <header>
-      <h1>🎲 Las Vegas <span class="highlight">Trip Plan</span></h1>
-      <p style="color: var(--text-muted); margin-top: 4px;">Toledo & DTW Departure • Live Multi-Device Photo Sync</p>
-      <div class="meta-bar">
-        <span class="badge">📍 Toledo, OH</span>
-        <span class="badge">🛫 DTW ➔ LAS (8:39 AM)</span>
-        <span class="badge">🛬 LAS ➔ DTW (Dec 1 @ 12:59 AM)</span>
-        <span class="badge">🏨 Luxor Resort</span>
-        <span class="badge">🎤 Vũ Trụ Say Hi (Nov 28)</span>
-      </div>
-    </header>
-
-    <div class="toolbar-banner">
-      <p><strong>☁️ Live Cloud Sync Active:</strong> Any picture you upload will sync to Firebase and immediately show up on your friend's phone or computer!</p>
-    </div>
-
-    <!-- HIGHLIGHT SPOTS -->
-    <div class="section-title">🍜 Food & Drink Bucket List</div>
-    <div class="grid-2">
-      <div class="card">
-        <img class="card-banner" id="img-slot-food" src="https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=700&q=80" alt="Street Food & Tacos">
-        <div class="upload-action-bar">
-          <label class="upload-btn-label">
-            📸 Replace Food Banner
-            <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-food')">
-          </label>
-          <span class="upload-status" id="status-img-slot-food"></span>
-        </div>
-        <h3 style="margin-top: 12px;"><span style="color:#fb923c;">🥢</span> Must-Eat Spots</h3>
-        <ul>
-          <li><strong>Famous Foods Street Eats:</strong> Located at Resorts World. Hawker-style Southeast Asian market (claypot rice, skewers, Hainanese chicken).</li>
-          <li><strong>Tacos El Gordo:</strong> Authentic Tijuana adobada carved fresh off the trompo (North Strip location right across from Resorts World).</li>
-          <li><strong>Phở Đà Lạt:</strong> Authentic Vietnamese beef phở & com tam on W Flamingo Rd (Chinatown corridor).</li>
-          <li><strong>Molly Tea (茉莉奶白):</strong> Popular fresh floral/jasmine milk-tea foam boba on S Jones Blvd.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <img class="card-banner" id="img-slot-shows" src="https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=700&q=80" alt="Las Vegas Strip & Fountains">
-        <div class="upload-action-bar">
-          <label class="upload-btn-label">
-            📸 Replace Sights Banner
-            <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-shows')">
-          </label>
-          <span class="upload-status" id="status-img-slot-shows"></span>
-        </div>
-        <h3 style="margin-top: 12px;"><span style="color:var(--accent-green);">✨</span> Free Shows & Sights</h3>
-        <ul>
-          <li><strong>Bellagio Fountains & Conservatory:</strong> Spectacular dancing water show + botanical holiday exhibit.</li>
-          <li><strong>Fall of Atlantis:</strong> Animatronic fire & water mythological show at The Forum Shops (Caesars Palace).</li>
-          <li><strong>Circus Circus Midway:</strong> Free daily world-class acrobatics and trapeze performances.</li>
-          <li><strong>Wynn Lake of Dreams:</strong> Holographic visuals, animatronics, and 40-ft waterfall spectacle.</li>
-          <li><strong>Fremont Street Viva Vision:</strong> 5-block overhead LED light canopy shows.</li>
-          <li><strong>Flamingo Wildlife Habitat:</strong> Real Chilean flamingos, pelicans, and waterfalls.</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- DAILY ITINERARY -->
-    <div class="section-title">📅 Day-by-Day Interactive Schedule</div>
-    <div class="hint-bar">
-      <span>💡 Tap any time slot to view or upload photos!</span>
-    </div>
-
-    <!-- DAY 1 -->
-    <div class="timeline-day">
-      <img class="day-hero" id="img-slot-day1-hero" src="https://images.unsplash.com/photo-1605833556294-ea5c7a74f57d?auto=format&fit=crop&w=900&q=80" alt="Las Vegas Welcome Sign & Strip">
-      <div class="day-header">
-        <div>Day 1: Toledo Departure, Early Arrival & South Strip</div>
-        <span class="date-tag">Fri, Nov 27</span>
-      </div>
-      <div class="day-content">
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">3:30 AM EST</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-wakeup">⏰ Wake Up:</span> Toledo, OH</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Wake up early and finish packing. Toledo to DTW airport is ~50 miles (approx. 50-minute drive via I-75 N / I-275 N).</p>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">4:15 AM EST</div>
-            <div class="summary-title-wrapper">
-              <h4>Drive from Toledo to DTW Airport</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Arrive at Detroit Metro Airport by 5:10 AM – 5:15 AM to park, check bags, and clear TSA security.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">6:41 AM EST</div>
-            <div class="summary-title-wrapper">
-              <h4>Flight Departs DTW ✈️</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Non-stop flight across time zones (DTW ➔ LAS, gaining 3 hours).</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-flight" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" alt="Airplane Flight">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-flight')">
-                </label>
-                <span class="upload-status" id="status-img-slot-flight"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">8:39 AM – 9:45 AM PST</div>
-            <div class="summary-title-wrapper">
-              <h4>Touchdown at LAS & Head to Luxor</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Land at Harry Reid Airport (LAS) at 8:39 AM. Collect baggage, catch a quick 10-minute Uber/Lyft to <strong>Luxor Hotel</strong>, and check luggage with the bell desk.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-luxor" src="https://images.unsplash.com/photo-1594911772125-07fc7a2d8d9f?auto=format&fit=crop&w=800&q=80" alt="Luxor Hotel Las Vegas Pyramid">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-luxor')">
-                </label>
-                <span class="upload-status" id="status-img-slot-luxor"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">10:00 AM – 1:00 PM PST</div>
-            <div class="summary-title-wrapper">
-              <h4>Bonus Morning: Mandalay Place & Luxor Atrium</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>You have an extra 5 hours before room check-in! Grab breakfast/brunch along The Shoppes at Mandalay Place, check out the Luxor pyramid atrium, or wander through Excalibur.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-atrium" src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80" alt="Hotel Atrium and Resort">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-atrium')">
-                </label>
-                <span class="upload-status" id="status-img-slot-atrium"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">1:00 PM – 3:00 PM PST</div>
-            <div class="summary-title-wrapper">
-              <h4>Lunch & Check Room Status</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Grab lunch (e.g., Public House or Border Grill at Mandalay Bay). Check the MGM app to see if early room readiness is available.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">3:00 PM – 5:30 PM PST</div>
-            <div class="summary-title-wrapper">
-              <h4>Check-in at Luxor & Power Nap</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Verify ID at the Mobile Check-in desk, get your keys, unpack, and take a well-deserved power nap after your 3:30 AM wake-up.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">6:00 PM – 9:30 PM PST</div>
-            <div class="summary-title-wrapper">
-              <h4>South Strip Sightseeing & Dinner</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Stroll New York-New York (Brooklyn Bridge replica) and The Park district. Enjoy a fun, casual first-night dinner.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-nyny" src="https://images.unsplash.com/photo-1541336032412-2048a678540d?auto=format&fit=crop&w=800&q=80" alt="New York-New York Las Vegas">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-nyny')">
-                </label>
-                <span class="upload-status" id="status-img-slot-nyny"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">10:30 PM – 11:30 PM PST</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-free">Free Sight:</span> Welcome to Las Vegas Sign (Night)</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>4-minute rideshare south from Luxor. Visiting late at night beats all bus tours and lines with illuminated vintage neon photos!</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-vegassign" src="https://images.unsplash.com/photo-1506059612708-99d6c258160e?auto=format&fit=crop&w=800&q=80" alt="Welcome to Fabulous Las Vegas Sign Neon Night">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-vegassign')">
-                </label>
-                <span class="upload-status" id="status-img-slot-vegassign"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-      </div>
-    </div>
-
-    <!-- DAY 2 -->
-    <div class="timeline-day">
-      <img class="day-hero" id="img-slot-day2-hero" src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&w=900&q=80" alt="Live Concert & Bellagio Fountains">
-      <div class="day-header">
-        <div>Day 2: Chinatown Food & Concert Night</div>
-        <span class="date-tag">Sat, Nov 28</span>
-      </div>
-      <div class="day-content">
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">8:30 AM – 9:15 AM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-wakeup">⏰ Wake Up:</span> Morning Refresh</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Wake up, grab coffee at Luxor, and get dressed.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">10:00 AM – 11:30 AM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-free">Free Sights:</span> Bellagio Conservatory & Flamingo Habitat</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Stroll through the seasonal botanical gardens inside Bellagio, then cross the street to see the Chilean pink flamingos at the Flamingo Wildlife Habitat.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-flamingos" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80" alt="Flamingo Wildlife Habitat Garden">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-flamingos')">
-                </label>
-                <span class="upload-status" id="status-img-slot-flamingos"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">12:00 PM – 2:30 PM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-food">Food Run:</span> Phở Đà Lạt + Molly Tea</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>10-minute Uber west to Chinatown. Enjoy hot bowls of phở at <strong>Phở Đà Lạt</strong>, then head to <strong>Molly Tea</strong> for fresh jasmine milk-tea with foam.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-phoboba" src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80" alt="Vietnamese Pho Soup & Boba Tea">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-phoboba')">
-                </label>
-                <span class="upload-status" id="status-img-slot-phoboba"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">3:00 PM – 4:30 PM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-free">Free Show:</span> Fall of Atlantis (Caesars Forum Shops)</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Catch the animatronic fire, water, and 9-foot moving statue show near the giant aquarium inside Caesars Forum Shops (plays hourly on the hour).</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-caesars" src="https://images.unsplash.com/photo-1579208575657-c595a05383b7?auto=format&fit=crop&w=800&q=80" alt="Caesars Palace Roman Architecture">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-caesars')">
-                </label>
-                <span class="upload-status" id="status-img-slot-caesars"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">5:00 PM – 6:30 PM</div>
-            <div class="summary-title-wrapper">
-              <h4>Pre-Concert Rest & Miracle Mile Shops</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Head to Planet Hollywood. Grab snacks/refreshments inside Miracle Mile Shops and get ready for the show.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">7:00 PM – 10:30 PM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-concert">Main Event:</span> "Vũ Trụ Say Hi" Concert 🎤</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Concert at <strong>PH Live at Planet Hollywood</strong>.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-concert" src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=80" alt="Live Music Concert Lights">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-concert')">
-                </label>
-                <span class="upload-status" id="status-img-slot-concert"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">10:30 PM – 11:00 PM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-free">Free Show:</span> Bellagio Dancing Fountains</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Step outside Planet Hollywood onto the boulevard to catch the late-night fountain show dancing to music.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-bellagio" src="https://images.unsplash.com/photo-1583344604928-85474722513f?auto=format&fit=crop&w=800&q=80" alt="Bellagio Fountains at Night">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-bellagio')">
-                </label>
-                <span class="upload-status" id="status-img-slot-bellagio"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-      </div>
-    </div>
-
-    <!-- DAY 3 -->
-    <div class="timeline-day">
-      <img class="day-hero" id="img-slot-day3-hero" src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80" alt="Fremont Street Neon & Night Lights">
-      <div class="day-header">
-        <div>Day 3: LINQ, Venetian & Downtown Fremont</div>
-        <span class="date-tag">Sun, Nov 29</span>
-      </div>
-      <div class="day-content">
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">9:30 AM – 10:15 AM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-wakeup">⏰ Wake Up:</span> Rest & Recharge</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Sleep in slightly after the late concert night. Enjoy breakfast or a quick pastry at the hotel before heading mid-strip.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">11:30 AM – 3:30 PM</div>
-            <div class="summary-title-wrapper">
-              <h4>LINQ Promenade, Zipline & Venetian Canals</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Stroll the LINQ Promenade (option to ride Fly LINQ). Explore the Venetian Grand Canal Shoppes, watch the gondolas, and see the free Streetmosphere performers in St. Mark's Square.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-venetian" src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80" alt="Venetian Grand Canal Gondolas Las Vegas">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-venetian')">
-                </label>
-                <span class="upload-status" id="status-img-slot-venetian"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">5:00 PM – 10:30 PM</div>
-            <div class="summary-title-wrapper">
-              <h4>Fremont Street & SlotZilla Zipline</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Head downtown to Fremont Street. Fly superman-style on the <strong>SlotZilla Zipline</strong> under the LED canopy. Watch the free <strong>Viva Vision Light Shows</strong> (hourly after 6 PM) and check out the Golden Nugget shark tank pool.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-fremont" src="https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=800&q=80" alt="Fremont Street Viva Vision Canopy Experience">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-fremont')">
-                </label>
-                <span class="upload-status" id="status-img-slot-fremont"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-      </div>
-    </div>
-
-    <!-- DAY 4 -->
-    <div class="timeline-day">
-      <img class="day-hero" id="img-slot-day4-hero" src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=900&q=80" alt="Resorts World, Dining & Vegas Night">
-      <div class="day-header">
-        <div>Day 4: North Strip Feasts, Wynn & Departure</div>
-        <span class="date-tag">Mon, Nov 30</span>
-      </div>
-      <div class="day-content">
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">9:30 AM – 10:00 AM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-wakeup">⏰ Wake Up:</span> Relaxed Morning</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Sleep in comfortably — since your room is booked through Tuesday, there is no morning checkout rush. Take your time getting ready.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">11:30 AM – 1:30 PM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-free">Free Show:</span> Circus Circus Midway</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Watch world-class trapeze artists, jugglers, and aerialists perform free on the center stage.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-circus" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80" alt="Circus Acrobat Performance">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-circus')">
-                </label>
-                <span class="upload-status" id="status-img-slot-circus"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">1:45 PM – 4:00 PM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-food">Lunch:</span> Famous Foods Street Eats (Resorts World)</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Walk south into Resorts World. Sample dishes from Southeast Asian hawker stalls (claypot rice, noodles, dumplings).</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-rw" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80" alt="Resorts World Street Food Market">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-rw')">
-                </label>
-                <span class="upload-status" id="status-img-slot-rw"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">4:30 PM – 6:00 PM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-food">Dinner:</span> Tacos El Gordo</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Cross Las Vegas Blvd directly opposite Resorts World. Order their signature adobada pork tacos fresh from the spit.</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-tacos" src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80" alt="Authentic Mexican Adobada Tacos">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-tacos')">
-                </label>
-                <span class="upload-status" id="status-img-slot-tacos"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion" open>
-          <summary class="event-summary">
-            <div class="event-time">6:30 PM – 8:00 PM</div>
-            <div class="summary-title-wrapper">
-              <h4><span class="tag-free">Free Show:</span> Wynn Lake of Dreams</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Walk down to Wynn to watch the multimedia animatronic and light show over the outdoor waterfall (every 30 mins after sunset).</p>
-            <div class="img-upload-container">
-              <img class="event-image" id="img-slot-wynn" src="https://images.unsplash.com/photo-1508873696983-2df5293cb325?auto=format&fit=crop&w=800&q=80" alt="Waterfall Light Show Wynn Lake of Dreams">
-              <div class="upload-action-bar">
-                <label class="upload-btn-label">
-                  📸 Replace Photo
-                  <input type="file" accept="image/*" class="file-input" onchange="window.uploadToFirebase(event, 'img-slot-wynn')">
-                </label>
-                <span class="upload-status" id="status-img-slot-wynn"></span>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">8:30 PM – 10:30 PM</div>
-            <div class="summary-title-wrapper">
-              <h4>Return to Room, Pack & Digital Check-out</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Head back to Luxor, shower, change into comfy flight clothes, pack bags, and check out directly via the MGM app.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">10:45 PM</div>
-            <div class="summary-title-wrapper">
-              <h4>Rideshare to LAS Airport</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>10-minute drive to Harry Reid Airport (LAS) to breeze through TSA before midnight.</p>
-          </div>
-        </details>
-
-        <details class="event-accordion">
-          <summary class="event-summary">
-            <div class="event-time">12:59 AM (Tue Dec 1)</div>
-            <div class="summary-title-wrapper">
-              <h4>Flight Departs to DTW ✈️</h4>
-              <span class="chevron-btn">▼</span>
-            </div>
-          </summary>
-          <div class="accordion-body">
-            <p>Board flight back to Detroit (landing at 1:23 PM, then drive back to Toledo).</p>
-          </div>
-        </details>
-
-      </div>
-    </div>
-
-    <!-- PRACTICAL TRAVEL TIPS -->
-    <div class="section-title">💡 Pro Tips For Your Trip</div>
-    <div class="card">
-      <ul>
-        <li><strong>Toledo to DTW Drive:</strong> Allow at least 50–55 minutes via I-75 N to I-275 N at that early hour, plus parking shuttle time.</li>
-        <li><strong>Early Arrival Advantage:</strong> Arriving at 8:39 AM means you gain over 3 extra hours in Vegas on Friday morning! Drop bags at the Luxor bell desk immediately and enjoy brunch or sightseeing.</li>
-        <li><strong>MGM Digital Check-in ID Rule:</strong> First-time users still need to swing by the quick Mobile Check-In desk with a physical government ID + payment card to verify before digital keys unlock.</li>
-        <li><strong>Tacos El Gordo Lines:</strong> Each meat has its own line. Go straight to the <em>Adobada</em> line, order your tacos, take the plate, and pay at the register.</li>
-        <li><strong>SlotZilla Booking:</strong> Thanksgiving weekend gets busy; reserve your SlotZilla nighttime slot online in advance.</li>
-      </ul>
-    </div>
-
-    <footer>
-      Have an unforgettable time in Vegas! 🎰✨
-    </footer>
-  </div>
-
-  <!-- FIREBASE SCRIPTS -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-
-    // Your exact Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyAoSe3ptwtsq-AznzSy8hk2F6WrbRGumeM",
-      authDomain: "vegassayhi.firebaseapp.com",
-      projectId: "vegassayhi",
-      storageBucket: "vegassayhi.firebasestorage.app",
-      messagingSenderId: "97224365863",
-      appId: "1:97224365863:web:b9f677d5c6b8b464663b02",
-      measurementId: "G-Z6ZBGSWBFJ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    // 1. Listen for real-time changes across all connected devices
-    onSnapshot(doc(db, "trip", "photos"), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        // Dynamically update every image matching the slot key
-        for (const [slotId, url] of Object.entries(data)) {
-          const imgEl = document.getElementById(slotId);
-          if (imgEl && url) {
-            imgEl.src = url;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Vegas Trip Planner • Say Hi</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons for modern mobile UI -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS & JS for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Outfit"', 'sans-serif'],
+          },
+          colors: {
+            gold: {
+              300: '#f6d878',
+              400: '#e5be47',
+              500: '#c59b27',
+              600: '#a37b19',
+              700: '#7d5c0e'
+            },
+            dark: {
+              950: '#090a0d',
+              900: '#0f0f13',
+              850: '#15161c',
+              800: '#1b1d24',
+              750: '#232530',
+              700: '#2d303e'
+            }
           }
         }
       }
+    }
+  </script>
+
+  <style>
+    :root {
+      --app-gold: #c59b27;
+      --app-bg: #0f0f13;
+    }
+    body {
+      background-color: var(--app-bg);
+      color: #f1f2f6;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .glass-nav {
+      background: rgba(15, 15, 19, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .glass-card {
+      background: rgba(23, 25, 33, 0.72);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .tap-effect:active {
+      transform: scale(0.97);
+      transition: transform 0.08s ease;
+    }
+    .pb-safe {
+      padding-bottom: calc(5.2rem + env(safe-area-inset-bottom, 16px));
+    }
+    /* Leaflet Dark Mode Customization */
+    .leaflet-tile {
+      filter: brightness(0.7) invert(1) contrast(3) hue-rotate(200deg) saturate(0.35) brightness(0.7);
+    }
+    .leaflet-container {
+      background-color: #0f1015;
+      font-family: inherit;
+    }
+    .leaflet-popup-content-wrapper {
+      background: rgba(23, 25, 33, 0.95);
+      backdrop-filter: blur(12px);
+      color: #f1f2f6;
+      border: 1px solid rgba(197, 155, 39, 0.4);
+      border-radius: 14px;
+      padding: 4px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+    }
+    .leaflet-popup-tip {
+      background: rgba(23, 25, 33, 0.95);
+    }
+    .leaflet-popup-content {
+      margin: 8px 10px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-slate-100 min-h-screen bg-dark-950 selection:bg-gold-500/30">
+
+  <!-- ================= APP CONTAINER ================= -->
+  <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl bg-dark-900 border-x border-white/5">
+
+    <!-- ================= STICKY APP HEADER ================= -->
+    <header class="sticky top-0 z-40 glass-nav border-b border-white/10 px-4 pt-3 pb-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-gold-600 to-gold-400 flex items-center justify-center text-dark-950 shadow-lg shadow-gold-500/20 font-bold">
+            <i class="ph-bold ph-sparkle text-lg"></i>
+          </div>
+          <div>
+            <h1 class="font-display font-extrabold text-base tracking-tight text-white flex items-center gap-1.5 leading-none">
+              Vegas Planner <span class="text-gold-400 text-[10px] px-1.5 py-0.5 rounded bg-gold-400/10 font-mono font-semibold border border-gold-400/25">Say Hi</span>
+            </h1>
+            <p class="text-[11px] text-slate-400 font-medium mt-0.5">Luxor Resort • Nov 27 – Dec 1</p>
+          </div>
+        </div>
+
+        <!-- Vegas Local Time (PST) ticker -->
+        <div class="text-right">
+          <div id="vegasClock" class="font-mono text-xs font-bold text-gold-400 tracking-wider">--:-- PST</div>
+          <div class="text-[10px] text-slate-400 font-medium flex items-center justify-end gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Vegas Time
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Itinerary Mini-Stats Bar -->
+      <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-300">
+        <span class="flex items-center gap-1"><i class="ph-fill ph-airplane-takeoff text-sky-400"></i> DTW ➔ LAS</span>
+        <span class="flex items-center gap-1"><i class="ph-fill ph-microphone-stage text-purple-400"></i> Nov 28 Concert</span>
+        <button onclick="switchTab('map')" class="flex items-center gap-1 text-gold-400 font-semibold tap-effect hover:underline">
+          <i class="ph-bold ph-map-trifold"></i> <span>14 Stops on Map</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ================= MAIN SCROLLABLE VIEWPORT ================= -->
+    <main class="flex-1 px-4 pt-3 pb-safe overflow-y-auto">
+
+      <!-- ================= TAB 1: SCHEDULE ================= -->
+      <section id="view-schedule" class="tab-view block space-y-4">
+        
+        <!-- Day Switcher Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+          <button onclick="switchDay('fri')" id="pill-fri" class="day-pill tap-effect flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-gold-500 text-dark-950 shadow-md shadow-gold-500/20">
+            Fri Nov 27
+            <span class="block text-[10px] font-normal opacity-90">Arrival & South</span>
+          </button>
+          <button onclick="switchDay('sat')" id="pill-sat" class="day-pill tap-effect flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-dark-800 text-slate-300 border border-white/10 hover:border-white/20">
+            Sat Nov 28
+            <span class="block text-[10px] font-normal opacity-70">Say Hi Concert</span>
+          </button>
+          <button onclick="switchDay('sun')" id="pill-sun" class="day-pill tap-effect flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-dark-800 text-slate-300 border border-white/10 hover:border-white/20">
+            Sun Nov 29
+            <span class="block text-[10px] font-normal opacity-70">LINQ & Fremont</span>
+          </button>
+          <button onclick="switchDay('mon')" id="pill-mon" class="day-pill tap-effect flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-dark-800 text-slate-300 border border-white/10 hover:border-white/20">
+            Mon Nov 30
+            <span class="block text-[10px] font-normal opacity-70">Feasts & Return</span>
+          </button>
+        </div>
+
+        <!-- Trip Checklist & Check-In Progress Summary -->
+        <div class="glass-card rounded-2xl p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400">
+              <i class="ph-bold ph-camera-plus text-base"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                Check-In Photos Captured: <span id="progressCheckinText" class="text-gold-400 font-mono text-[11px]">0 / 0</span>
+              </div>
+              <div class="w-40 bg-dark-700 h-1.5 rounded-full overflow-hidden mt-1">
+                <div id="checkinProgressBar" class="bg-gradient-to-r from-gold-500 to-emerald-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="openCardModal()" class="text-[11px] font-bold text-dark-950 bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 px-3 py-1.5 rounded-xl tap-effect flex items-center gap-1 shadow-md shadow-gold-500/20">
+              <i class="ph-bold ph-plus-circle text-sm"></i> Add Stop
+            </button>
+            <button onclick="switchTab('album')" class="text-[10px] font-bold text-gold-400 bg-gold-400/10 border border-gold-400/25 px-2.5 py-1.5 rounded-xl tap-effect flex items-center gap-1">
+              <i class="ph-bold ph-images"></i> Album
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Container for Active Day's Itinerary Cards -->
+        <div id="itineraryContainer" class="space-y-3">
+          <!-- Dynamically generated and time-sorted cards -->
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: SPOTS & DINING ================= -->
+      <section id="view-food" class="tab-view hidden space-y-3.5">
+        <div class="px-1 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+              <i class="ph-fill ph-fork-knife text-orange-400 text-lg"></i> Food Bucket List
+            </h2>
+            <p class="text-xs text-slate-400">Scheduled restaurants with custom photo uploads & map pins</p>
+          </div>
+          <button onclick="resetAllDiningPhotos()" class="tap-effect text-[11px] px-2.5 py-1 rounded-lg bg-dark-750 text-slate-300 border border-white/10 hover:border-gold-500/40 flex items-center gap-1 font-semibold">
+            <i class="ph-bold ph-arrow-counter-clockwise"></i> Reset Photos
+          </button>
+        </div>
+
+        <!-- Food Spot 1: Famous Foods -->
+        <div class="glass-card rounded-2xl overflow-hidden border-white/10" data-dining-id="dining-famousfoods">
+          <div class="relative group">
+            <img id="img-dining-famousfoods" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80" onclick="previewDiningPhoto('dining-famousfoods', 'Famous Foods Street Eats')" class="w-full h-40 object-cover cursor-pointer tap-effect" alt="Famous Foods">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+            <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-auto">
+              <span id="badge-dining-famousfoods" class="hidden text-[10px] font-mono font-bold text-emerald-300 bg-emerald-500/30 border border-emerald-400/40 px-2 py-0.5 rounded-full backdrop-blur-md">
+                <i class="ph-bold ph-check"></i> Custom Photo
+              </span>
+              <button onclick="triggerDiningPhotoUpload('dining-famousfoods')" class="tap-effect ml-auto text-[11px] font-bold text-dark-950 bg-gradient-to-r from-gold-400 to-gold-500 px-3 py-1 rounded-xl shadow-lg flex items-center gap-1 border border-white/20">
+                <i class="ph-bold ph-camera"></i> Change Photo
+              </button>
+            </div>
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-white">Famous Foods Street Eats</h3>
+              <span class="text-xs font-mono text-gold-400 font-semibold">Mon Lunch</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Indoor Southeast Asian hawker night market at Resorts World. 16+ stalls with Michelin-affiliated claypot rice, Hainanese chicken, dumplings, and skewers.
+            </p>
+            <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px]">
+              <button onclick="flyToMapStop('resortsworld')" class="text-gold-400 font-semibold hover:underline flex items-center gap-1 tap-effect">
+                <i class="ph-bold ph-map-pin"></i> View on Map
+              </button>
+              <a href="https://maps.google.com/?q=Famous+Foods+Street+Eats+Resorts+World" target="_blank" class="text-slate-400 hover:text-white flex items-center gap-1">
+                Directions <i class="ph-bold ph-arrow-up-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Food Spot 2: Tacos El Gordo -->
+        <div class="glass-card rounded-2xl overflow-hidden border-white/10" data-dining-id="dining-tacos">
+          <div class="relative group">
+            <img id="img-dining-tacos" src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=700&q=80" onclick="previewDiningPhoto('dining-tacos', 'Tacos El Gordo')" class="w-full h-40 object-cover cursor-pointer tap-effect" alt="Tacos El Gordo">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+            <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-auto">
+              <span id="badge-dining-tacos" class="hidden text-[10px] font-mono font-bold text-emerald-300 bg-emerald-500/30 border border-emerald-400/40 px-2 py-0.5 rounded-full backdrop-blur-md">
+                <i class="ph-bold ph-check"></i> Custom Photo
+              </span>
+              <button onclick="triggerDiningPhotoUpload('dining-tacos')" class="tap-effect ml-auto text-[11px] font-bold text-dark-950 bg-gradient-to-r from-gold-400 to-gold-500 px-3 py-1 rounded-xl shadow-lg flex items-center gap-1 border border-white/20">
+                <i class="ph-bold ph-camera"></i> Change Photo
+              </button>
+            </div>
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-white">Tacos El Gordo</h3>
+              <span class="text-xs font-mono text-gold-400 font-semibold">Mon Dinner</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Tijuana-style street tacos located across from Resorts World. Famous for spiced adobada carved straight from the rotating vertical spit.
+            </p>
+            <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px]">
+              <button onclick="flyToMapStop('tacos')" class="text-gold-400 font-semibold hover:underline flex items-center gap-1 tap-effect">
+                <i class="ph-bold ph-map-pin"></i> View on Map
+              </button>
+              <a href="https://maps.google.com/?q=3041+S+Las+Vegas+Blvd+Tacos+El+Gordo" target="_blank" class="text-slate-400 hover:text-white flex items-center gap-1">
+                Directions <i class="ph-bold ph-arrow-up-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Food Spot 3: Pho Da Lat -->
+        <div class="glass-card rounded-2xl overflow-hidden border-white/10" data-dining-id="dining-phodalat">
+          <div class="relative group">
+            <img id="img-dining-phodalat" src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=700&q=80" onclick="previewDiningPhoto('dining-phodalat', 'Phở Đà Lạt')" class="w-full h-40 object-cover cursor-pointer tap-effect" alt="Pho Da Lat">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+            <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-auto">
+              <span id="badge-dining-phodalat" class="hidden text-[10px] font-mono font-bold text-emerald-300 bg-emerald-500/30 border border-emerald-400/40 px-2 py-0.5 rounded-full backdrop-blur-md">
+                <i class="ph-bold ph-check"></i> Custom Photo
+              </span>
+              <button onclick="triggerDiningPhotoUpload('dining-phodalat')" class="tap-effect ml-auto text-[11px] font-bold text-dark-950 bg-gradient-to-r from-gold-400 to-gold-500 px-3 py-1 rounded-xl shadow-lg flex items-center gap-1 border border-white/20">
+                <i class="ph-bold ph-camera"></i> Change Photo
+              </button>
+            </div>
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-white">Phở Đà Lạt</h3>
+              <span class="text-xs font-mono text-gold-400 font-semibold">Sat Lunch</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Authentic beef bone broth phở, crispy spring rolls, and grilled pork com tam in Chinatown.
+            </p>
+            <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px]">
+              <button onclick="flyToMapStop('phodalat')" class="text-gold-400 font-semibold hover:underline flex items-center gap-1 tap-effect">
+                <i class="ph-bold ph-map-pin"></i> View on Map
+              </button>
+              <a href="https://maps.google.com/?q=Pho+Da+Lat+Las+Vegas" target="_blank" class="text-slate-400 hover:text-white flex items-center gap-1">
+                Directions <i class="ph-bold ph-arrow-up-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Food Spot 4: Molly Tea -->
+        <div class="glass-card rounded-2xl overflow-hidden border-white/10" data-dining-id="dining-mollytea">
+          <div class="relative group">
+            <img id="img-dining-mollytea" src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=700&q=80" onclick="previewDiningPhoto('dining-mollytea', 'Molly Tea (茉莉奶白)')" class="w-full h-40 object-cover cursor-pointer tap-effect" alt="Molly Tea">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+            <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-auto">
+              <span id="badge-dining-mollytea" class="hidden text-[10px] font-mono font-bold text-emerald-300 bg-emerald-500/30 border border-emerald-400/40 px-2 py-0.5 rounded-full backdrop-blur-md">
+                <i class="ph-bold ph-check"></i> Custom Photo
+              </span>
+              <button onclick="triggerDiningPhotoUpload('dining-mollytea')" class="tap-effect ml-auto text-[11px] font-bold text-dark-950 bg-gradient-to-r from-gold-400 to-gold-500 px-3 py-1 rounded-xl shadow-lg flex items-center gap-1 border border-white/20">
+                <i class="ph-bold ph-camera"></i> Change Photo
+              </button>
+            </div>
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-white">Molly Tea (茉莉奶白)</h3>
+              <span class="text-xs font-mono text-gold-400 font-semibold">Sat Boba</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Fresh floral jasmine & white peach teas topped with organic fresh milk cheese foam and chewy pearls. 5 mins from Pho Da Lat.
+            </p>
+            <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px]">
+              <button onclick="flyToMapStop('mollytea')" class="text-gold-400 font-semibold hover:underline flex items-center gap-1 tap-effect">
+                <i class="ph-bold ph-map-pin"></i> View on Map
+              </button>
+              <a href="https://maps.google.com/?q=Molly+Tea+Las+Vegas" target="_blank" class="text-slate-400 hover:text-white flex items-center gap-1">
+                Directions <i class="ph-bold ph-arrow-up-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: FREE SHOWS ================= -->
+      <section id="view-shows" class="tab-view hidden space-y-3">
+        <div class="px-1">
+          <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+            <i class="ph-fill ph-sparkle text-emerald-400 text-lg"></i> Free Strip Shows & Sights
+          </h2>
+          <p class="text-xs text-slate-400">Zero ticket cost • Verified schedule</p>
+        </div>
+
+        <!-- Show 1 -->
+        <div class="glass-card rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">Bellagio Fountains & Conservatory</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Daily Free</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Fountains play every 30 mins afternoon; every 15 mins after 8 PM until midnight. Indoor Botanical Conservatory is open 24/7.
+          </p>
+        </div>
+
+        <!-- Show 2 -->
+        <div class="glass-card rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">Fall of Atlantis (Caesars Palace)</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Hourly</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Inside Forum Shops by the saltwater aquarium. Moving 9-foot animatronic statues, fireballs, and water effects enacting Atlantis's downfall.
+          </p>
+        </div>
+
+        <!-- Show 3 -->
+        <div class="glass-card rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">Free Circus Acts (Circus Circus)</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Midday Daily</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Aerialists, high-flying trapeze artists, and foot-jugglers on the Carnival Midway stage.
+          </p>
+        </div>
+
+        <!-- Show 4 -->
+        <div class="glass-card rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">Lake of Dreams (Wynn)</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Every 30 Mins</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Runs from dusk until 11:30 PM. Holographic laser shows, animatronic puppetry, and music over the 40-foot waterfall.
+          </p>
+        </div>
+
+        <!-- Show 5 -->
+        <div class="glass-card rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">Viva Vision Light Canopy (Fremont)</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Hourly 6PM–2AM</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Massive 5-block digital LED canopy 90 feet overhead playing synchronized concerts and visuals.
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: TRIP ALBUM (AGGREGATED CHECK-INS) ================= -->
+      <section id="view-album" class="tab-view hidden space-y-3.5">
+        <div class="px-1 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+              <i class="ph-fill ph-book-open text-gold-400 text-lg"></i> Trip Scrapbook
+            </h2>
+            <p class="text-xs text-slate-400">All your live check-in photos in chronological order</p>
+          </div>
+          <button onclick="clearAllCheckinPhotos()" class="tap-effect text-[11px] px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 font-semibold">
+            Clear Album
+          </button>
+        </div>
+
+        <!-- Album Summary Stats -->
+        <div class="glass-card rounded-2xl p-3.5 flex items-center justify-around text-center">
+          <div>
+            <div id="albumCountStat" class="font-display font-extrabold text-xl text-gold-400">0</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Moments Snapped</div>
+          </div>
+          <div class="w-px h-8 bg-white/10"></div>
+          <div>
+            <div id="albumRemainingStat" class="font-display font-extrabold text-xl text-slate-200">17</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Stops Remaining</div>
+          </div>
+          <div class="w-px h-8 bg-white/10"></div>
+          <div>
+            <div id="albumStorageStat" class="font-display font-extrabold text-xl text-emerald-400 font-mono">0 KB</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Saved Space</div>
+          </div>
+        </div>
+
+        <!-- Album Masonry Grid -->
+        <div id="albumGrid" class="grid grid-cols-2 gap-2.5">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Empty state placeholder -->
+        <div id="albumEmptyState" class="glass-card rounded-2xl p-8 text-center space-y-2.5">
+          <div class="w-12 h-12 rounded-2xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center text-gold-400 mx-auto text-2xl">
+            <i class="ph-bold ph-camera"></i>
+          </div>
+          <h3 class="text-sm font-bold text-white">No Check-In Photos Yet</h3>
+          <p class="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+            Switch to the <strong>Schedule</strong> tab and tap <em>"📸 Snap Check-In Photo"</em> on any activity card to start building your trip album!
+          </p>
+          <button onclick="switchTab('schedule')" class="mt-2 tap-effect text-xs px-3.5 py-1.5 rounded-xl bg-gold-500 text-dark-950 font-bold">
+            Go to Schedule
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: INTERACTIVE VEGAS MAP ================= -->
+      <section id="view-map" class="tab-view hidden space-y-3">
+        <div class="px-1 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+              <i class="ph-fill ph-map-trifold text-gold-400 text-lg"></i> Vegas Interactive Map
+            </h2>
+            <p class="text-xs text-slate-400">All trip destinations mapped from South to North Strip & Chinatown</p>
+          </div>
+          <button onclick="resetMapView()" class="tap-effect text-[11px] px-2.5 py-1 rounded-lg bg-dark-750 text-slate-300 border border-white/10 flex items-center gap-1 font-semibold">
+            <i class="ph-bold ph-arrows-out"></i> Reset
+          </button>
+        </div>
+
+        <!-- Filter Chips for Map -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
+          <button onclick="filterMapCategory('all')" id="map-filter-all" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-bold bg-gold-500 text-dark-950">
+            All (14)
+          </button>
+          <button onclick="filterMapCategory('food')" id="map-filter-food" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-semibold bg-dark-800 text-slate-300 border border-white/10">
+            🍜 Food
+          </button>
+          <button onclick="filterMapCategory('shows')" id="map-filter-shows" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-semibold bg-dark-800 text-slate-300 border border-white/10">
+            ✨ Free Shows
+          </button>
+          <button onclick="filterMapCategory('concert')" id="map-filter-concert" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-semibold bg-dark-800 text-slate-300 border border-white/10">
+            🎤 Concert
+          </button>
+          <button onclick="filterMapCategory('zipline')" id="map-filter-zipline" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-semibold bg-dark-800 text-slate-300 border border-white/10">
+            🪂 Ziplines
+          </button>
+        </div>
+
+        <!-- Interactive Map Container -->
+        <div class="glass-card rounded-2xl overflow-hidden border-white/15 p-1 relative shadow-2xl">
+          <div id="leafletMap" style="height: 380px; width: 100%; border-radius: 12px; z-index: 10;"></div>
+          <!-- Floating Legend Pill -->
+          <div class="absolute bottom-3 left-3 z-20 glass-card px-2.5 py-1 rounded-lg border border-white/10 text-[10px] flex items-center gap-2 text-slate-300 pointer-events-none">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gold-400"></span> Hotel / Strip</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Free Shows</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Food</span>
+          </div>
+        </div>
+
+        <!-- Quick Destination Cards below map -->
+        <div class="space-y-2 pt-1">
+          <h3 class="text-xs font-bold text-slate-400 px-1 uppercase tracking-wider">Tap to Focus Destination</h3>
+          <div class="grid grid-cols-2 gap-2 text-left">
+            <button onclick="flyToMapStop('luxor')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-gold-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-buildings text-gold-400"></i> Luxor Resort</div>
+              <div class="text-[10px] text-slate-400">Base Camp (South Strip)</div>
+            </button>
+            <button onclick="flyToMapStop('vegassign')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-emerald-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-camera text-emerald-400"></i> Vegas Sign</div>
+              <div class="text-[10px] text-slate-400">Late Night Visit</div>
+            </button>
+            <button onclick="flyToMapStop('phlive')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-purple-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-microphone-stage text-purple-400"></i> PH Live (Concert)</div>
+              <div class="text-[10px] text-slate-400">Vũ Trụ Say Hi (Nov 28)</div>
+            </button>
+            <button onclick="flyToMapStop('slotzilla')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-gold-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-person-simple-throw text-gold-400"></i> SlotZilla Fremont</div>
+              <div class="text-[10px] text-slate-400">Under LED Canopy</div>
+            </button>
+            <button onclick="flyToMapStop('resortsworld')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-orange-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-fork-knife text-orange-400"></i> Resorts World</div>
+              <div class="text-[10px] text-slate-400">Famous Foods Hawker</div>
+            </button>
+            <button onclick="flyToMapStop('tacos')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-orange-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-bowl-food text-orange-400"></i> Tacos El Gordo</div>
+              <div class="text-[10px] text-slate-400">Adobada on North Strip</div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= NATIVE FIXED BOTTOM DOCK ================= -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 glass-nav border-t border-white/10 px-2 py-2 flex items-center justify-around">
+      <button onclick="switchTab('schedule')" id="nav-schedule" class="nav-btn tap-effect flex flex-col items-center justify-center py-1 px-2 rounded-xl text-gold-400 transition-colors">
+        <i class="ph-fill ph-calendar text-xl"></i>
+        <span class="text-[10px] font-semibold tracking-tight mt-0.5">Schedule</span>
+      </button>
+
+      <button onclick="switchTab('map')" id="nav-map" class="nav-btn tap-effect flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-400 hover:text-white transition-colors">
+        <i class="ph-bold ph-map-trifold text-xl"></i>
+        <span class="text-[10px] font-semibold tracking-tight mt-0.5">Map</span>
+      </button>
+
+      <button onclick="switchTab('food')" id="nav-food" class="nav-btn tap-effect flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-400 hover:text-white transition-colors">
+        <i class="ph-bold ph-fork-knife text-xl"></i>
+        <span class="text-[10px] font-semibold tracking-tight mt-0.5">Dining</span>
+      </button>
+
+      <button onclick="switchTab('shows')" id="nav-shows" class="nav-btn tap-effect flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-400 hover:text-white transition-colors">
+        <i class="ph-bold ph-sparkle text-xl"></i>
+        <span class="text-[10px] font-semibold tracking-tight mt-0.5">Shows</span>
+      </button>
+
+      <button onclick="switchTab('album')" id="nav-album" class="nav-btn tap-effect flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-400 hover:text-white transition-colors relative">
+        <i class="ph-bold ph-images text-xl"></i>
+        <span class="text-[10px] font-semibold tracking-tight mt-0.5">Album</span>
+        <span id="albumBadge" class="hidden absolute top-0.5 right-2 w-2 h-2 rounded-full bg-gold-400 ring-2 ring-dark-900"></span>
+      </button>
+    </nav>
+
+    <!-- ================= FULLSCREEN PHOTO MODAL PREVIEW ================= -->
+    <div id="photoLightboxModal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4" onclick="closeLightbox(event)">
+      <div class="flex items-center justify-between text-white pt-2">
+        <div>
+          <h4 id="lightboxTitle" class="text-sm font-bold">Check-In Photo</h4>
+          <p id="lightboxTime" class="text-[11px] text-gold-400 font-mono">Timestamp</p>
+        </div>
+        <button onclick="closeLightbox(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white tap-effect">
+          <i class="ph-bold ph-x text-base"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 flex items-center justify-center py-4">
+        <img id="lightboxImage" src="" alt="Full view" class="max-w-full max-h-[70vh] rounded-2xl object-contain shadow-2xl border border-white/10">
+      </div>
+
+      <div class="flex items-center justify-between gap-3 pb-safe pt-2">
+        <button id="lightboxDeleteBtn" class="flex-1 py-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-bold tap-effect flex items-center justify-center gap-1.5">
+          <i class="ph-bold ph-trash"></i> Delete Photo
+        </button>
+        <button onclick="closeLightbox(null, true)" class="flex-1 py-2.5 rounded-xl bg-dark-750 text-white text-xs font-bold border border-white/10 tap-effect">
+          Done
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= MODAL: ADD / EDIT TRIP CARD ================= -->
+    <div id="cardEditorModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeCardModal(event)">
+      <div class="w-full max-w-md bg-dark-900 border-t sm:border border-white/15 rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 id="modalEditorTitle" class="text-base font-extrabold text-white flex items-center gap-2">
+            <i class="ph-bold ph-sparkle text-gold-400"></i> <span>Add New Activity</span>
+          </h3>
+          <button onclick="closeCardModal(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300 tap-effect">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+
+        <form id="cardEditorForm" onsubmit="handleSaveCard(event)" class="space-y-3.5 text-xs">
+          <input type="hidden" id="editCardId" value="">
+
+          <!-- Day Selector -->
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Trip Day</label>
+            <select id="editCardDay" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2.5 text-white font-medium focus:border-gold-500 outline-none">
+              <option value="fri">Fri, Nov 27 (Arrival & South Strip)</option>
+              <option value="sat">Sat, Nov 28 (Chinatown & Concert)</option>
+              <option value="sun">Sun, Nov 29 (LINQ & Fremont)</option>
+              <option value="mon">Mon, Nov 30 (Feasts & Departure)</option>
+            </select>
+          </div>
+
+          <!-- Time Inputs: Sortable 24h & Display Text -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Time (24h Sort)</label>
+              <input type="time" id="editCardSortTime" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white font-mono focus:border-gold-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Display Label</label>
+              <input type="text" id="editCardTimeLabel" placeholder="e.g. 7:00 PM PST" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
+            </div>
+          </div>
+
+          <!-- Title -->
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Activity Title</label>
+            <input type="text" id="editCardTitle" placeholder="e.g. High Roller Ferris Wheel" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white font-bold focus:border-gold-500 outline-none">
+          </div>
+
+          <!-- Category / Badge Type -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Category</label>
+              <select id="editCardCategory" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
+                <option value="sight">Free Sight / Show</option>
+                <option value="food">Food & Drinks</option>
+                <option value="concert">Concert / Main Event</option>
+                <option value="zipline">Zipline / Thrill</option>
+                <option value="hotel">Hotel / Relax</option>
+                <option value="travel">Travel / Flight</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Badge Tag</label>
+              <input type="text" id="editCardTag" placeholder="e.g. Free Show" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Notes / Description</label>
+            <textarea id="editCardDesc" rows="2" placeholder="Details, ticket info, tips, or what to order..." class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none"></textarea>
+          </div>
+
+          <!-- Location Name & Address (Optional) -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Map Stop Link (Optional)</label>
+              <select id="editCardMapStop" class="w-full bg-dark-800 border border-white/10 rounded-xl px-2 py-2 text-white focus:border-gold-500 outline-none">
+                <option value="">None</option>
+                <option value="luxor">Luxor Hotel</option>
+                <option value="vegassign">Vegas Sign</option>
+                <option value="nyny">New York-New York</option>
+                <option value="bellagio">Bellagio</option>
+                <option value="flamingos">Flamingo Habitat</option>
+                <option value="phodalat">Phở Đà Lạt</option>
+                <option value="mollytea">Molly Tea</option>
+                <option value="atlantis">Fall of Atlantis</option>
+                <option value="phlive">PH Live (Concert)</option>
+                <option value="linq">The LINQ</option>
+                <option value="venetian">Venetian</option>
+                <option value="slotzilla">SlotZilla (Fremont)</option>
+                <option value="circus">Circus Circus</option>
+                <option value="resortsworld">Resorts World</option>
+                <option value="tacos">Tacos El Gordo</option>
+                <option value="wynn">Wynn</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Address (for copying)</label>
+              <input type="text" id="editCardAddress" placeholder="e.g. 3535 S Las Vegas Blvd" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
+            </div>
+          </div>
+
+          <div class="pt-2 flex items-center gap-2">
+            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 text-dark-950 font-bold tap-effect shadow-md shadow-gold-500/20 text-xs">
+              Save Card & Sort by Time
+            </button>
+            <button type="button" onclick="closeCardModal(null, true)" class="px-4 py-2.5 rounded-xl bg-dark-800 border border-white/10 text-slate-300 font-semibold tap-effect text-xs">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Hidden native file input for snap or pick -->
+    <input type="file" id="cameraFileInput" accept="image/*" class="hidden">
+    <!-- Hidden native file input for dining photo replacement -->
+    <input type="file" id="diningFileInput" accept="image/*" class="hidden">
+
+  </div>
+
+  <!-- ================= TOAST NOTIFICATION ================= -->
+  <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full glass-card border border-gold-500/50 text-xs font-semibold text-white shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
+    <i class="ph-bold ph-check text-emerald-400"></i>
+    <span id="toastMsg">Check-In Saved!</span>
+  </div>
+
+  <!-- ================= JAVASCRIPT APP LOGIC ================= -->
+  <script>
+    // In-memory checkin state (stored in localStorage under 'vegas_checkins_v1')
+    let checkinData = {};
+    let activeSlotForPhoto = null;
+    let currentSelectedDay = 'fri';
+
+    // Default stock photos for dining section
+    const defaultDiningPhotos = {
+      'dining-famousfoods': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
+      'dining-tacos': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=700&q=80',
+      'dining-phodalat': 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=700&q=80',
+      'dining-mollytea': 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=700&q=80'
+    };
+
+    let diningPhotos = {};
+    let activeDiningSlot = null;
+
+    function loadDiningPhotos() {
+      try {
+        const stored = localStorage.getItem('vegas_dining_photos_v1');
+        diningPhotos = stored ? JSON.parse(stored) : {};
+      } catch (e) {
+        console.warn('Could not read dining photos:', e);
+        diningPhotos = {};
+      }
+      applyDiningPhotos();
+    }
+
+    function saveDiningPhotos() {
+      try {
+        localStorage.setItem('vegas_dining_photos_v1', JSON.stringify(diningPhotos));
+      } catch (e) {
+        console.warn('Storage quota reached while saving dining photo:', e);
+        showToast('Storage limit reached! Image previewed only.');
+      }
+      applyDiningPhotos();
+    }
+
+    function applyDiningPhotos() {
+      Object.keys(defaultDiningPhotos).forEach(key => {
+        const img = document.getElementById('img-' + key);
+        const badge = document.getElementById('badge-' + key);
+        if (img) {
+          if (diningPhotos[key]) {
+            img.src = diningPhotos[key];
+            if (badge) badge.classList.remove('hidden');
+          } else {
+            img.src = defaultDiningPhotos[key];
+            if (badge) badge.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    function triggerDiningPhotoUpload(slotId) {
+      activeDiningSlot = slotId;
+      const input = document.getElementById('diningFileInput');
+      input.value = '';
+      input.click();
+    }
+
+    document.getElementById('diningFileInput').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file || !activeDiningSlot) return;
+
+      showToast('Compressing & Updating Photo...');
+      try {
+        const compressed = await compressImageFile(file, 1000, 1000, 0.75);
+        diningPhotos[activeDiningSlot] = compressed;
+        saveDiningPhotos();
+        showToast('Dining photo updated! 🍽️📸');
+      } catch (err) {
+        console.error('Failed to update dining photo:', err);
+        showToast('Could not process photo');
+      }
     });
 
-    // 2. Global Upload Function wired to each slot
-    window.uploadToFirebase = async function(event, slotId) {
-      const file = event.target.files[0];
-      if (!file) return;
+    function previewDiningPhoto(slotId, title) {
+      const imgSrc = diningPhotos[slotId] || defaultDiningPhotos[slotId];
+      if (!imgSrc) return;
 
-      const statusEl = document.getElementById('status-' + slotId);
-      if (statusEl) {
-        statusEl.textContent = '⏳ Uploading to Cloud...';
-        statusEl.style.display = 'inline';
+      const modal = document.getElementById('photoLightboxModal');
+      const img = document.getElementById('lightboxImage');
+      const modalTitle = document.getElementById('lightboxTitle');
+      const time = document.getElementById('lightboxTime');
+      const deleteBtn = document.getElementById('lightboxDeleteBtn');
+
+      modalTitle.textContent = title;
+      time.textContent = diningPhotos[slotId] ? 'Custom Uploaded Photo' : 'Default Stock Photo';
+      img.src = imgSrc;
+
+      deleteBtn.textContent = 'Reset to Default';
+      deleteBtn.onclick = () => {
+        if (diningPhotos[slotId]) {
+          delete diningPhotos[slotId];
+          saveDiningPhotos();
+          showToast('Photo reset to default');
+        }
+        closeLightbox(null, true);
+      };
+
+      modal.classList.remove('hidden');
+    }
+
+    function resetAllDiningPhotos() {
+      if (confirm('Reset all custom dining photos back to default?')) {
+        diningPhotos = {};
+        saveDiningPhotos();
+        showToast('All dining photos reset to default');
       }
+    }
+
+    // Default built-in schedule data structure with sortable 24-hr times
+    const defaultSchedule = [
+      // Friday Nov 27
+      {
+        id: 'fri-wake',
+        day: 'fri',
+        sortTime: '03:30',
+        timeLabel: '3:30 AM EST',
+        category: 'travel',
+        tag: 'Wake Up',
+        title: 'Toledo Departure Prep',
+        desc: 'Finish packing. Drive from Toledo to DTW (approx. 50 mins via I-75 N / I-275 N). Target airport arrival: 5:10 AM.',
+        mapStop: null,
+        address: ''
+      },
+      {
+        id: 'fri-dtw',
+        day: 'fri',
+        sortTime: '06:41',
+        timeLabel: '6:41 AM EST',
+        category: 'travel',
+        tag: 'Flight',
+        title: 'Board Flight at DTW ✈️',
+        desc: 'Non-stop flight to LAS. Gaining 3 hours crossing time zones!',
+        mapStop: null,
+        address: ''
+      },
+      {
+        id: 'fri-land',
+        day: 'fri',
+        sortTime: '08:39',
+        timeLabel: '8:39 AM – 10:00 AM PST',
+        category: 'hotel',
+        tag: 'Touchdown',
+        title: 'Land at LAS & Luxor Dropoff',
+        desc: 'Quick 10-min rideshare to Luxor Hotel. Drop bags at bell desk; you gain 5 bonus hours before room check-in!',
+        mapStop: 'luxor',
+        address: '3900 S Las Vegas Blvd, Las Vegas, NV 89119'
+      },
+      {
+        id: 'fri-mandalay',
+        day: 'fri',
+        sortTime: '10:00',
+        timeLabel: '10:00 AM – 1:00 PM PST',
+        category: 'hotel',
+        tag: 'Explore',
+        title: 'Mandalay Place & Luxor Pyramid Atrium',
+        desc: 'Brunch along the indoor skybridge connecting Luxor and Mandalay Bay. Check out the massive pyramid atrium.',
+        mapStop: null,
+        address: ''
+      },
+      {
+        id: 'fri-checkin',
+        day: 'fri',
+        sortTime: '15:00',
+        timeLabel: '3:00 PM – 5:30 PM PST',
+        category: 'hotel',
+        tag: 'Hotel',
+        title: 'Luxor Check-in & Power Nap',
+        desc: 'Verify ID at the Mobile Check-in desk. Unpack, recharge phone batteries, and take a 90-min nap after your early morning flight.',
+        mapStop: 'luxor',
+        address: '3900 S Las Vegas Blvd, Las Vegas, NV 89119'
+      },
+      {
+        id: 'fri-nyny',
+        day: 'fri',
+        sortTime: '18:00',
+        timeLabel: '6:00 PM – 9:30 PM PST',
+        category: 'sight',
+        tag: 'South Strip',
+        title: 'New York-New York & The Park Dinner',
+        desc: 'Walk the Brooklyn Bridge replica, grab casual dinner along The Park promenade, and take in the South Strip lights.',
+        mapStop: 'nyny',
+        address: '3790 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'fri-vegassign',
+        day: 'fri',
+        sortTime: '22:30',
+        timeLabel: '10:30 PM – 11:30 PM PST',
+        category: 'sight',
+        tag: 'Free Sight',
+        title: 'Welcome to Fabulous Las Vegas Sign',
+        desc: 'Night Crowd Hack: 4 mins south of Luxor. Late at night means zero tour buses and no line! Snap your check-in selfie under the glowing neon.',
+        mapStop: 'vegassign',
+        address: '5200 S Las Vegas Blvd, Las Vegas, NV 89119'
+      },
+
+      // Saturday Nov 28
+      {
+        id: 'sat-wake',
+        day: 'sat',
+        sortTime: '08:30',
+        timeLabel: '8:30 AM – 9:15 AM PST',
+        category: 'hotel',
+        tag: 'Wake Up',
+        title: 'Morning Coffee & Outfit Prep',
+        desc: 'Grab morning coffee at Luxor and get concert-ready.',
+        mapStop: null,
+        address: ''
+      },
+      {
+        id: 'sat-bellagio',
+        day: 'sat',
+        sortTime: '10:00',
+        timeLabel: '10:00 AM – 11:30 AM PST',
+        category: 'sight',
+        tag: 'Free Sights',
+        title: 'Bellagio Conservatory & Flamingo Habitat',
+        desc: 'Walk through Bellagio seasonal botanical exhibit, then stroll across to Flamingo to see live Chilean flamingos and waterfalls.',
+        mapStop: 'bellagio',
+        address: '3600 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'sat-chinatown',
+        day: 'sat',
+        sortTime: '12:00',
+        timeLabel: '12:00 PM – 2:30 PM PST',
+        category: 'food',
+        tag: 'Food Run',
+        title: 'Phở Đà Lạt + Molly Tea (茉莉奶白)',
+        desc: 'Uber west to Chinatown. Rich beef phở at Phở Đà Lạt followed by fresh jasmine milk tea with foam at Molly Tea.',
+        mapStop: 'phodalat',
+        address: '4553 W Flamingo Rd, Las Vegas, NV 89103'
+      },
+      {
+        id: 'sat-atlantis',
+        day: 'sat',
+        sortTime: '15:00',
+        timeLabel: '3:00 PM – 4:30 PM PST',
+        category: 'sight',
+        tag: 'Free Show',
+        title: 'Fall of Atlantis (Caesars Forum Shops)',
+        desc: 'Animatronic show with fire, water, and moving 9-ft statues near the 50,000-gallon aquarium. Runs on the hour.',
+        mapStop: 'atlantis',
+        address: '3500 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'sat-concert',
+        day: 'sat',
+        sortTime: '19:00',
+        timeLabel: '7:00 PM – 10:30 PM PST',
+        category: 'concert',
+        tag: 'MAIN EVENT',
+        title: '"Vũ Trụ Say Hi" Concert 🎤',
+        desc: 'Venue: PH Live at Planet Hollywood. Have digital tickets ready on mobile. Snap a check-in photo in the arena!',
+        mapStop: 'phlive',
+        address: '3667 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'sat-fountains',
+        day: 'sat',
+        sortTime: '22:30',
+        timeLabel: '10:30 PM – 11:00 PM PST',
+        category: 'sight',
+        tag: 'Free Spectacle',
+        title: 'Bellagio Dancing Fountains at Night',
+        desc: 'Right outside Planet Hollywood along the boulevard. Towering water fountains dancing to music.',
+        mapStop: 'bellagio',
+        address: '3600 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+
+      // Sunday Nov 29
+      {
+        id: 'sun-wake',
+        day: 'sun',
+        sortTime: '09:30',
+        timeLabel: '9:30 AM – 10:15 AM PST',
+        category: 'hotel',
+        tag: 'Sleep In',
+        title: 'Leisurely Wake Up & Breakfast',
+        desc: 'Rest up after the late-night concert. Head out for a relaxed brunch.',
+        mapStop: null,
+        address: ''
+      },
+      {
+        id: 'sun-linq',
+        day: 'sun',
+        sortTime: '11:30',
+        timeLabel: '11:30 AM – 3:30 PM PST',
+        category: 'zipline',
+        tag: 'LINQ & Venetian',
+        title: 'LINQ Promenade & Venetian Canals',
+        desc: 'Walk the open-air LINQ Promenade towards the High Roller wheel. Wander Venetian Grand Canal Shoppes for gondolas and Streetmosphere live singers.',
+        mapStop: 'linq',
+        address: '3535 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'sun-fremont',
+        day: 'sun',
+        sortTime: '17:00',
+        timeLabel: '5:00 PM – 10:30 PM PST',
+        category: 'zipline',
+        tag: 'Downtown Zipline',
+        title: 'SlotZilla Zipline & Viva Vision Canopy',
+        desc: 'Head to historic Fremont Street. Fly superman-style on SlotZilla beneath the massive Viva Vision LED canopy light show! Explore vintage neon casinos like Circa and Golden Nugget.',
+        mapStop: 'slotzilla',
+        address: '425 E Fremont St, Las Vegas, NV 89101'
+      },
+
+      // Monday Nov 30
+      {
+        id: 'mon-room',
+        day: 'mon',
+        sortTime: '09:30',
+        timeLabel: '9:30 AM PST',
+        category: 'hotel',
+        tag: 'Room Retained',
+        title: 'Zero Checkout Rush!',
+        desc: 'Your Luxor room is booked through tonight. Keep your luggage inside, head out to the North Strip freely, and return tonight to shower.',
+        mapStop: 'luxor',
+        address: '3900 S Las Vegas Blvd, Las Vegas, NV 89119'
+      },
+      {
+        id: 'mon-circus',
+        day: 'mon',
+        sortTime: '11:30',
+        timeLabel: '11:30 AM – 1:30 PM PST',
+        category: 'sight',
+        tag: 'Free Circus Show',
+        title: 'Circus Circus Carnival Midway',
+        desc: 'Free live acrobatics, high trapeze artists, and jugglers performing above the Carnival Midway arena.',
+        mapStop: 'circus',
+        address: '2880 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'mon-rw',
+        day: 'mon',
+        sortTime: '13:45',
+        timeLabel: '1:45 PM – 4:00 PM PST',
+        category: 'food',
+        tag: 'Hawker Hall',
+        title: 'Famous Foods Street Eats (Resorts World)',
+        desc: 'Walk into Resorts World. Sample dishes from Southeast Asian hawker stalls: claypot rice, char kway teow, dumplings & barbecue.',
+        mapStop: 'resortsworld',
+        address: '3000 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'mon-tacos',
+        day: 'mon',
+        sortTime: '16:30',
+        timeLabel: '4:30 PM – 6:00 PM PST',
+        category: 'food',
+        tag: 'Tacos',
+        title: 'Tacos El Gordo (Across Resorts World)',
+        desc: 'Pro Ordering Tip: Head straight into the dedicated Adobada line for spiced pork carved off the trompo, grab your tacos, and pay at the register.',
+        mapStop: 'tacos',
+        address: '3041 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'mon-wynn',
+        day: 'mon',
+        sortTime: '18:30',
+        timeLabel: '6:30 PM – 8:00 PM PST',
+        category: 'sight',
+        tag: 'Free Waterfall Show',
+        title: 'Wynn Lake of Dreams',
+        desc: 'Walk south to Wynn. Free outdoor multimedia show featuring puppetry, holograms, and music over the 40-ft waterfall.',
+        mapStop: 'wynn',
+        address: '3131 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'mon-checkout',
+        day: 'mon',
+        sortTime: '20:30',
+        timeLabel: '8:30 PM – 10:30 PM PST',
+        category: 'hotel',
+        tag: 'Reset & Pack',
+        title: 'Return to Luxor, Shower & App Checkout',
+        desc: 'Head back to your room at Luxor, take a shower, change into comfy flight clothes, pack bags, and check out directly on the MGM app.',
+        mapStop: 'luxor',
+        address: '3900 S Las Vegas Blvd, Las Vegas, NV 89119'
+      },
+      {
+        id: 'mon-flight',
+        day: 'mon',
+        sortTime: '23:59',
+        timeLabel: '12:59 AM (Tue Dec 1)',
+        category: 'travel',
+        tag: 'Red-Eye Flight',
+        title: 'Flight LAS ➔ DTW ✈️',
+        desc: 'Rideshare to LAS airport by 10:45 PM. Board 12:59 AM flight to Detroit (lands 1:23 PM Tuesday), then drive back home to Toledo!',
+        mapStop: 'lasairport',
+        address: '5757 Wayne Newton Blvd, Las Vegas, NV 89119'
+      }
+    ];
+
+    let scheduleCards = [];
+
+    // Load persisted cards or fallback to default
+    function loadScheduleStorage() {
+      try {
+        const stored = localStorage.getItem('vegas_schedule_cards_v1');
+        if (stored) {
+          scheduleCards = JSON.parse(stored);
+        } else {
+          scheduleCards = JSON.parse(JSON.stringify(defaultSchedule));
+          saveScheduleStorage();
+        }
+      } catch (e) {
+        console.warn('Could not load schedule cards:', e);
+        scheduleCards = JSON.parse(JSON.stringify(defaultSchedule));
+      }
+    }
+
+    function saveScheduleStorage() {
+      try {
+        localStorage.setItem('vegas_schedule_cards_v1', JSON.stringify(scheduleCards));
+      } catch (e) {
+        console.warn('LocalStorage error while saving cards:', e);
+      }
+    }
+
+    // Local Las Vegas Clock Ticker (PST/PDT)
+    function updateVegasTime() {
+      const clock = document.getElementById('vegasClock');
+      if (!clock) return;
+      const now = new Date();
+      const options = {
+        timeZone: 'America/Los_Angeles',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      };
+      clock.textContent = new Intl.DateTimeFormat('en-US', options).format(now) + ' PST';
+    }
+    setInterval(updateVegasTime, 1000);
+    updateVegasTime();
+
+    // Load persisted check-ins
+    function loadCheckinStorage() {
+      try {
+        const stored = localStorage.getItem('vegas_checkins_v1');
+        if (stored) {
+          checkinData = JSON.parse(stored);
+        }
+      } catch (e) {
+        console.warn('Could not read check-in storage:', e);
+        checkinData = {};
+      }
+    }
+
+    function saveCheckinStorage() {
+      try {
+        localStorage.setItem('vegas_checkins_v1', JSON.stringify(checkinData));
+      } catch (e) {
+        console.warn('LocalStorage full, attempting recovery:', e);
+        showToast('Storage quota reached! Clearing temporary cache.');
+      }
+      renderItinerary();
+      renderAlbumView();
+      updateCheckinProgress();
+    }
+
+    // Sort cards chronologically by sortTime (24h format like "03:30", "19:00")
+    function getSortedCardsForDay(dayKey) {
+      return scheduleCards
+        .filter(c => c.day === dayKey)
+        .sort((a, b) => (a.sortTime || '00:00').localeCompare(b.sortTime || '00:00'));
+    }
+
+    // Category style helper
+    function getCategoryStyle(cat) {
+      switch (cat) {
+        case 'food':
+          return {
+            timeColor: 'text-orange-400',
+            tagBg: 'bg-orange-400/15 text-orange-300',
+            border: 'border-orange-500/25'
+          };
+        case 'sight':
+          return {
+            timeColor: 'text-emerald-400',
+            tagBg: 'bg-emerald-400/15 text-emerald-300',
+            border: 'border-emerald-500/25'
+          };
+        case 'concert':
+          return {
+            timeColor: 'text-purple-400',
+            tagBg: 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
+            border: 'border-purple-500/40 relative overflow-hidden'
+          };
+        case 'zipline':
+          return {
+            timeColor: 'text-sky-400',
+            tagBg: 'bg-sky-400/15 text-sky-300',
+            border: 'border-sky-500/30'
+          };
+        case 'hotel':
+          return {
+            timeColor: 'text-gold-400',
+            tagBg: 'bg-gold-400/15 text-gold-300',
+            border: 'border-gold-500/25'
+          };
+        default:
+          return {
+            timeColor: 'text-slate-300',
+            tagBg: 'bg-white/10 text-slate-200',
+            border: 'border-white/10'
+          };
+      }
+    }
+
+    // Render cards for the currently selected day
+    function renderItinerary() {
+      const container = document.getElementById('itineraryContainer');
+      if (!container) return;
+
+      const cards = getSortedCardsForDay(currentSelectedDay);
+
+      if (cards.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card rounded-2xl p-8 text-center space-y-2">
+            <div class="w-10 h-10 rounded-xl bg-gold-400/10 text-gold-400 flex items-center justify-center mx-auto text-xl">
+              <i class="ph-bold ph-calendar-plus"></i>
+            </div>
+            <h4 class="text-sm font-bold text-white">No stops planned for this day</h4>
+            <p class="text-xs text-slate-400">Tap "+ Add Stop" above to create an activity card.</p>
+            <button onclick="openCardModal('${currentSelectedDay}')" class="mt-2 text-xs font-bold text-dark-950 bg-gold-400 px-3.5 py-1.5 rounded-xl tap-effect">
+              Add Activity
+            </button>
+          </div>
+        `;
+        updateCheckinProgress();
+        return;
+      }
+
+      container.innerHTML = cards.map(card => {
+        const style = getCategoryStyle(card.category);
+        const checkin = checkinData[card.id];
+
+        let actionButtonsHtml = '';
+        if (card.mapStop) {
+          actionButtonsHtml += `
+            <button onclick="flyToMapStop('${card.mapStop}')" class="tap-effect inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg bg-gold-500/15 text-gold-300 border border-gold-500/35 font-semibold">
+              <i class="ph-bold ph-map-pin"></i> View on Map
+            </button>
+          `;
+        }
+        if (card.address) {
+          actionButtonsHtml += `
+            <button onclick="copyAddress('${card.address.replace(/'/g, "\\'")}')" class="tap-effect inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg bg-dark-750 text-slate-300 border border-white/10">
+              <i class="ph-bold ph-copy"></i> Copy Address
+            </button>
+          `;
+        }
+
+        let checkinSlotHtml = '';
+        if (checkin && checkin.photo) {
+          checkinSlotHtml = `
+            <div class="flex items-center justify-between gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2">
+              <div class="flex items-center gap-2.5 overflow-hidden">
+                <img src="${checkin.photo}" onclick="openLightbox('${card.id}')" alt="Check-in Photo" class="w-12 h-12 rounded-lg object-cover border border-emerald-500/50 cursor-pointer tap-effect flex-shrink-0">
+                <div class="min-w-0">
+                  <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-400/20 px-1.5 py-0.2 rounded uppercase tracking-wider">
+                    <i class="ph-bold ph-check"></i> Checked In
+                  </span>
+                  <div class="text-[11px] text-slate-300 font-mono truncate mt-0.5">
+                    ${checkin.checkinTimestamp}
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="triggerCheckinSnap('${card.id}')" class="w-7 h-7 rounded-lg bg-dark-750 text-slate-300 border border-white/10 flex items-center justify-center text-xs tap-effect hover:text-white" title="Change Photo">
+                  <i class="ph-bold ph-arrows-clockwise"></i>
+                </button>
+                <button onclick="deleteCheckin('${card.id}')" class="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center justify-center text-xs tap-effect hover:bg-rose-500/25" title="Remove Check-in">
+                  <i class="ph-bold ph-trash"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          checkinSlotHtml = `
+            <button onclick="triggerCheckinSnap('${card.id}')" class="w-full tap-effect py-2 rounded-xl bg-dark-750/70 border border-white/10 hover:border-gold-500/40 text-xs font-semibold text-slate-300 hover:text-gold-400 flex items-center justify-center gap-1.5 transition-colors">
+              <i class="ph-bold ph-camera text-gold-400 text-sm"></i>
+              <span>Snap Check-In Photo</span>
+            </button>
+          `;
+        }
+
+        return `
+          <div class="itinerary-card glass-card rounded-2xl p-3.5 space-y-2.5 ${style.border}" data-card-id="${card.id}">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[11px] font-bold ${style.timeColor} uppercase tracking-wider font-mono">${card.timeLabel}</span>
+                    <span class="px-1.5 py-0.2 rounded ${style.tagBg} text-[10px] font-semibold">${card.tag || 'Stop'}</span>
+                  </div>
+                  <!-- Edit & Delete Card Actions -->
+                  <div class="flex items-center gap-1">
+                    <button onclick="openCardModal(null, '${card.id}')" class="w-6 h-6 rounded-lg bg-dark-800 text-slate-400 hover:text-gold-400 flex items-center justify-center tap-effect border border-white/5" title="Edit Card">
+                      <i class="ph-bold ph-pencil-simple text-xs"></i>
+                    </button>
+                    <button onclick="deleteScheduleCard('${card.id}')" class="w-6 h-6 rounded-lg bg-dark-800 text-slate-400 hover:text-rose-400 flex items-center justify-center tap-effect border border-white/5" title="Delete Card">
+                      <i class="ph-bold ph-trash text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+                <h3 class="text-sm font-bold text-white mt-1">${card.title}</h3>
+                <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">${card.desc || ''}</p>
+                ${actionButtonsHtml ? `<div class="flex flex-wrap gap-2 mt-2">${actionButtonsHtml}</div>` : ''}
+              </div>
+            </div>
+            <!-- Check-in photo section -->
+            <div class="checkin-slot-container pt-2 border-t border-white/5" data-slot-id="${card.id}" data-title="${card.title.replace(/"/g, '&quot;')}" data-time="${card.timeLabel}">
+              ${checkinSlotHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateCheckinProgress();
+    }
+
+    // Modal Add / Edit Card Handling
+    function openCardModal(day = null, cardId = null) {
+      const modal = document.getElementById('cardEditorModal');
+      const modalTitle = document.getElementById('modalEditorTitle').querySelector('span');
+      const form = document.getElementById('cardEditorForm');
+      form.reset();
+
+      document.getElementById('editCardId').value = cardId || '';
+      document.getElementById('editCardDay').value = day || currentSelectedDay;
+
+      if (cardId) {
+        const card = scheduleCards.find(c => c.id === cardId);
+        if (card) {
+          modalTitle.textContent = 'Edit Activity Stop';
+          document.getElementById('editCardDay').value = card.day;
+          document.getElementById('editCardSortTime').value = card.sortTime || '12:00';
+          document.getElementById('editCardTimeLabel').value = card.timeLabel || '';
+          document.getElementById('editCardTitle').value = card.title || '';
+          document.getElementById('editCardCategory').value = card.category || 'sight';
+          document.getElementById('editCardTag').value = card.tag || '';
+          document.getElementById('editCardDesc').value = card.desc || '';
+          document.getElementById('editCardMapStop').value = card.mapStop || '';
+          document.getElementById('editCardAddress').value = card.address || '';
+        }
+      } else {
+        modalTitle.textContent = 'Add New Activity';
+        document.getElementById('editCardSortTime').value = '12:00';
+        document.getElementById('editCardTimeLabel').value = '12:00 PM PST';
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeCardModal(event, force = false) {
+      if (force || (event && event.target.id === 'cardEditorModal')) {
+        document.getElementById('cardEditorModal').classList.add('hidden');
+      }
+    }
+
+    function handleSaveCard(e) {
+      e.preventDefault();
+      const id = document.getElementById('editCardId').value;
+      const day = document.getElementById('editCardDay').value;
+      const sortTime = document.getElementById('editCardSortTime').value || '12:00';
+      const timeLabel = document.getElementById('editCardTimeLabel').value.trim();
+      const title = document.getElementById('editCardTitle').value.trim();
+      const category = document.getElementById('editCardCategory').value;
+      const tag = document.getElementById('editCardTag').value.trim() || 'Stop';
+      const desc = document.getElementById('editCardDesc').value.trim();
+      const mapStop = document.getElementById('editCardMapStop').value || null;
+      const address = document.getElementById('editCardAddress').value.trim();
+
+      if (id) {
+        // Update existing card
+        const idx = scheduleCards.findIndex(c => c.id === id);
+        if (idx !== -1) {
+          scheduleCards[idx] = {
+            ...scheduleCards[idx],
+            day,
+            sortTime,
+            timeLabel,
+            title,
+            category,
+            tag,
+            desc,
+            mapStop,
+            address
+          };
+          showToast('Stop updated & reordered by time! ⏰');
+        }
+      } else {
+        // Create new card
+        const newCard = {
+          id: 'custom-' + Date.now(),
+          day,
+          sortTime,
+          timeLabel,
+          title,
+          category,
+          tag,
+          desc,
+          mapStop,
+          address
+        };
+        scheduleCards.push(newCard);
+        showToast('New stop added & sorted! 🌟');
+      }
+
+      saveScheduleStorage();
+
+      // If card was assigned to a different day, switch to that day view
+      if (day !== currentSelectedDay) {
+        switchDay(day);
+      } else {
+        renderItinerary();
+      }
+
+      renderAlbumView();
+      closeCardModal(null, true);
+    }
+
+    // Delete single schedule card
+    function deleteScheduleCard(cardId) {
+      const card = scheduleCards.find(c => c.id === cardId);
+      const title = card ? card.title : 'this stop';
+      if (confirm(`Delete "${title}" from your itinerary?`)) {
+        scheduleCards = scheduleCards.filter(c => c.id !== cardId);
+        saveScheduleStorage();
+
+        // Also clean up check-in photo if any
+        if (checkinData[cardId]) {
+          delete checkinData[cardId];
+          saveCheckinStorage();
+        }
+
+        renderItinerary();
+        renderAlbumView();
+        showToast('Stop removed from itinerary');
+      }
+    }
+
+    // Client-side image compression using canvas
+    function compressImageFile(file, maxWidth = 900, maxHeight = 900, quality = 0.72) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width = Math.round((width * maxHeight) / height);
+                height = maxHeight;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressedBase64);
+          };
+          img.onerror = err => reject(err);
+        };
+        reader.onerror = err => reject(err);
+      });
+    }
+
+    // Trigger photo upload or camera snap for a given slot
+    function triggerCheckinSnap(slotId) {
+      activeSlotForPhoto = slotId;
+      const input = document.getElementById('cameraFileInput');
+      input.value = '';
+      input.click();
+    }
+
+    // Handle photo file selection
+    document.getElementById('cameraFileInput').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file || !activeSlotForPhoto) return;
+
+      showToast('Compressing & Saving...');
 
       try {
-        // Upload image to Firebase Cloud Storage
-        const fileExt = file.name.split('.').pop();
-        const storageRef = ref(storage, `photos/${slotId}_${Date.now()}.${fileExt}`);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
+        const compressedData = await compressImageFile(file);
+        const card = scheduleCards.find(c => c.id === activeSlotForPhoto);
+        const title = card ? card.title : 'Vegas Activity';
+        const scheduledTime = card ? card.timeLabel : '';
 
-        // Update Firestore database document
-        await setDoc(doc(db, "trip", "photos"), {
-          [slotId]: downloadURL
-        }, { merge: true });
+        const now = new Date();
+        const dateOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+        const checkinTimestamp = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
 
-        if (statusEl) {
-          statusEl.textContent = '✅ Synced to all devices!';
-          setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
-        }
+        checkinData[activeSlotForPhoto] = {
+          photo: compressedData,
+          title: title,
+          scheduledTime: scheduledTime,
+          checkinTimestamp: checkinTimestamp,
+          rawTime: Date.now()
+        };
+
+        saveCheckinStorage();
+        showToast('Check-in Photo Saved! 📸');
       } catch (err) {
-        console.error("Firebase upload failed:", err);
-        if (statusEl) {
-          statusEl.textContent = '❌ Upload failed (check rules)';
-        }
-        alert("Upload failed: " + err.message + "\n\nMake sure your Firestore and Storage Rules allow read/write in Firebase Console!");
+        console.error('Image processing error:', err);
+        showToast('Error saving picture. Please try again.');
       }
-    };
+    });
+
+    // Render the Scrapbook / Album View
+    function renderAlbumView() {
+      const albumGrid = document.getElementById('albumGrid');
+      const emptyState = document.getElementById('albumEmptyState');
+      const albumBadge = document.getElementById('albumBadge');
+      const countStat = document.getElementById('albumCountStat');
+      const remainingStat = document.getElementById('albumRemainingStat');
+      const storageStat = document.getElementById('albumStorageStat');
+
+      const entries = Object.entries(checkinData).filter(([_, item]) => item && item.photo);
+      const totalSlots = scheduleCards.length || 17;
+      const count = entries.length;
+
+      if (countStat) countStat.textContent = count;
+      if (remainingStat) remainingStat.textContent = Math.max(0, totalSlots - count);
+
+      // Estimate bytes stored
+      const rawString = JSON.stringify(checkinData);
+      const kb = Math.round(new Blob([rawString]).size / 1024);
+      if (storageStat) storageStat.textContent = kb + ' KB';
+
+      if (count === 0) {
+        if (albumGrid) albumGrid.innerHTML = '';
+        if (emptyState) emptyState.classList.remove('hidden');
+        if (albumBadge) albumBadge.classList.add('hidden');
+        return;
+      }
+
+      if (emptyState) emptyState.classList.add('hidden');
+      if (albumBadge) albumBadge.classList.remove('hidden');
+
+      // Sort chronological
+      entries.sort((a, b) => (a[1].rawTime || 0) - (b[1].rawTime || 0));
+
+      if (albumGrid) {
+        albumGrid.innerHTML = entries.map(([slotId, item]) => `
+          <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-2">
+            <div class="relative rounded-xl overflow-hidden group cursor-pointer tap-effect" onclick="openLightbox('${slotId}')">
+              <img src="${item.photo}" class="w-full h-36 object-cover" alt="${item.title}">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
+                <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
+              </div>
+            </div>
+            <div class="px-1">
+              <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
+              <p class="text-[10px] text-slate-400 font-mono truncate">${item.scheduledTime || 'Las Vegas'}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Update overall progress bar
+    function updateCheckinProgress() {
+      const totalSlots = scheduleCards.length || 17;
+      const completed = Object.keys(checkinData).filter(k => checkinData[k] && checkinData[k].photo).length;
+      const pct = totalSlots > 0 ? Math.round((completed / totalSlots) * 100) : 0;
+
+      const text = document.getElementById('progressCheckinText');
+      const bar = document.getElementById('checkinProgressBar');
+      if (text) text.textContent = `${completed} / ${totalSlots} (${pct}%)`;
+      if (bar) bar.style.width = `${pct}%`;
+    }
+
+    // Delete single checkin
+    function deleteCheckin(slotId) {
+      if (confirm('Delete this check-in photo?')) {
+        delete checkinData[slotId];
+        saveCheckinStorage();
+        showToast('Check-in deleted');
+      }
+    }
+
+    // Clear all checkins
+    function clearAllCheckinPhotos() {
+      if (confirm('Clear ALL check-in photos from your trip album?')) {
+        checkinData = {};
+        saveCheckinStorage();
+        showToast('Trip album cleared');
+      }
+    }
+
+    // Lightbox Fullscreen viewer
+    let currentLightboxSlot = null;
+    function openLightbox(slotId) {
+      const checkin = checkinData[slotId];
+      if (!checkin || !checkin.photo) return;
+      currentLightboxSlot = slotId;
+
+      const modal = document.getElementById('photoLightboxModal');
+      const img = document.getElementById('lightboxImage');
+      const title = document.getElementById('lightboxTitle');
+      const time = document.getElementById('lightboxTime');
+      const deleteBtn = document.getElementById('lightboxDeleteBtn');
+
+      title.textContent = checkin.title;
+      time.textContent = 'Checked In: ' + checkin.checkinTimestamp;
+      img.src = checkin.photo;
+
+      deleteBtn.onclick = () => {
+        deleteCheckin(slotId);
+        closeLightbox(null, true);
+      };
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeLightbox(event, force = false) {
+      if (force || (event && event.target.id === 'photoLightboxModal')) {
+        document.getElementById('photoLightboxModal').classList.add('hidden');
+      }
+    }
+
+    // ================= LEAFLET MAP LOGIC =================
+    let leafletMapInstance = null;
+    let mapMarkers = [];
+
+    // All key coordinates for the Vegas trip
+    const tripDestinations = [
+      {
+        id: 'luxor',
+        name: 'Luxor Hotel & Casino',
+        category: 'hotel',
+        lat: 36.0955,
+        lng: -115.1761,
+        time: 'Nov 27 – Dec 1 (Hotel Base)',
+        desc: '3900 S Las Vegas Blvd. Base hotel, atrium & luggage drop.',
+        icon: 'ph-buildings',
+        color: '#c59b27'
+      },
+      {
+        id: 'vegassign',
+        name: 'Welcome to Fabulous Las Vegas Sign',
+        category: 'shows',
+        lat: 36.0820,
+        lng: -115.1728,
+        time: 'Fri 10:30 PM (Late Night Photo)',
+        desc: 'South Strip median plaza. Visit late night to avoid tour buses.',
+        icon: 'ph-camera',
+        color: '#22c55e'
+      },
+      {
+        id: 'nyny',
+        name: 'New York-New York & The Park',
+        category: 'shows',
+        lat: 36.1024,
+        lng: -115.1746,
+        time: 'Fri 6:00 PM (South Strip)',
+        desc: 'Brooklyn Bridge replica, outdoor food & casino district.',
+        icon: 'ph-martini',
+        color: '#c59b27'
+      },
+      {
+        id: 'bellagio',
+        name: 'Bellagio Fountains & Conservatory',
+        category: 'shows',
+        lat: 36.1126,
+        lng: -115.1767,
+        time: 'Sat 10:00 AM & 10:30 PM',
+        desc: 'Choreographed dancing fountains & free indoor botanical holiday gardens.',
+        icon: 'ph-drop',
+        color: '#22c55e'
+      },
+      {
+        id: 'flamingos',
+        name: 'Flamingo Wildlife Habitat',
+        category: 'shows',
+        lat: 36.1165,
+        lng: -115.1708,
+        time: 'Sat 11:00 AM',
+        desc: 'Free 4-acre garden with real Chilean flamingos and waterfalls.',
+        icon: 'ph-bird',
+        color: '#f472b6'
+      },
+      {
+        id: 'phodalat',
+        name: 'Phở Đà Lạt (Chinatown)',
+        category: 'food',
+        lat: 36.1154,
+        lng: -115.2023,
+        time: 'Sat 12:00 PM Lunch',
+        desc: '4553 W Flamingo Rd. Traditional rich Vietnamese beef phở & com tam.',
+        icon: 'ph-bowl-food',
+        color: '#fb923c'
+      },
+      {
+        id: 'mollytea',
+        name: 'Molly Tea 茉莉奶白 (Chinatown)',
+        category: 'food',
+        lat: 36.1287,
+        lng: -115.2248,
+        time: 'Sat 1:30 PM Boba',
+        desc: '3400 S Jones Blvd #20. Fresh floral jasmine milk tea with foam.',
+        icon: 'ph-coffee',
+        color: '#fb923c'
+      },
+      {
+        id: 'atlantis',
+        name: 'Fall of Atlantis (Caesars Forum Shops)',
+        category: 'shows',
+        lat: 36.1172,
+        lng: -115.1752,
+        time: 'Sat 3:00 PM Show',
+        desc: 'Animatronic fire & water mythological spectacle by giant aquarium.',
+        icon: 'ph-fire',
+        color: '#22c55e'
+      },
+      {
+        id: 'phlive',
+        name: 'PH Live at Planet Hollywood (Vũ Trụ Say Hi)',
+        category: 'concert',
+        lat: 36.1098,
+        lng: -115.1706,
+        time: 'Sat 7:00 PM (Concert)',
+        desc: '3667 S Las Vegas Blvd. Live concert venue inside Miracle Mile Shops.',
+        icon: 'ph-microphone-stage',
+        color: '#a855f7'
+      },
+      {
+        id: 'linq',
+        name: 'The LINQ Promenade & Fly LINQ',
+        category: 'zipline',
+        lat: 36.1178,
+        lng: -115.1685,
+        time: 'Sun 11:30 AM',
+        desc: 'Open-air promenade, High Roller wheel & Fly LINQ 12-story zipline.',
+        icon: 'ph-person-simple-throw',
+        color: '#38bdf8'
+      },
+      {
+        id: 'venetian',
+        name: 'The Venetian Grand Canal Shoppes',
+        category: 'shows',
+        lat: 36.1212,
+        lng: -115.1697,
+        time: 'Sun 1:30 PM',
+        desc: 'Indoor canals, singing gondoliers & Streetmosphere performers.',
+        icon: 'ph-boat',
+        color: '#22c55e'
+      },
+      {
+        id: 'slotzilla',
+        name: 'SlotZilla Zipline & Fremont Street',
+        category: 'zipline',
+        lat: 36.1707,
+        lng: -115.1438,
+        time: 'Sun 6:00 PM (Downtown)',
+        desc: '425 E Fremont St. Superman flight under 5-block Viva Vision LED canopy.',
+        icon: 'ph-sparkle',
+        color: '#c59b27'
+      },
+      {
+        id: 'circus',
+        name: 'Circus Circus Carnival Midway',
+        category: 'shows',
+        lat: 36.1367,
+        lng: -115.1631,
+        time: 'Mon 11:30 AM',
+        desc: 'Free daily acrobats, aerialists, and high-wire trapeze acts.',
+        icon: 'ph-mask-happy',
+        color: '#22c55e'
+      },
+      {
+        id: 'resortsworld',
+        name: 'Famous Foods Street Eats (Resorts World)',
+        category: 'food',
+        lat: 36.1340,
+        lng: -115.1678,
+        time: 'Mon 1:45 PM Lunch',
+        desc: '3000 S Las Vegas Blvd. Southeast Asian night hawker market & stalls.',
+        icon: 'ph-fork-knife',
+        color: '#fb923c'
+      },
+      {
+        id: 'tacos',
+        name: 'Tacos El Gordo (North Strip)',
+        category: 'food',
+        lat: 36.1328,
+        lng: -115.1650,
+        time: 'Mon 4:30 PM Dinner',
+        desc: '3041 S Las Vegas Blvd (across Resorts World). Tijuana adobada pork tacos.',
+        icon: 'ph-bowl-food',
+        color: '#fb923c'
+      },
+      {
+        id: 'wynn',
+        name: 'Wynn Lake of Dreams',
+        category: 'shows',
+        lat: 36.1266,
+        lng: -115.1658,
+        time: 'Mon 6:30 PM Show',
+        desc: '3131 S Las Vegas Blvd. Free multimedia water, puppet & holographic show.',
+        icon: 'ph-waves',
+        color: '#22c55e'
+      },
+      {
+        id: 'lasairport',
+        name: 'Harry Reid International Airport (LAS)',
+        category: 'travel',
+        lat: 36.0840,
+        lng: -115.1537,
+        time: 'Mon 10:45 PM (Departure)',
+        desc: 'Terminal for 12:59 AM flight to Detroit (DTW).',
+        icon: 'ph-airplane-takeoff',
+        color: '#38bdf8'
+      }
+    ];
+
+    function initLeafletMap() {
+      if (leafletMapInstance) {
+        setTimeout(() => { leafletMapInstance.invalidateSize(); }, 200);
+        return;
+      }
+
+      // Center around mid-strip
+      leafletMapInstance = L.map('leafletMap', {
+        zoomControl: true,
+        scrollWheelZoom: true
+      }).setView([36.1200, -115.1720], 12);
+
+      // Free OpenStreetMap Tile Layer with dark CSS filter
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(leafletMapInstance);
+
+      renderMapMarkers('all');
+    }
+
+    function renderMapMarkers(categoryFilter = 'all') {
+      // Clear existing markers
+      mapMarkers.forEach(m => leafletMapInstance.removeLayer(m));
+      mapMarkers = [];
+
+      tripDestinations.forEach(dest => {
+        if (categoryFilter !== 'all' && dest.category !== categoryFilter) {
+          return;
+        }
+
+        // Custom HTML Marker Icon with gold/neon ring
+        const customIcon = L.divIcon({
+          className: 'custom-map-pin',
+          html: `
+            <div style="background-color: ${dest.color}; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px ${dest.color}88; border: 2px solid #ffffff; cursor: pointer;">
+              <span style="font-size: 13px; color: #000; font-weight: bold;"><i class="ph-bold ${dest.icon}"></i></span>
+            </div>
+          `,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
+
+        const marker = L.marker([dest.lat, dest.lng], { icon: customIcon }).addTo(leafletMapInstance);
+
+        const googleMapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${dest.lat},${dest.lng}`;
+
+        // Custom Popup HTML
+        marker.bindPopup(`
+          <div style="min-width: 190px;">
+            <div style="font-size: 10px; font-weight: 700; color: ${dest.color}; text-transform: uppercase; letter-spacing: 0.5px;">${dest.time}</div>
+            <div style="font-size: 13px; font-weight: 800; color: #fff; margin-top: 2px;">${dest.name}</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; line-height: 1.35;">${dest.desc}</div>
+            <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 6px;">
+              <a href="${googleMapsNavUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: #c59b27; color: #000; padding: 4px 10px; border-radius: 6px; font-weight: 700; text-decoration: none;">
+                Navigate ➔
+              </a>
+            </div>
+          </div>
+        `);
+
+        marker.destinationId = dest.id;
+        mapMarkers.push(marker);
+      });
+    }
+
+    function filterMapCategory(cat) {
+      document.querySelectorAll('.map-chip').forEach(c => {
+        c.classList.remove('bg-gold-500', 'text-dark-950');
+        c.classList.add('bg-dark-800', 'text-slate-300');
+      });
+      const activeChip = document.getElementById('map-filter-' + cat);
+      if (activeChip) {
+        activeChip.classList.remove('bg-dark-800', 'text-slate-300');
+        activeChip.classList.add('bg-gold-500', 'text-dark-950');
+      }
+      renderMapMarkers(cat);
+    }
+
+    function resetMapView() {
+      if (leafletMapInstance) {
+        leafletMapInstance.setView([36.1200, -115.1720], 12);
+      }
+    }
+
+    // Direct link from itinerary cards to jump to map and focus stop
+    function flyToMapStop(stopId) {
+      switchTab('map');
+      setTimeout(() => {
+        const target = tripDestinations.find(d => d.id === stopId);
+        if (target && leafletMapInstance) {
+          leafletMapInstance.flyTo([target.lat, target.lng], 16, { duration: 1 });
+          const marker = mapMarkers.find(m => m.destinationId === stopId);
+          if (marker) {
+            setTimeout(() => marker.openPopup(), 900);
+          }
+        }
+      }, 150);
+    }
+
+    // Tab Navigation
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('text-gold-400');
+        btn.classList.add('text-slate-400');
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = icon.className.replace('ph-fill', 'ph-bold');
+      });
+
+      const targetView = document.getElementById('view-' + tabName);
+      if (targetView) targetView.classList.remove('hidden');
+
+      const targetBtn = document.getElementById('nav-' + tabName);
+      if (targetBtn) {
+        targetBtn.classList.remove('text-slate-400');
+        targetBtn.classList.add('text-gold-400');
+        const icon = targetBtn.querySelector('i');
+        if (icon) icon.className = icon.className.replace('ph-bold', 'ph-fill');
+      }
+
+      // If opening map tab, initialize or trigger size calculation
+      if (tabName === 'map') {
+        initLeafletMap();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Day Switcher Pills
+    function switchDay(dayId) {
+      currentSelectedDay = dayId;
+      document.querySelectorAll('.day-pill').forEach(pill => {
+        pill.classList.remove('bg-gold-500', 'text-dark-950', 'shadow-md', 'shadow-gold-500/20');
+        pill.classList.add('bg-dark-800', 'text-slate-300', 'border', 'border-white/10');
+      });
+
+      const selectedPill = document.getElementById('pill-' + dayId);
+      if (selectedPill) {
+        selectedPill.classList.remove('bg-dark-800', 'text-slate-300', 'border', 'border-white/10');
+        selectedPill.classList.add('bg-gold-500', 'text-dark-950', 'shadow-md', 'shadow-gold-500/20');
+      }
+
+      renderItinerary();
+    }
+
+    // Clipboard copy
+    function copyAddress(str) {
+      const el = document.createElement('textarea');
+      el.value = str;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast('Address copied to clipboard!');
+    }
+
+    // Toast alert
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      if (!toast) return;
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2400);
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadScheduleStorage();
+      loadCheckinStorage();
+      loadDiningPhotos();
+      renderItinerary();
+      renderAlbumView();
+      updateCheckinProgress();
+    });
   </script>
 </body>
 </html>
