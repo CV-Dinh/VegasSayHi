@@ -86,14 +86,7 @@
     .pb-safe {
       padding-bottom: calc(5.2rem + env(safe-area-inset-bottom, 16px));
     }
-    /* Leaflet Dark Mode Customization */
-    .leaflet-tile {
-      filter: brightness(0.7) invert(1) contrast(3) hue-rotate(200deg) saturate(0.35) brightness(0.7);
-    }
-    .leaflet-container {
-      background-color: #0f1015;
-      font-family: inherit;
-    }
+    /* Clean Google Maps style popup styling */
     .leaflet-popup-content-wrapper {
       background: rgba(23, 25, 33, 0.95);
       backdrop-filter: blur(12px);
@@ -116,6 +109,15 @@
     }
     .story-ring-gold {
       background: linear-gradient(135deg, #c59b27, #f6d878, #e5be47, #f59e0b);
+    }
+    .story-snap-slider {
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .story-snap-item {
+      scroll-snap-align: start;
+      flex: 0 0 calc(50% - 5px);
+      width: calc(50% - 5px);
     }
   </style>
 </head>
@@ -487,21 +489,21 @@
             <h2 class="text-base font-extrabold text-white flex items-center gap-2">
               <i class="ph-fill ph-map-trifold text-gold-400 text-lg"></i> Vegas Interactive Map
             </h2>
-            <p class="text-xs text-slate-400">All trip destinations mapped from South to North Strip & Chinatown</p>
+            <p class="text-xs text-slate-400">Custom pins layered directly over Google Maps</p>
           </div>
           <button onclick="resetMapView()" class="tap-effect text-[11px] px-2.5 py-1 rounded-lg bg-dark-750 text-slate-300 border border-white/10 flex items-center gap-1 font-semibold">
             <i class="ph-bold ph-arrows-out"></i> Reset
           </button>
         </div>
 
-        <!-- Google Maps Switcher Bar & Open in App Button -->
+        <!-- Google Maps Style Switcher & Open in App Button -->
         <div class="glass-card rounded-2xl p-2.5 flex items-center justify-between gap-2 border border-white/10">
           <div class="flex items-center gap-1 bg-dark-900 p-1 rounded-xl border border-white/10 text-xs">
-            <button id="btn-map-mode-interactive" onclick="switchMapProvider('interactive')" class="px-2.5 py-1 rounded-lg font-bold bg-gold-500 text-dark-950 tap-effect transition-all flex items-center gap-1">
-              <i class="ph-bold ph-map-pin"></i> Custom Pins
+            <button id="btn-map-layer-roadmap" onclick="switchGoogleMapLayer('roadmap')" class="px-2.5 py-1 rounded-lg font-bold bg-gold-500 text-dark-950 tap-effect transition-all flex items-center gap-1">
+              <i class="ph-bold ph-map-pin"></i> Google Roadmap
             </button>
-            <button id="btn-map-mode-gmaps" onclick="switchMapProvider('gmaps')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1">
-              <i class="ph-bold ph-google-logo text-emerald-400"></i> Google Maps
+            <button id="btn-map-layer-satellite" onclick="switchGoogleMapLayer('satellite')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1">
+              <i class="ph-bold ph-planet text-sky-400"></i> Satellite
             </button>
           </div>
           <a id="btn-open-in-google-maps" href="https://www.google.com/maps/search/Las+Vegas+Strip" target="_blank" class="tap-effect text-[11px] px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold flex items-center gap-1 hover:bg-emerald-500/25">
@@ -510,7 +512,7 @@
           </a>
         </div>
 
-        <!-- Filter Chips for Map (Pins mode) -->
+        <!-- Filter Chips for Custom Pins -->
         <div id="map-filter-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
           <button onclick="filterMapCategory('all')" id="map-filter-all" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-bold bg-gold-500 text-dark-950">
             All (14)
@@ -529,7 +531,7 @@
           </button>
         </div>
 
-        <!-- Interactive Map Container (Pins Mode) -->
+        <!-- Interactive Google Map + Custom Pins Container -->
         <div id="container-leaflet-map" class="glass-card rounded-2xl overflow-hidden border-white/15 p-1 relative shadow-2xl">
           <div id="leafletMap" style="height: 380px; width: 100%; border-radius: 12px; z-index: 10;"></div>
           <!-- Floating Legend Pill -->
@@ -537,22 +539,6 @@
             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gold-400"></span> Hotel / Strip</span>
             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Free Shows</span>
             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Food</span>
-          </div>
-        </div>
-
-        <!-- Google Maps Direct Live Embed Container -->
-        <div id="container-google-map" class="hidden glass-card rounded-2xl overflow-hidden border-white/15 p-1 relative shadow-2xl">
-          <iframe 
-            id="googleMapsIframe"
-            src="https://maps.google.com/maps?q=36.1150,-115.1720&z=13&output=embed" 
-            style="height: 380px; width: 100%; border-radius: 12px; border: 0;" 
-            allowfullscreen="" 
-            loading="lazy" 
-            referrerpolicy="no-referrer-when-downgrade">
-          </iframe>
-          <div class="p-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/5 mt-1">
-            <span class="flex items-center gap-1"><i class="ph-bold ph-google-logo text-emerald-400"></i> Google Maps Live View</span>
-            <span class="text-gold-400 font-medium">Pan & zoom freely</span>
           </div>
         </div>
 
@@ -813,16 +799,19 @@
     <span id="toastMsg">Check-In Saved!</span>
   </div>
 
-  <!-- ================= JAVASCRIPT APP LOGIC ================= -->
+  <!-- Immediate Early Registration of Global Helpers -->
   <script>
-    // Global Cloud status helper available immediately across all scripts
+    // Ensure setCloudStatus exists immediately on window before any module or script runs
     window.setCloudStatus = function(msg, colorClass = 'text-emerald-400') {
       const el = document.getElementById('cloudSyncStatus');
       if (!el) return;
       el.className = `text-[10px] font-medium flex items-center justify-end gap-1 mt-0.5 ${colorClass}`;
       el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass.replace('text-', 'bg-')} animate-pulse"></span><span>${msg}</span>`;
     };
+  </script>
 
+  <!-- ================= JAVASCRIPT APP LOGIC ================= -->
+  <script>
     // Mobile-hardened image compressor with HEIC / iPhone camera detection & decoding
     window.compressImageFile = async function(file, maxW = 900, maxH = 900, quality = 0.70) {
       if (!file) throw new Error("No file provided");
@@ -1565,62 +1554,67 @@
 
         let checkinSlotHtml = '';
         if (photos.length > 0) {
-          const featuredPhoto = photos[photos.length - 1]; // most recent photo
-          
-          const storyAvatars = photos.map((p, idx) => `
-            <div class="relative flex-shrink-0 flex flex-col items-center group cursor-pointer tap-effect" onclick="openLightbox('${card.id}', ${idx})">
-              <div class="w-13 h-13 p-[2px] rounded-full story-ring-gradient shadow-md">
-                <div class="p-[2px] bg-dark-900 rounded-full">
-                  <img src="${p.dataUrl}" alt="Story" class="w-11 h-11 rounded-full object-cover">
+          const verticalStorySlides = photos.map((p, idx) => `
+            <div onclick="openLightbox('${card.id}', ${idx})" class="story-snap-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-800">
+              <img src="${p.dataUrl}" alt="Story ${idx + 1}" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-black/40 flex flex-col justify-between p-2.5">
+                <!-- Top Row: Story Badge + Delete -->
+                <div class="flex items-center justify-between">
+                  <span class="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    ${idx + 1}/${photos.length}
+                  </span>
+                  <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 backdrop-blur-md text-slate-200 hover:text-rose-400 border border-white/15 flex items-center justify-center text-[10px] tap-effect" title="Delete story">
+                    <i class="ph-bold ph-x"></i>
+                  </button>
+                </div>
+
+                <!-- Bottom Row: Timestamp -->
+                <div>
+                  <p class="text-[9px] text-gold-300 font-mono font-semibold truncate flex items-center gap-1">
+                    <i class="ph-bold ph-clock"></i> ${p.checkinTimestamp}
+                  </p>
+                  <p class="text-[10px] font-bold text-white truncate mt-0.5">Story ${idx + 1}</p>
                 </div>
               </div>
-              <span class="text-[9px] text-slate-300 font-medium mt-1 truncate max-w-[52px]">Story ${idx + 1}</span>
-              <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/80 text-white border border-white/20 flex items-center justify-center text-[9px] shadow hover:scale-110" title="Delete">
-                <i class="ph-bold ph-x"></i>
-              </button>
             </div>
           `).join('');
 
+          const addStorySlide = `
+            <div onclick="triggerCheckinSnap('${card.id}')" class="story-snap-item relative aspect-[9/15] rounded-2xl border-2 border-dashed border-gold-400/45 bg-dark-800/70 hover:bg-dark-800 hover:border-gold-400 flex flex-col items-center justify-center p-3 text-center cursor-pointer tap-effect transition-all group">
+              <div class="w-11 h-11 rounded-full story-ring-gradient p-[2px] mb-2 shadow-md group-hover:scale-105 transition-transform">
+                <div class="w-full h-full bg-dark-900 rounded-full flex items-center justify-center text-white">
+                  <i class="ph-bold ph-plus text-lg"></i>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-gold-400">Add Story</span>
+              <span class="text-[10px] text-slate-400 mt-0.5 leading-tight">Snap or upload</span>
+            </div>
+          `;
+
           checkinSlotHtml = `
-            <div class="space-y-2.5">
-              <!-- Instagram Story Hero Card -->
-              <div class="relative rounded-2xl overflow-hidden border border-white/10 group cursor-pointer tap-effect shadow-lg" onclick="openLightbox('${card.id}', ${photos.length - 1})">
-                <img src="${featuredPhoto.dataUrl}" alt="Latest Story" class="w-full h-44 object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-between p-3">
-                  <!-- Story Pill & Count -->
-                  <div class="flex items-center justify-between">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white border border-white/15 font-mono">
-                      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                      ${photos.length} Stor${photos.length > 1 ? 'ies' : 'y'} Check-in
-                    </span>
-                    <button onclick="deleteAllCheckinPhotosForStop('${card.id}'); event.stopPropagation();" class="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md text-slate-300 hover:text-rose-400 border border-white/15 flex items-center justify-center text-xs tap-effect" title="Delete all">
-                      <i class="ph-bold ph-trash"></i>
-                    </button>
-                  </div>
-                  <!-- Story Caption Timestamp -->
-                  <div class="flex items-end justify-between">
-                    <div>
-                      <p class="text-[10px] text-slate-300 font-mono flex items-center gap-1">
-                        <i class="ph-bold ph-clock text-gold-400"></i> ${featuredPhoto.checkinTimestamp}
-                      </p>
-                      <p class="text-xs font-bold text-white tracking-tight mt-0.5">Tap to view full story ➔</p>
-                    </div>
-                  </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between px-0.5">
+                <span class="text-[10px] font-bold text-slate-300 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  ${photos.length} Stor${photos.length > 1 ? 'ies' : 'y'}
+                </span>
+                <div class="flex items-center gap-2">
+                  <button onclick="triggerCheckinSnap('${card.id}')" class="tap-effect px-2.5 py-1 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 hover:bg-gold-500/30 font-bold text-[10px] flex items-center gap-1">
+                    <i class="ph-bold ph-plus"></i> Add Story
+                  </button>
+                  <button onclick="deleteAllCheckinPhotosForStop('${card.id}')" class="text-[10px] text-slate-400 hover:text-rose-400 font-semibold tap-effect px-1">
+                    Clear
+                  </button>
                 </div>
               </div>
 
-              <!-- Instagram Story Highlights Bubbles -->
-              <div class="flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5">
-                <!-- Add Story Bubble -->
-                <div onclick="triggerCheckinSnap('${card.id}')" class="flex-shrink-0 flex flex-col items-center cursor-pointer tap-effect">
-                  <div class="w-13 h-13 p-[2px] rounded-full border-2 border-dashed border-gold-400/60 bg-gold-400/5 flex items-center justify-center">
-                    <div class="w-11 h-11 rounded-full bg-dark-800 flex items-center justify-center text-gold-400">
-                      <i class="ph-bold ph-plus text-base"></i>
-                    </div>
-                  </div>
-                  <span class="text-[9px] text-gold-400 font-semibold mt-1">Add Story</span>
-                </div>
-                ${storyAvatars}
+              ${photos.length >= 2 ? `<div class="text-[10px] text-slate-400 px-0.5 flex items-center justify-between"><span>Swipe sideways to view all stories</span><span class="text-gold-400 font-mono">${photos.length} items ➔</span></div>` : ''}
+
+              <!-- 2-Column Horizontal Snap Slider for Vertical Stories -->
+              <div class="story-snap-slider flex items-stretch gap-2.5 overflow-x-auto no-scrollbar pb-1">
+                ${verticalStorySlides}
+                ${addStorySlide}
               </div>
             </div>
           `;
@@ -2047,13 +2041,50 @@
 
     function closeLightbox(event, force = false) {
       if (force || (event && event.target.id === 'photoLightboxModal')) {
-        document.getElementById('photoLightboxModal').classList.add('hidden');
+        const modal = document.getElementById('photoLightboxModal');
+        if (modal) modal.classList.add('hidden');
+        isDiningLightbox = false;
+        activeLightboxSlotId = null;
       }
     }
 
-    // ================= LEAFLET MAP LOGIC =================
+    function clearAllCheckinPhotos() {
+      if (confirm('Clear all check-in photos from the scrapbook album across all devices?')) {
+        checkinData = {};
+        saveCheckinStorage();
+        if (window.firebaseClearAllCheckins) {
+          window.firebaseClearAllCheckins();
+        }
+        showToast('Trip album cleared');
+      }
+    }
+
+    function deleteScheduleCard(cardId) {
+      if (confirm('Delete this activity card from the schedule?')) {
+        scheduleCards = scheduleCards.filter(c => c.id !== cardId);
+        saveScheduleStorage();
+        if (checkinData[cardId]) {
+          delete checkinData[cardId];
+          saveCheckinStorage();
+          if (window.firebaseDeleteCheckin) {
+            window.firebaseDeleteCheckin(cardId);
+          }
+        }
+        if (window.firebaseSyncSchedule) {
+          window.firebaseSyncSchedule(scheduleCards);
+        }
+        renderItinerary();
+        renderAlbumView();
+        showToast('Activity removed');
+      }
+    }
+
+    // ================= LEAFLET MAP LOGIC WITH GOOGLE MAPS TILES =================
     let leafletMapInstance = null;
     let mapMarkers = [];
+    let googleRoadmapLayer = null;
+    let googleSatelliteLayer = null;
+    let activeGoogleLayer = 'roadmap';
 
     // All key coordinates for the Vegas trip
     const tripDestinations = [
@@ -2256,15 +2287,51 @@
       leafletMapInstance = L.map('leafletMap', {
         zoomControl: true,
         scrollWheelZoom: true
-      }).setView([36.1200, -115.1720], 12);
+      }).setView([36.1200, -115.1720], 13);
 
-      // Free OpenStreetMap Tile Layer with dark CSS filter
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(leafletMapInstance);
+      // Google Maps Roadmap Tiles
+      googleRoadmapLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        subdomains: ['0', '1', '2', '3'],
+        maxZoom: 20,
+        attribution: '© Google Maps'
+      });
+
+      // Google Maps Hybrid Satellite Tiles (Satellite Imagery + Street Labels)
+      googleSatelliteLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        subdomains: ['0', '1', '2', '3'],
+        maxZoom: 20,
+        attribution: '© Google Maps Satellite'
+      });
+
+      // Default to Google Maps Roadmap
+      googleRoadmapLayer.addTo(leafletMapInstance);
 
       renderMapMarkers('all');
+    }
+
+    function switchGoogleMapLayer(layerType) {
+      if (!leafletMapInstance) return;
+      activeGoogleLayer = layerType;
+      const btnRoadmap = document.getElementById('btn-map-layer-roadmap');
+      const btnSatellite = document.getElementById('btn-map-layer-satellite');
+
+      if (layerType === 'satellite') {
+        if (leafletMapInstance.hasLayer(googleRoadmapLayer)) {
+          leafletMapInstance.removeLayer(googleRoadmapLayer);
+        }
+        googleSatelliteLayer.addTo(leafletMapInstance);
+
+        btnRoadmap.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1';
+        btnSatellite.className = 'px-2.5 py-1 rounded-lg font-bold bg-sky-500 text-dark-950 tap-effect transition-all flex items-center gap-1';
+      } else {
+        if (leafletMapInstance.hasLayer(googleSatelliteLayer)) {
+          leafletMapInstance.removeLayer(googleSatelliteLayer);
+        }
+        googleRoadmapLayer.addTo(leafletMapInstance);
+
+        btnRoadmap.className = 'px-2.5 py-1 rounded-lg font-bold bg-gold-500 text-dark-950 tap-effect transition-all flex items-center gap-1';
+        btnSatellite.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1';
+      }
     }
 
     function renderMapMarkers(categoryFilter = 'all') {
@@ -2277,16 +2344,16 @@
           return;
         }
 
-        // Custom HTML Marker Icon with gold/neon ring
+        // Custom HTML Marker Icon with gold/neon ring layered directly on top of Google Maps
         const customIcon = L.divIcon({
           className: 'custom-map-pin',
           html: `
-            <div style="background-color: ${dest.color}; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px ${dest.color}88; border: 2px solid #ffffff; cursor: pointer;">
+            <div style="background-color: ${dest.color}; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 0 10px ${dest.color}bb; border: 2.5px solid #ffffff; cursor: pointer; transform: translate3d(0,0,0);">
               <span style="font-size: 13px; color: #000; font-weight: bold;"><i class="ph-bold ${dest.icon}"></i></span>
             </div>
           `,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
         });
 
         const marker = L.marker([dest.lat, dest.lng], { icon: customIcon }).addTo(leafletMapInstance);
@@ -2301,7 +2368,7 @@
             <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; line-height: 1.35;">${dest.desc}</div>
             <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 6px;">
               <a href="${googleMapsNavUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: #c59b27; color: #000; padding: 4px 10px; border-radius: 6px; font-weight: 700; text-decoration: none;">
-                Navigate ➔
+                Navigate in App ➔
               </a>
             </div>
           </div>
@@ -2310,35 +2377,6 @@
         marker.destinationId = dest.id;
         mapMarkers.push(marker);
       });
-    }
-
-    // Google Maps view switcher
-    let currentMapMode = 'interactive';
-
-    function switchMapProvider(mode) {
-      currentMapMode = mode;
-      const btnInteractive = document.getElementById('btn-map-mode-interactive');
-      const btnGmaps = document.getElementById('btn-map-mode-gmaps');
-      const containerLeaflet = document.getElementById('container-leaflet-map');
-      const containerGmaps = document.getElementById('container-google-map');
-      const filterChips = document.getElementById('map-filter-chips-container');
-
-      if (mode === 'gmaps') {
-        btnInteractive.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1';
-        btnGmaps.className = 'px-2.5 py-1 rounded-lg font-bold bg-emerald-500 text-dark-950 tap-effect transition-all flex items-center gap-1';
-        containerLeaflet.classList.add('hidden');
-        containerGmaps.classList.remove('hidden');
-        filterChips.classList.add('opacity-40', 'pointer-events-none');
-      } else {
-        btnInteractive.className = 'px-2.5 py-1 rounded-lg font-bold bg-gold-500 text-dark-950 tap-effect transition-all flex items-center gap-1';
-        btnGmaps.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1';
-        containerLeaflet.classList.remove('hidden');
-        containerGmaps.classList.add('hidden');
-        filterChips.classList.remove('opacity-40', 'pointer-events-none');
-        if (leafletMapInstance) {
-          setTimeout(() => leafletMapInstance.invalidateSize(), 150);
-        }
-      }
     }
 
     function filterMapCategory(cat) {
@@ -2356,7 +2394,7 @@
 
     function resetMapView() {
       if (leafletMapInstance) {
-        leafletMapInstance.setView([36.1200, -115.1720], 12);
+        leafletMapInstance.setView([36.1200, -115.1720], 13);
       }
     }
 
@@ -2372,17 +2410,11 @@
             openInGmapsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${target.lat},${target.lng}`;
           }
 
-          // If in Google Maps iframe mode, reload iframe centered on this stop
-          const gmapsIframe = document.getElementById('googleMapsIframe');
-          if (gmapsIframe) {
-            gmapsIframe.src = `https://maps.google.com/maps?q=${target.lat},${target.lng}&z=16&output=embed`;
-          }
-
-          if (currentMapMode === 'interactive' && leafletMapInstance) {
+          if (leafletMapInstance) {
             leafletMapInstance.flyTo([target.lat, target.lng], 16, { duration: 1 });
             const marker = mapMarkers.find(m => m.destinationId === stopId);
             if (marker) {
-              setTimeout(() => marker.openPopup(), 900);
+              setTimeout(() => marker.openPopup(), 950);
             }
           }
         }
@@ -2410,7 +2442,7 @@
         if (icon) icon.className = icon.className.replace('ph-bold', 'ph-fill');
       }
 
-      // If opening map tab, initialize or trigger size calculation
+      // If opening map tab, ensure Google Maps is displayed by default
       if (tabName === 'map') {
         initLeafletMap();
       }
