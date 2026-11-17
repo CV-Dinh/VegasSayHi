@@ -1799,6 +1799,10 @@
         }
 
         const now = new Date();
+        const dateOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+        const formattedTimestamp = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
+        let successCount = 0;
+
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           try {
