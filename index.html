@@ -4,20 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Vegas Trip Planner • Say Hi</title>
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Phosphor Icons for modern mobile UI -->
+  <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Leaflet CSS & JS for Interactive Map -->
+  <!-- Leaflet Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-  <!-- HEIC converter so iPhone / Samsung camera photos decode smoothly on canvas -->
+  <!-- HEIC Converter -->
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 
   <script>
@@ -75,9 +73,9 @@
       -webkit-backdrop-filter: blur(20px);
     }
     .glass-card {
-      background: rgba(23, 25, 33, 0.72);
+      background: rgba(23, 25, 33, 0.78);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .tap-effect:active {
       transform: scale(0.97);
@@ -86,7 +84,10 @@
     .pb-safe {
       padding-bottom: calc(5.2rem + env(safe-area-inset-bottom, 16px));
     }
-    /* Clean Google Maps style popup styling */
+    .leaflet-container {
+      background-color: #0f1015;
+      font-family: inherit;
+    }
     .leaflet-popup-content-wrapper {
       background: rgba(23, 25, 33, 0.95);
       backdrop-filter: blur(12px);
@@ -103,21 +104,19 @@
       margin: 8px 10px;
       line-height: 1.4;
     }
-    /* Instagram Story Gradient Rings & Story Cards */
     .story-ring-gradient {
       background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
     }
-    .story-ring-gold {
-      background: linear-gradient(135deg, #c59b27, #f6d878, #e5be47, #f59e0b);
-    }
     .story-snap-slider {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
     }
-    .story-snap-item {
-      scroll-snap-align: start;
+    .story-slide-item {
       flex: 0 0 calc(50% - 5px);
-      width: calc(50% - 5px);
+      scroll-snap-align: start;
     }
   </style>
 </head>
@@ -141,7 +140,6 @@
           </div>
         </div>
 
-        <!-- Vegas Local Time (PST) ticker + Cloud Status -->
         <div class="text-right flex flex-col items-end">
           <div id="vegasClock" class="font-mono text-xs font-bold text-gold-400 tracking-wider">--:-- PST</div>
           <div id="cloudSyncStatus" class="text-[10px] text-emerald-400 font-medium flex items-center justify-end gap-1 mt-0.5">
@@ -151,10 +149,9 @@
         </div>
       </div>
 
-      <!-- Quick Itinerary Mini-Stats Bar -->
       <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-300">
         <span class="flex items-center gap-1"><i class="ph-fill ph-airplane-takeoff text-sky-400"></i> DTW ➔ LAS</span>
-        <span class="flex items-center gap-1"><i class="ph-fill ph-microphone-stage text-purple-400"></i> Nov 28</span>
+        <span class="flex items-center gap-1"><i class="ph-fill ph-microphone-stage text-purple-400"></i> Nov 28 Concert</span>
         <button onclick="switchTab('map')" class="flex items-center gap-1 text-gold-400 font-semibold tap-effect hover:underline">
           <i class="ph-bold ph-map-trifold"></i> <span>Map</span>
         </button>
@@ -165,37 +162,37 @@
     <main class="flex-1 px-4 pt-3 pb-safe overflow-y-auto">
 
       <!-- ================= TAB 1: SCHEDULE ================= -->
-      <section id="view-schedule" class="tab-view block space-y-3.5">
+      <section id="view-schedule" class="tab-view block space-y-4">
         
         <!-- Day Switcher Pills -->
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
           <button onclick="switchDay('fri')" id="pill-fri" class="day-pill tap-effect flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-gold-500 text-dark-950 shadow-md shadow-gold-500/20">
-            Fri 27
-            <span class="block text-[10px] font-normal opacity-90">Arrival</span>
+            Fri Nov 27
+            <span class="block text-[10px] font-normal opacity-90">Arrival & Chinatown</span>
           </button>
           <button onclick="switchDay('sat')" id="pill-sat" class="day-pill tap-effect flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-dark-800 text-slate-300 border border-white/10 hover:border-white/20">
-            Sat 28
-            <span class="block text-[10px] font-normal opacity-70">Concert</span>
+            Sat Nov 28
+            <span class="block text-[10px] font-normal opacity-70">Strip & Concert</span>
           </button>
           <button onclick="switchDay('sun')" id="pill-sun" class="day-pill tap-effect flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-dark-800 text-slate-300 border border-white/10 hover:border-white/20">
-            Sun 29
-            <span class="block text-[10px] font-normal opacity-70">Fremont</span>
+            Sun Nov 29
+            <span class="block text-[10px] font-normal opacity-70">LINQ & Fremont</span>
           </button>
           <button onclick="switchDay('mon')" id="pill-mon" class="day-pill tap-effect flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-dark-800 text-slate-300 border border-white/10 hover:border-white/20">
-            Mon 30
-            <span class="block text-[10px] font-normal opacity-70">Return</span>
+            Mon Nov 30
+            <span class="block text-[10px] font-normal opacity-70">North Strip & Fly</span>
           </button>
         </div>
 
-        <!-- Trip Checklist & Check-In Progress Summary -->
-        <div class="glass-card rounded-2xl p-2.5 flex items-center justify-between">
+        <!-- Check-In Progress & Add Stop Bar -->
+        <div class="glass-card rounded-2xl p-3 flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400">
               <i class="ph-bold ph-camera-plus text-base"></i>
             </div>
             <div>
               <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                Check-Ins <span id="progressCheckinText" class="text-gold-400 font-mono text-[11px]">0 / 0</span>
+                Check-Ins: <span id="progressCheckinText" class="text-gold-400 font-mono text-[11px]">0 / 0</span>
               </div>
               <div class="w-32 bg-dark-700 h-1.5 rounded-full overflow-hidden mt-1">
                 <div id="checkinProgressBar" class="bg-gradient-to-r from-gold-500 to-emerald-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -206,175 +203,155 @@
             <button onclick="openCardModal()" class="text-[11px] font-bold text-dark-950 bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 px-3 py-1.5 rounded-xl tap-effect flex items-center gap-1 shadow-md shadow-gold-500/20">
               <i class="ph-bold ph-plus text-xs"></i> Add
             </button>
-            <button onclick="switchTab('album')" class="text-[11px] font-bold text-gold-400 bg-gold-400/10 border border-gold-400/25 p-1.5 rounded-xl tap-effect flex items-center justify-center" title="Album">
-              <i class="ph-bold ph-images text-sm"></i>
+            <button onclick="switchTab('album')" class="text-[11px] font-bold text-gold-400 bg-gold-400/10 border border-gold-400/25 px-2.5 py-1.5 rounded-xl tap-effect flex items-center gap-1">
+              <i class="ph-bold ph-images"></i> Album
             </button>
           </div>
         </div>
 
         <!-- Dynamic Container for Active Day's Itinerary Cards -->
-        <div id="itineraryContainer" class="space-y-3">
-          <!-- Dynamically generated and time-sorted cards -->
-        </div>
+        <div id="itineraryContainer" class="space-y-3"></div>
       </section>
 
       <!-- ================= TAB 2: SPOTS & DINING ================= -->
       <section id="view-food" class="tab-view hidden space-y-3.5">
-        <div class="px-1 flex items-center justify-between gap-2">
-          <div>
-            <h2 class="text-base font-extrabold text-white flex items-center gap-2">
-              <i class="ph-fill ph-fork-knife text-orange-400 text-lg"></i> Food List
-            </h2>
-          </div>
+        <div class="px-1 flex items-center justify-between">
+          <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+            <i class="ph-fill ph-fork-knife text-orange-400 text-lg"></i> Dining Spots
+          </h2>
           <div class="flex items-center gap-1.5">
-            <button onclick="openDiningModal()" class="tap-effect text-[11px] font-bold text-dark-950 bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-md shadow-gold-500/20">
-              <i class="ph-bold ph-plus text-xs"></i> Add
+            <button onclick="openDiningModal()" class="tap-effect text-[11px] px-3 py-1.5 rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 text-dark-950 font-bold flex items-center gap-1 shadow-md shadow-gold-500/20">
+              <i class="ph-bold ph-plus"></i> Add
             </button>
-            <button onclick="resetAllDiningPhotos()" class="tap-effect text-[11px] p-1.5 rounded-xl bg-dark-750 text-slate-300 border border-white/10 hover:border-gold-500/40 flex items-center justify-center" title="Reset Photos">
+            <button onclick="resetAllDiningPhotos()" class="tap-effect text-[11px] px-2.5 py-1.5 rounded-xl bg-dark-750 text-slate-300 border border-white/10 hover:border-gold-500/40 flex items-center gap-1 font-semibold" title="Reset Photos">
               <i class="ph-bold ph-arrow-counter-clockwise"></i>
             </button>
           </div>
         </div>
 
         <!-- Dynamic Dining Cards Container -->
-        <div id="diningCardsContainer" class="space-y-3">
-          <!-- Populated dynamically via renderDiningCards() -->
-        </div>
+        <div id="diningContainer" class="space-y-3.5"></div>
       </section>
 
       <!-- ================= TAB 3: FREE SHOWS ================= -->
-      <section id="view-shows" class="tab-view hidden space-y-2.5">
+      <section id="view-shows" class="tab-view hidden space-y-3">
         <div class="px-1">
           <h2 class="text-base font-extrabold text-white flex items-center gap-2">
-            <i class="ph-fill ph-sparkle text-emerald-400 text-lg"></i> Free Shows
+            <i class="ph-fill ph-sparkle text-emerald-400 text-lg"></i> Free Shows & Sights
           </h2>
         </div>
 
-        <!-- Show 1 -->
-        <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-2">
-          <div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1">
+          <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-white">Bellagio Fountains & Conservatory</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Water shows every 15–30m • 24/7 Botanical Gardens</p>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Daily</span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 flex-shrink-0">Free</span>
+          <p class="text-xs text-slate-300">Fountains every 15–30 mins. Indoor botanical display open 24/7.</p>
         </div>
 
-        <!-- Show 2 -->
-        <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-2">
-          <div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1">
+          <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-white">Fall of Atlantis (Caesars)</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Animatronic fire & water show • Forum Shops</p>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Hourly</span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 flex-shrink-0">Hourly</span>
+          <p class="text-xs text-slate-300">Forum Shops animatronic fire & water show next to the aquarium.</p>
         </div>
 
-        <!-- Show 3 -->
-        <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-2">
-          <div>
-            <h3 class="text-sm font-bold text-white">Circus Acts (Circus Circus)</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Aerialists & trapeze • Carnival Midway</p>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">Circus Circus Midway Acts</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Midday</span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 flex-shrink-0">Midday</span>
+          <p class="text-xs text-slate-300">Free aerialists, trapeze artists, and jugglers above the midway.</p>
         </div>
 
-        <!-- Show 4 -->
-        <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-2">
-          <div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1">
+          <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-white">Lake of Dreams (Wynn)</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Holographic waterfall show • Dusk–11:30 PM</p>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Every 30m</span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 flex-shrink-0">Every 30m</span>
+          <p class="text-xs text-slate-300">Dusk to 11:30 PM. Holograms, music & puppetry over a 40-ft waterfall.</p>
         </div>
 
-        <!-- Show 5 -->
-        <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-2">
-          <div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1">
+          <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-white">Viva Vision Canopy (Fremont)</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">5-block overhead LED light show • 6 PM–2 AM</p>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Hourly</span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 flex-shrink-0">Hourly</span>
+          <p class="text-xs text-slate-300">5-block overhead LED light & music show from 6 PM to 2 AM.</p>
         </div>
       </section>
 
-      <!-- ================= TAB 4: TRIP ALBUM (AGGREGATED CHECK-INS) ================= -->
+      <!-- ================= TAB 4: TRIP ALBUM ================= -->
       <section id="view-album" class="tab-view hidden space-y-3.5">
         <div class="px-1 flex items-center justify-between">
-          <div>
-            <h2 class="text-base font-extrabold text-white flex items-center gap-2">
-              <i class="ph-fill ph-book-open text-gold-400 text-lg"></i> Scrapbook
-            </h2>
-          </div>
+          <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+            <i class="ph-fill ph-book-open text-gold-400 text-lg"></i> Trip Scrapbook
+          </h2>
           <button onclick="clearAllCheckinPhotos()" class="tap-effect text-[11px] px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 font-semibold">
             Clear
           </button>
         </div>
 
-        <!-- Album Summary Stats -->
         <div class="glass-card rounded-2xl p-3 flex items-center justify-around text-center">
           <div>
-            <div id="albumCountStat" class="font-display font-extrabold text-lg text-gold-400">0</div>
-            <div class="text-[10px] text-slate-400 uppercase font-semibold">Photos</div>
+            <div id="albumCountStat" class="font-display font-extrabold text-xl text-gold-400">0</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Photos</div>
           </div>
-          <div class="w-px h-7 bg-white/10"></div>
+          <div class="w-px h-8 bg-white/10"></div>
           <div>
-            <div id="albumRemainingStat" class="font-display font-extrabold text-lg text-slate-200">17</div>
-            <div class="text-[10px] text-slate-400 uppercase font-semibold">Left</div>
+            <div id="albumRemainingStat" class="font-display font-extrabold text-xl text-slate-200">17</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Stops Left</div>
           </div>
-          <div class="w-px h-7 bg-white/10"></div>
+          <div class="w-px h-8 bg-white/10"></div>
           <div>
-            <div id="albumStorageStat" class="font-display font-extrabold text-lg text-emerald-400 font-mono">0 KB</div>
-            <div class="text-[10px] text-slate-400 uppercase font-semibold">Size</div>
+            <div id="albumStorageStat" class="font-display font-extrabold text-xl text-emerald-400 font-mono">0 KB</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Size</div>
           </div>
         </div>
 
-        <!-- Album Masonry Grid -->
-        <div id="albumGrid" class="grid grid-cols-2 gap-2.5">
-          <!-- Dynamically populated -->
-        </div>
+        <div id="albumGrid" class="grid grid-cols-2 gap-2.5"></div>
 
-        <!-- Empty state placeholder -->
         <div id="albumEmptyState" class="glass-card rounded-2xl p-8 text-center space-y-2.5">
-          <div class="w-11 h-11 rounded-2xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center text-gold-400 mx-auto text-xl">
+          <div class="w-12 h-12 rounded-2xl bg-gold-400/10 border border-gold-400/25 flex items-center justify-center text-gold-400 mx-auto text-2xl">
             <i class="ph-bold ph-camera"></i>
           </div>
-          <h3 class="text-sm font-bold text-white">No Photos Yet</h3>
+          <h3 class="text-sm font-bold text-white">No Stories Yet</h3>
           <p class="text-xs text-slate-400 max-w-xs mx-auto">
-            Tap <strong>Add Story</strong> on any stop in your schedule to snap photos.
+            Tap <strong>Add Story</strong> on any schedule card to capture moments.
           </p>
           <button onclick="switchTab('schedule')" class="mt-2 tap-effect text-xs px-3.5 py-1.5 rounded-xl bg-gold-500 text-dark-950 font-bold">
-            Open Schedule
+            Go to Schedule
           </button>
         </div>
       </section>
 
-      <!-- ================= TAB 5: INTERACTIVE VEGAS MAP ================= -->
+      <!-- ================= TAB 5: GOOGLE MAPS WITH CUSTOM PINS ================= -->
       <section id="view-map" class="tab-view hidden space-y-3">
         <div class="px-1 flex items-center justify-between">
           <h2 class="text-base font-extrabold text-white flex items-center gap-2">
             <i class="ph-fill ph-map-trifold text-gold-400 text-lg"></i> Vegas Map
           </h2>
-          <button onclick="resetMapView()" class="tap-effect text-[11px] px-2.5 py-1 rounded-lg bg-dark-750 text-slate-300 border border-white/10 flex items-center gap-1 font-semibold">
-            <i class="ph-bold ph-arrows-out"></i> Reset
-          </button>
-        </div>
-
-        <!-- Google Maps Style Switcher & Open in App Button -->
-        <div class="glass-card rounded-2xl p-2 flex items-center justify-between gap-2 border border-white/10">
-          <div class="flex items-center gap-1 bg-dark-900 p-1 rounded-xl border border-white/10 text-xs">
-            <button id="btn-map-layer-roadmap" onclick="switchGoogleMapLayer('roadmap')" class="px-2.5 py-1 rounded-lg font-bold bg-gold-500 text-dark-950 tap-effect transition-all flex items-center gap-1">
-              <i class="ph-bold ph-map-pin"></i> Map
+          <div class="flex items-center gap-1.5">
+            <button onclick="toggleGoogleMapStyle()" id="btn-gmap-style" class="tap-effect text-[11px] px-2.5 py-1 rounded-lg bg-dark-750 text-gold-400 border border-gold-500/30 flex items-center gap-1 font-semibold">
+              <i class="ph-bold ph-planet"></i> <span>Satellite</span>
             </button>
-            <button id="btn-map-layer-satellite" onclick="switchGoogleMapLayer('satellite')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1">
-              <i class="ph-bold ph-planet text-sky-400"></i> Satellite
+            <button onclick="resetMapView()" class="tap-effect text-[11px] px-2.5 py-1 rounded-lg bg-dark-750 text-slate-300 border border-white/10 flex items-center gap-1 font-semibold">
+              <i class="ph-bold ph-arrows-out"></i> Reset
             </button>
           </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-2 flex items-center justify-between gap-2 border border-white/10">
+          <span class="text-[11px] text-slate-300 font-medium pl-1 flex items-center gap-1.5">
+            <i class="ph-bold ph-google-logo text-emerald-400"></i> Google Maps + Custom Pins
+          </span>
           <a id="btn-open-in-google-maps" href="https://www.google.com/maps/search/Las+Vegas+Strip" target="_blank" class="tap-effect text-[11px] px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold flex items-center gap-1 hover:bg-emerald-500/25">
             <i class="ph-bold ph-arrow-square-out text-sm"></i>
-            <span>Directions</span>
+            <span>Open App</span>
           </a>
         </div>
 
-        <!-- Filter Chips for Custom Pins -->
         <div id="map-filter-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
           <button onclick="filterMapCategory('all')" id="map-filter-all" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-bold bg-gold-500 text-dark-950">
             All
@@ -389,33 +366,46 @@
             🎤 Concert
           </button>
           <button onclick="filterMapCategory('zipline')" id="map-filter-zipline" class="map-chip tap-effect flex-shrink-0 px-3 py-1 rounded-xl font-semibold bg-dark-800 text-slate-300 border border-white/10">
-            🪂 Thrills
+            🪂 Zipline
           </button>
         </div>
 
-        <!-- Interactive Google Map + Custom Pins Container -->
         <div id="container-leaflet-map" class="glass-card rounded-2xl overflow-hidden border-white/15 p-1 relative shadow-2xl">
-          <div id="leafletMap" style="height: 380px; width: 100%; border-radius: 12px; z-index: 10;"></div>
+          <div id="leafletMap" style="height: 390px; width: 100%; border-radius: 12px; z-index: 10;"></div>
+          <div class="absolute bottom-3 left-3 z-20 glass-card px-2.5 py-1 rounded-lg border border-white/10 text-[10px] flex items-center gap-2 text-slate-200 pointer-events-none bg-dark-900/90">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gold-400"></span> Strip</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Shows</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Food</span>
+          </div>
         </div>
 
-        <!-- Quick Destination Cards below map -->
-        <div class="grid grid-cols-2 gap-2 text-left pt-1">
-          <button onclick="flyToMapStop('luxor')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-gold-500/40">
-            <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-buildings text-gold-400"></i> Luxor Resort</div>
-            <div class="text-[10px] text-slate-400">Base Hotel</div>
-          </button>
-          <button onclick="flyToMapStop('vegassign')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-emerald-500/40">
-            <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-camera text-emerald-400"></i> Vegas Sign</div>
-            <div class="text-[10px] text-slate-400">South Strip</div>
-          </button>
-          <button onclick="flyToMapStop('phlive')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-purple-500/40">
-            <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-microphone-stage text-purple-400"></i> PH Live</div>
-            <div class="text-[10px] text-slate-400">Nov 28 Concert</div>
-          </button>
-          <button onclick="flyToMapStop('slotzilla')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-gold-500/40">
-            <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-person-simple-throw text-gold-400"></i> SlotZilla</div>
-            <div class="text-[10px] text-slate-400">Fremont St</div>
-          </button>
+        <div class="space-y-2 pt-1">
+          <div class="grid grid-cols-2 gap-2 text-left">
+            <button onclick="flyToMapStop('luxor')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-gold-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-buildings text-gold-400"></i> Luxor Resort</div>
+              <div class="text-[10px] text-slate-400">Hotel Base</div>
+            </button>
+            <button onclick="flyToMapStop('vegassign')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-emerald-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-camera text-emerald-400"></i> Vegas Sign</div>
+              <div class="text-[10px] text-slate-400">South Strip</div>
+            </button>
+            <button onclick="flyToMapStop('phodalat')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-orange-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-bowl-food text-orange-400"></i> Phở Đà Lạt</div>
+              <div class="text-[10px] text-slate-400">Chinatown (Fri)</div>
+            </button>
+            <button onclick="flyToMapStop('phlive')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-purple-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-microphone-stage text-purple-400"></i> PH Live</div>
+              <div class="text-[10px] text-slate-400">Concert (Sat)</div>
+            </button>
+            <button onclick="flyToMapStop('slotzilla')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-gold-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-person-simple-throw text-gold-400"></i> Fremont St</div>
+              <div class="text-[10px] text-slate-400">Zipline (Sun)</div>
+            </button>
+            <button onclick="flyToMapStop('resortsworld')" class="tap-effect glass-card p-2.5 rounded-xl border-white/10 text-left hover:border-orange-500/40">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1"><i class="ph-bold ph-fork-knife text-orange-400"></i> Resorts World</div>
+              <div class="text-[10px] text-slate-400">Hawker Food (Mon)</div>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -466,7 +456,6 @@
         <img id="lightboxImage" src="" alt="Full view" class="max-w-full max-h-[70vh] rounded-2xl object-contain shadow-2xl border border-white/10">
       </div>
 
-      <!-- Lightbox Photo Navigation & Controls -->
       <div id="lightboxNavControls" class="flex items-center justify-between px-2 pb-2 text-white">
         <button id="lightboxPrevBtn" onclick="prevLightboxPhoto(event)" class="px-3 py-1.5 rounded-xl bg-dark-750 border border-white/10 text-xs font-bold tap-effect flex items-center gap-1">
           <i class="ph-bold ph-caret-left"></i> Prev
@@ -492,7 +481,7 @@
       <div class="w-full max-w-md bg-dark-900 border-t sm:border border-white/15 rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between border-b border-white/10 pb-3">
           <h3 id="modalEditorTitle" class="text-base font-extrabold text-white flex items-center gap-2">
-            <i class="ph-bold ph-sparkle text-gold-400"></i> <span>Add New Activity</span>
+            <i class="ph-bold ph-sparkle text-gold-400"></i> <span>Add Activity</span>
           </h3>
           <button onclick="closeCardModal(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300 tap-effect">
             <i class="ph-bold ph-x"></i>
@@ -502,18 +491,16 @@
         <form id="cardEditorForm" onsubmit="handleSaveCard(event)" class="space-y-3.5 text-xs">
           <input type="hidden" id="editCardId" value="">
 
-          <!-- Day Selector -->
           <div>
             <label class="block text-slate-400 font-semibold mb-1">Trip Day</label>
             <select id="editCardDay" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2.5 text-white font-medium focus:border-gold-500 outline-none">
-              <option value="fri">Fri, Nov 27 (Arrival & South Strip)</option>
-              <option value="sat">Sat, Nov 28 (Chinatown & Concert)</option>
+              <option value="fri">Fri, Nov 27 (Arrival & Chinatown)</option>
+              <option value="sat">Sat, Nov 28 (Strip & Concert)</option>
               <option value="sun">Sun, Nov 29 (LINQ & Fremont)</option>
-              <option value="mon">Mon, Nov 30 (Feasts & Departure)</option>
+              <option value="mon">Mon, Nov 30 (North Strip & Return)</option>
             </select>
           </div>
 
-          <!-- Time Inputs: Sortable 24h & Optional Display Text -->
           <div class="grid grid-cols-2 gap-2.5">
             <div>
               <label class="block text-slate-400 font-semibold mb-1">Order Time (24h)</label>
@@ -521,45 +508,41 @@
             </div>
             <div>
               <label class="block text-slate-400 font-semibold mb-1">Display Time (Optional)</label>
-              <input type="text" id="editCardTimeLabel" placeholder="Leave blank if flexible" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
+              <input type="text" id="editCardTimeLabel" placeholder="Leave blank to hide" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
             </div>
           </div>
 
-          <!-- Title -->
           <div>
             <label class="block text-slate-400 font-semibold mb-1">Activity Title</label>
-            <input type="text" id="editCardTitle" placeholder="e.g. High Roller Ferris Wheel" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white font-bold focus:border-gold-500 outline-none">
+            <input type="text" id="editCardTitle" placeholder="e.g. High Roller Wheel" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white font-bold focus:border-gold-500 outline-none">
           </div>
 
-          <!-- Category / Badge Type -->
           <div class="grid grid-cols-2 gap-2.5">
             <div>
               <label class="block text-slate-400 font-semibold mb-1">Category</label>
               <select id="editCardCategory" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
-                <option value="sight">Free Sight / Show</option>
+                <option value="sight">Sight / Show</option>
                 <option value="food">Food & Drinks</option>
-                <option value="concert">Concert / Main Event</option>
+                <option value="concert">Concert / Event</option>
                 <option value="zipline">Zipline / Thrill</option>
                 <option value="hotel">Hotel / Relax</option>
                 <option value="travel">Travel / Flight</option>
               </select>
             </div>
             <div>
-              <label class="block text-slate-400 font-semibold mb-1">Badge Tag</label>
+              <label class="block text-slate-400 font-semibold mb-1">Tag</label>
               <input type="text" id="editCardTag" placeholder="e.g. Free Show" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
             </div>
           </div>
 
-          <!-- Description -->
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Notes / Description</label>
-            <textarea id="editCardDesc" rows="2" placeholder="Details, ticket info, tips, or what to order..." class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none"></textarea>
+            <label class="block text-slate-400 font-semibold mb-1">Short Note</label>
+            <textarea id="editCardDesc" rows="2" placeholder="Quick details or tips..." class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none"></textarea>
           </div>
 
-          <!-- Location Name & Address (Optional) -->
           <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-slate-400 font-semibold mb-1">Map Stop Link (Optional)</label>
+              <label class="block text-slate-400 font-semibold mb-1">Map Pin (Optional)</label>
               <select id="editCardMapStop" class="w-full bg-dark-800 border border-white/10 rounded-xl px-2 py-2 text-white focus:border-gold-500 outline-none">
                 <option value="">None</option>
                 <option value="luxor">Luxor Hotel</option>
@@ -581,14 +564,14 @@
               </select>
             </div>
             <div>
-              <label class="block text-slate-400 font-semibold mb-1">Address (for copying)</label>
-              <input type="text" id="editCardAddress" placeholder="e.g. 3535 S Las Vegas Blvd" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
+              <label class="block text-slate-400 font-semibold mb-1">Address (Optional)</label>
+              <input type="text" id="editCardAddress" placeholder="Street address" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
             </div>
           </div>
 
           <div class="pt-2 flex items-center gap-2">
             <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 text-dark-950 font-bold tap-effect shadow-md shadow-gold-500/20 text-xs">
-              Save Card & Sort by Time
+              Save
             </button>
             <button type="button" onclick="closeCardModal(null, true)" class="px-4 py-2.5 rounded-xl bg-dark-800 border border-white/10 text-slate-300 font-semibold tap-effect text-xs">
               Cancel
@@ -598,7 +581,7 @@
       </div>
     </div>
 
-    <!-- ================= MODAL: ADD / EDIT DINING CARD ================= -->
+    <!-- ================= MODAL: ADD / EDIT DINING SPOT ================= -->
     <div id="diningEditorModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeDiningModal(event)">
       <div class="w-full max-w-md bg-dark-900 border-t sm:border border-white/15 rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between border-b border-white/10 pb-3">
@@ -610,77 +593,71 @@
           </button>
         </div>
 
-        <form id="diningEditorForm" onsubmit="handleSaveDiningCard(event)" class="space-y-3.5 text-xs">
+        <form id="diningEditorForm" onsubmit="handleSaveDiningSpot(event)" class="space-y-3.5 text-xs">
           <input type="hidden" id="editDiningId" value="">
 
-          <!-- Photo Upload Preview inside Add/Edit Modal -->
           <div>
-            <label class="block text-slate-400 font-semibold mb-1.5">Photo (Optional)</label>
-            <div class="relative rounded-2xl overflow-hidden border border-white/10 bg-dark-800 h-32 flex items-center justify-center group">
+            <label class="block text-slate-400 font-semibold mb-1">Photo (Optional)</label>
+            <div class="relative rounded-xl overflow-hidden border border-white/10 bg-dark-800 h-32 flex items-center justify-center">
               <img id="modalDiningPhotoPreview" src="" alt="Preview" class="hidden w-full h-full object-cover">
-              <div id="modalDiningPhotoPlaceholder" class="text-center p-3 space-y-1">
-                <i class="ph-bold ph-camera-plus text-2xl text-gold-400"></i>
-                <p class="text-[11px] text-slate-300 font-medium">Tap below to attach a photo</p>
+              <div id="modalDiningPhotoPlaceholder" class="text-center space-y-1 text-slate-400">
+                <i class="ph-bold ph-image text-2xl text-gold-400"></i>
+                <p class="text-[11px]">No custom picture</p>
               </div>
               <div class="absolute bottom-2 right-2 flex items-center gap-1.5">
-                <button type="button" onclick="triggerModalDiningPhoto('camera')" class="tap-effect px-2.5 py-1.5 rounded-xl bg-gold-500 text-dark-950 font-bold text-[11px] shadow-lg flex items-center gap-1">
+                <button type="button" onclick="document.getElementById('modalDiningCameraInput').click()" class="px-2.5 py-1.5 rounded-lg bg-gold-500 text-dark-950 font-bold text-[11px] tap-effect flex items-center gap-1 shadow">
                   <i class="ph-bold ph-camera"></i> Camera
                 </button>
-                <button type="button" onclick="triggerModalDiningPhoto('gallery')" class="tap-effect px-2.5 py-1.5 rounded-xl bg-dark-900/90 border border-white/15 text-white font-semibold text-[11px] shadow-lg flex items-center gap-1">
+                <button type="button" onclick="document.getElementById('modalDiningGalleryInput').click()" class="px-2.5 py-1.5 rounded-lg bg-dark-900/90 border border-white/15 text-white font-semibold text-[11px] tap-effect flex items-center gap-1 shadow">
                   <i class="ph-bold ph-image"></i> Gallery
-                </button>
-                <button type="button" id="btnRemoveModalDiningPhoto" onclick="clearModalDiningPhoto()" class="hidden tap-effect w-7 h-7 rounded-xl bg-rose-500/90 text-white flex items-center justify-center shadow-lg" title="Remove photo">
-                  <i class="ph-bold ph-trash text-xs"></i>
                 </button>
               </div>
             </div>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2.5">
-            <div class="col-span-2">
-              <label class="block text-slate-400 font-semibold mb-1">Restaurant / Spot Name</label>
-              <input type="text" id="editDiningName" placeholder="e.g. Secret Pizza" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white font-bold focus:border-gold-500 outline-none">
-            </div>
-            <div>
-              <label class="block text-slate-400 font-semibold mb-1">Meal Tag</label>
-              <input type="text" id="editDiningTag" placeholder="e.g. Late Night" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-slate-400 font-semibold mb-1">Description / What to Order</label>
-            <textarea id="editDiningDesc" rows="2" placeholder="Must-try dishes, tips, or location details..." class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none"></textarea>
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-slate-400 font-semibold mb-1">Map Pin Link (Optional)</label>
+              <label class="block text-slate-400 font-semibold mb-1">Restaurant Name</label>
+              <input type="text" id="editDiningName" placeholder="e.g. Secret Pizza" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white font-bold focus:border-gold-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Meal Tag</label>
+              <input type="text" id="editDiningTag" placeholder="e.g. Fri Dinner" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Highlight</label>
+            <textarea id="editDiningDesc" rows="2" placeholder="What to order..." required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Map Pin (Optional)</label>
               <select id="editDiningMapStop" class="w-full bg-dark-800 border border-white/10 rounded-xl px-2 py-2 text-white focus:border-gold-500 outline-none">
                 <option value="">None</option>
-                <option value="luxor">Luxor Hotel</option>
-                <option value="nyny">New York-New York</option>
-                <option value="bellagio">Bellagio</option>
+                <option value="resortsworld">Resorts World</option>
+                <option value="tacos">Tacos El Gordo</option>
                 <option value="phodalat">Phở Đà Lạt</option>
                 <option value="mollytea">Molly Tea</option>
-                <option value="phlive">Planet Hollywood</option>
+                <option value="luxor">Luxor</option>
+                <option value="nyny">New York-New York</option>
+                <option value="bellagio">Bellagio</option>
                 <option value="linq">The LINQ</option>
                 <option value="venetian">Venetian</option>
                 <option value="slotzilla">Fremont Street</option>
-                <option value="circus">Circus Circus</option>
-                <option value="resortsworld">Resorts World</option>
-                <option value="tacos">Tacos El Gordo</option>
                 <option value="wynn">Wynn</option>
               </select>
             </div>
             <div>
-              <label class="block text-slate-400 font-semibold mb-1">Google Maps Search</label>
-              <input type="text" id="editDiningQuery" placeholder="e.g. Secret Pizza Las Vegas" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
+              <label class="block text-slate-400 font-semibold mb-1">Maps Search</label>
+              <input type="text" id="editDiningMapsQuery" placeholder="Restaurant + Vegas" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-gold-500 outline-none">
             </div>
           </div>
 
           <div class="pt-2 flex items-center gap-2">
             <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 text-dark-950 font-bold tap-effect shadow-md shadow-gold-500/20 text-xs">
-              Save Food Spot
+              Save
             </button>
             <button type="button" onclick="closeDiningModal(null, true)" class="px-4 py-2.5 rounded-xl bg-dark-800 border border-white/10 text-slate-300 font-semibold tap-effect text-xs">
               Cancel
@@ -690,35 +667,31 @@
       </div>
     </div>
 
-    <!-- Hidden native file inputs for camera & gallery -->
-    <!-- Direct Camera Shutter (launches phone back camera immediately) -->
+    <!-- Hidden native file inputs -->
     <input type="file" id="directCameraInput" accept="image/*" capture="environment" class="hidden">
-    <!-- Photo Gallery Picker (supports multiple selection) -->
     <input type="file" id="cameraFileInput" accept="image/*" multiple class="hidden">
-    
-    <!-- Hidden inputs for dining photos -->
     <input type="file" id="diningCameraInput" accept="image/*" capture="environment" class="hidden">
     <input type="file" id="diningFileInput" accept="image/*" class="hidden">
+    <input type="file" id="modalDiningCameraInput" accept="image/*" capture="environment" class="hidden">
+    <input type="file" id="modalDiningGalleryInput" accept="image/*" class="hidden">
 
     <!-- ================= NATIVE MOBILE ACTION SHEET: PHOTO SOURCE ================= -->
     <div id="photoSourceModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end justify-center p-3 sm:p-4" onclick="closePhotoSourceModal(event)">
-      <div class="w-full max-w-sm bg-dark-850 border border-white/15 rounded-3xl p-4 space-y-2 shadow-2xl animate-in slide-in-from-bottom-5 duration-200" onclick="event.stopPropagation()">
+      <div class="w-full max-w-sm bg-dark-850 border border-white/15 rounded-3xl p-4 space-y-2 shadow-2xl" onclick="event.stopPropagation()">
         <div class="text-center pb-2 border-b border-white/10">
           <h4 id="photoSourceModalTitle" class="text-sm font-bold text-white">Add Check-In Story</h4>
-          <p class="text-[11px] text-slate-400">Choose how you want to add your photo</p>
+          <p class="text-[11px] text-slate-400">Choose photo source</p>
         </div>
 
         <div class="space-y-2 pt-1">
-          <!-- Take Live Photo Button -->
           <button onclick="pickFromLiveCamera()" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-gold-500 to-gold-400 text-dark-950 font-bold text-xs tap-effect flex items-center justify-center gap-2 shadow-lg shadow-gold-500/20">
             <i class="ph-bold ph-camera text-base"></i>
-            <span>Take Live Photo (Open Camera)</span>
+            <span>Take Live Photo</span>
           </button>
 
-          <!-- Choose from Gallery Button -->
           <button onclick="pickFromPhotoGallery()" class="w-full py-3 px-4 rounded-2xl bg-dark-750 border border-white/10 text-white font-semibold text-xs tap-effect flex items-center justify-center gap-2 hover:bg-dark-700">
             <i class="ph-bold ph-images text-base text-gold-400"></i>
-            <span>Choose Multiple from Photo Gallery</span>
+            <span>Choose from Gallery</span>
           </button>
         </div>
 
@@ -728,34 +701,77 @@
       </div>
     </div>
 
+    <!-- ================= CUSTOM MOBILE CONFIRMATION MODAL ================= -->
+    <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 sm:p-4" onclick="closeConfirmModal(event)">
+      <div class="w-full max-w-sm bg-dark-850 border border-white/15 rounded-3xl p-5 space-y-3.5 shadow-2xl" onclick="event.stopPropagation()">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0">
+            <i class="ph-bold ph-warning-circle text-xl"></i>
+          </div>
+          <div>
+            <h4 id="confirmModalTitle" class="text-sm font-extrabold text-white">Confirm Delete</h4>
+            <p id="confirmModalMessage" class="text-xs text-slate-300 mt-0.5 leading-relaxed">Are you sure you want to delete this?</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 pt-1">
+          <button id="confirmModalYesBtn" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs tap-effect shadow-lg shadow-rose-500/20">
+            Delete
+          </button>
+          <button onclick="closeConfirmModal(null, true)" class="flex-1 py-2.5 rounded-xl bg-dark-750 border border-white/10 text-slate-300 font-semibold text-xs tap-effect">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ================= TOAST NOTIFICATION ================= -->
   <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full glass-card border border-gold-500/50 text-xs font-semibold text-white shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
     <i class="ph-bold ph-check text-emerald-400"></i>
-    <span id="toastMsg">Check-In Saved!</span>
+    <span id="toastMsg">Saved!</span>
   </div>
 
-  <!-- Immediate Early Registration of Global Helpers -->
+  <!-- ================= EARLY GLOBAL HELPERS ================= -->
   <script>
-    // Ensure setCloudStatus exists immediately on window before any module or script runs
     window.setCloudStatus = function(msg, colorClass = 'text-emerald-400') {
       const el = document.getElementById('cloudSyncStatus');
       if (!el) return;
       el.className = `text-[10px] font-medium flex items-center justify-end gap-1 mt-0.5 ${colorClass}`;
       el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass.replace('text-', 'bg-')} animate-pulse"></span><span>${msg}</span>`;
     };
+
+    let pendingConfirmCallback = null;
+    window.showConfirmDialog = function(title, message, onConfirm, confirmBtnText = 'Delete') {
+      const modal = document.getElementById('customConfirmModal');
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMessage').textContent = message;
+      const yesBtn = document.getElementById('confirmModalYesBtn');
+      yesBtn.textContent = confirmBtnText;
+      pendingConfirmCallback = onConfirm;
+      yesBtn.onclick = async () => {
+        const cb = pendingConfirmCallback;
+        closeConfirmModal(null, true);
+        if (cb) await cb();
+      };
+      modal.classList.remove('hidden');
+    };
+
+    window.closeConfirmModal = function(event, force = false) {
+      if (force || (event && event.target.id === 'customConfirmModal')) {
+        document.getElementById('customConfirmModal').classList.add('hidden');
+        pendingConfirmCallback = null;
+      }
+    };
   </script>
 
-  <!-- ================= JAVASCRIPT APP LOGIC ================= -->
+  <!-- ================= MAIN APPLICATION LOGIC ================= -->
   <script>
     // Mobile-hardened image compressor with HEIC / iPhone camera detection & decoding
     window.compressImageFile = async function(file, maxW = 900, maxH = 900, quality = 0.70) {
       if (!file) throw new Error("No file provided");
 
       let processedBlob = file;
-
-      // 1. Detect if the file is HEIC / HEIF from an iPhone camera
       const isHeic = file.type === 'image/heic' || 
                      file.type === 'image/heif' || 
                      /\.(heic|heif)$/i.test(file.name || '');
@@ -774,7 +790,6 @@
         }
       }
 
-      // 2. Decode using ObjectURL for maximum mobile RAM efficiency
       return new Promise((resolve, reject) => {
         const objectUrl = URL.createObjectURL(processedBlob);
         const img = new Image();
@@ -801,8 +816,7 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
 
-            const dataUrl = canvas.toDataURL('image/jpeg', quality);
-            resolve(dataUrl);
+            resolve(canvas.toDataURL('image/jpeg', quality));
           } catch (err) {
             reject(err);
           }
@@ -810,7 +824,6 @@
 
         img.onerror = function() {
           URL.revokeObjectURL(objectUrl);
-          // Secondary fallback attempt: try direct FileReader in case ObjectURL was blocked by sandbox
           const reader = new FileReader();
           reader.onload = function(re) {
             const fallbackImg = new Image();
@@ -825,11 +838,11 @@
               resolve(canvas.toDataURL('image/jpeg', quality));
             };
             fallbackImg.onerror = function() {
-              reject(new Error("Unable to decode picture. Try sharing as JPEG or taking a screenshot."));
+              reject(new Error("Unable to decode picture. Try sharing as JPEG."));
             };
             fallbackImg.src = re.target.result;
           };
-          reader.onerror = () => reject(new Error("Failed to read file from phone storage."));
+          reader.onerror = () => reject(new Error("Failed to read file."));
           reader.readAsDataURL(processedBlob);
         };
 
@@ -837,7 +850,6 @@
       });
     };
 
-    // Vegas live clock ticker (PST)
     function updateVegasClock() {
       const clockEl = document.getElementById('vegasClock');
       if (!clockEl) return;
@@ -857,67 +869,58 @@
     setInterval(updateVegasClock, 1000);
     updateVegasClock();
 
-    // In-memory checkin state
+    // State
     let checkinData = {};
     let activeSlotForPhoto = null;
     let currentSelectedDay = 'fri';
-
-    // Lightbox navigation state
     let activeLightboxSlotId = null;
     let activeLightboxPhotoIdx = 0;
     let isDiningLightbox = false;
 
-    // Default stock photos for dining section
-    const defaultDiningPhotos = {
-      'dining-famousfoods': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
-      'dining-tacos': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=700&q=80',
-      'dining-phodalat': 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=700&q=80',
-      'dining-mollytea': 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=700&q=80'
-    };
-
+    // Default Dining Spots (Phở Đà Lạt & Molly Tea moved to Fri)
     const defaultDiningSpots = [
       {
         id: 'dining-famousfoods',
         name: 'Famous Foods Street Eats',
         tag: 'Mon Lunch',
-        desc: 'Southeast Asian hawker hall at Resorts World • Claypot rice, dumplings & skewers.',
+        desc: 'Resorts World Asian hawker hall with claypot rice, dumplings & skewers.',
+        defaultImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
         mapStop: 'resortsworld',
-        query: 'Famous Foods Street Eats Resorts World',
-        defaultImg: defaultDiningPhotos['dining-famousfoods']
+        mapsUrl: 'https://maps.google.com/?q=Famous+Foods+Street+Eats+Resorts+World'
       },
       {
         id: 'dining-tacos',
         name: 'Tacos El Gordo',
         tag: 'Mon Dinner',
-        desc: 'Tijuana street tacos across Resorts World • Must-try adobada pork.',
+        desc: 'Tijuana street tacos across from Resorts World. Must-try spiced adobada.',
+        defaultImage: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=700&q=80',
         mapStop: 'tacos',
-        query: '3041 S Las Vegas Blvd Tacos El Gordo',
-        defaultImg: defaultDiningPhotos['dining-tacos']
+        mapsUrl: 'https://maps.google.com/?q=3041+S+Las+Vegas+Blvd+Tacos+El+Gordo'
       },
       {
         id: 'dining-phodalat',
         name: 'Phở Đà Lạt',
-        tag: 'Sat Lunch',
-        desc: 'Chinatown • Rich beef bone broth phở, spring rolls & com tam.',
+        tag: 'Fri Dinner',
+        desc: 'Authentic beef bone broth phở, spring rolls & grilled pork in Chinatown.',
+        defaultImage: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=700&q=80',
         mapStop: 'phodalat',
-        query: 'Pho Da Lat Las Vegas',
-        defaultImg: defaultDiningPhotos['dining-phodalat']
+        mapsUrl: 'https://maps.google.com/?q=Pho+Da+Lat+Las+Vegas'
       },
       {
         id: 'dining-mollytea',
         name: 'Molly Tea (茉莉奶白)',
-        tag: 'Sat Boba',
-        desc: 'Chinatown • Floral jasmine & white peach milk teas with cheese foam.',
+        tag: 'Fri Boba',
+        desc: 'Floral jasmine & white peach milk teas topped with cheese foam in Chinatown.',
+        defaultImage: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=700&q=80',
         mapStop: 'mollytea',
-        query: 'Molly Tea Las Vegas',
-        defaultImg: defaultDiningPhotos['dining-mollytea']
+        mapsUrl: 'https://maps.google.com/?q=Molly+Tea+Las+Vegas'
       }
     ];
 
     let diningSpots = [];
     let diningPhotos = {};
     let activeDiningSlot = null;
-    let photoPickerTargetType = 'checkin'; // 'checkin', 'dining', or 'dining-modal'
+    let photoPickerTargetType = 'checkin';
     let pendingModalDiningPhoto = null;
 
     function loadDiningSpots() {
@@ -925,12 +928,15 @@
         const stored = localStorage.getItem('vegas_dining_spots_v1');
         if (stored) {
           diningSpots = JSON.parse(stored);
+          diningSpots.forEach(s => {
+            if (s.id === 'dining-phodalat' && s.tag === 'Sat Lunch') s.tag = 'Fri Dinner';
+            if (s.id === 'dining-mollytea' && s.tag === 'Sat Boba') s.tag = 'Fri Boba';
+          });
         } else {
           diningSpots = JSON.parse(JSON.stringify(defaultDiningSpots));
           saveDiningSpots();
         }
       } catch (e) {
-        console.warn('Could not read dining spots:', e);
         diningSpots = JSON.parse(JSON.stringify(defaultDiningSpots));
       }
     }
@@ -938,9 +944,7 @@
     function saveDiningSpots() {
       try {
         localStorage.setItem('vegas_dining_spots_v1', JSON.stringify(diningSpots));
-      } catch (e) {
-        console.warn('Could not save dining spots:', e);
-      }
+      } catch (e) {}
       renderDiningCards();
     }
 
@@ -949,7 +953,6 @@
         const stored = localStorage.getItem('vegas_dining_photos_v1');
         diningPhotos = stored ? JSON.parse(stored) : {};
       } catch (e) {
-        console.warn('Could not read dining photos:', e);
         diningPhotos = {};
       }
       renderDiningCards();
@@ -959,29 +962,26 @@
       try {
         localStorage.setItem('vegas_dining_photos_v1', JSON.stringify(diningPhotos));
       } catch (e) {
-        console.warn('Storage quota reached while saving dining photo:', e);
-        showToast('Storage limit reached! Image previewed only.');
+        showToast('Storage limit reached!');
       }
       renderDiningCards();
     }
 
     function renderDiningCards() {
-      const container = document.getElementById('diningCardsContainer');
+      const container = document.getElementById('diningContainer');
       if (!container) return;
 
-      const fallbackImg = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=700&q=80';
-
       container.innerHTML = diningSpots.map(spot => {
-        const imgSrc = diningPhotos[spot.id] || spot.defaultImg || defaultDiningPhotos[spot.id] || fallbackImg;
-        const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(spot.query || spot.name + ' Las Vegas')}`;
+        const currentImg = diningPhotos[spot.id] || spot.defaultImage || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=700&q=80';
+        const safeName = spot.name.replace(/'/g, "\\'");
 
         return `
           <div class="glass-card rounded-2xl overflow-hidden border-white/10" data-dining-id="${spot.id}">
             <div class="relative group">
-              <img id="img-${spot.id}" src="${imgSrc}" onclick="previewDiningPhoto('${spot.id}', '${spot.name.replace(/'/g, "\\'")}')" class="w-full h-36 object-cover cursor-pointer tap-effect" alt="${spot.name}">
+              <img id="img-${spot.id}" src="${currentImg}" onclick="previewDiningPhoto('${spot.id}', '${safeName}')" class="w-full h-36 object-cover cursor-pointer tap-effect" alt="${spot.name}">
               <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none"></div>
               <div class="absolute bottom-2 right-2 pointer-events-auto">
-                <button onclick="triggerDiningPhotoUpload('${spot.id}')" class="tap-effect w-8 h-8 rounded-full bg-dark-900/85 hover:bg-gold-500 text-gold-400 hover:text-dark-950 backdrop-blur-md shadow-lg flex items-center justify-center border border-white/20 transition-colors" title="Change Photo">
+                <button onclick="triggerDiningPhotoUpload('${spot.id}')" class="tap-effect w-8 h-8 rounded-full bg-black/70 backdrop-blur-md text-gold-400 hover:text-white border border-white/20 flex items-center justify-center shadow-lg" title="Swap Photo">
                   <i class="ph-bold ph-arrows-clockwise text-sm"></i>
                 </button>
               </div>
@@ -989,8 +989,8 @@
             <div class="p-3.5 space-y-1.5">
               <div class="flex items-center justify-between gap-2">
                 <h3 class="text-sm font-bold text-white truncate">${spot.name}</h3>
-                <div class="flex items-center gap-1 flex-shrink-0">
-                  <span class="text-[11px] font-mono text-gold-400 font-semibold">${spot.tag || 'Food'}</span>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <span class="text-[11px] font-mono text-gold-400 font-semibold">${spot.tag}</span>
                   <button onclick="openDiningModal('${spot.id}')" class="w-6 h-6 rounded-lg bg-dark-800 text-slate-400 hover:text-gold-400 flex items-center justify-center tap-effect border border-white/5" title="Edit">
                     <i class="ph-bold ph-pencil-simple text-xs"></i>
                   </button>
@@ -999,16 +999,18 @@
                   </button>
                 </div>
               </div>
-              ${spot.desc ? `<p class="text-xs text-slate-300 leading-snug line-clamp-2">${spot.desc}</p>` : ''}
+              <p class="text-xs text-slate-300 leading-relaxed">${spot.desc}</p>
               <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px]">
                 ${spot.mapStop ? `
                   <button onclick="flyToMapStop('${spot.mapStop}')" class="text-gold-400 font-semibold hover:underline flex items-center gap-1 tap-effect">
                     <i class="ph-bold ph-map-pin"></i> Map
                   </button>
-                ` : `<span class="text-slate-500">Las Vegas</span>`}
-                <a href="${mapsUrl}" target="_blank" class="text-slate-400 hover:text-white flex items-center gap-0.5">
-                  Directions <i class="ph-bold ph-arrow-up-right"></i>
-                </a>
+                ` : '<span></span>'}
+                ${spot.mapsUrl ? `
+                  <a href="${spot.mapsUrl}" target="_blank" class="text-slate-400 hover:text-white flex items-center gap-1 ml-auto">
+                    Directions <i class="ph-bold ph-arrow-up-right"></i>
+                  </a>
+                ` : ''}
               </div>
             </div>
           </div>
@@ -1018,28 +1020,40 @@
 
     function openDiningModal(spotId = null) {
       const modal = document.getElementById('diningEditorModal');
-      const titleEl = document.getElementById('diningModalTitle').querySelector('span');
+      const modalTitle = document.getElementById('diningModalTitle').querySelector('span');
       const form = document.getElementById('diningEditorForm');
+      const preview = document.getElementById('modalDiningPhotoPreview');
+      const placeholder = document.getElementById('modalDiningPhotoPlaceholder');
+      
       form.reset();
-
-      document.getElementById('editDiningId').value = spotId || '';
       pendingModalDiningPhoto = null;
+      document.getElementById('editDiningId').value = spotId || '';
 
       if (spotId) {
         const spot = diningSpots.find(s => s.id === spotId);
         if (spot) {
-          titleEl.textContent = 'Edit Food Spot';
+          modalTitle.textContent = 'Edit Food Spot';
           document.getElementById('editDiningName').value = spot.name || '';
           document.getElementById('editDiningTag').value = spot.tag || '';
           document.getElementById('editDiningDesc').value = spot.desc || '';
           document.getElementById('editDiningMapStop').value = spot.mapStop || '';
-          document.getElementById('editDiningQuery').value = spot.query || '';
-          const existingPhoto = diningPhotos[spot.id] || spot.defaultImg;
-          updateModalDiningPhotoPreview(existingPhoto);
+          const queryMatch = (spot.mapsUrl || '').match(/\?q=([^&]+)/);
+          document.getElementById('editDiningMapsQuery').value = queryMatch ? decodeURIComponent(queryMatch[1].replace(/\+/g, ' ')) : '';
+          
+          const existingImg = diningPhotos[spot.id] || spot.defaultImage;
+          if (existingImg) {
+            preview.src = existingImg;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+          } else {
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+          }
         }
       } else {
-        titleEl.textContent = 'Add Food Spot';
-        updateModalDiningPhotoPreview(null);
+        modalTitle.textContent = 'Add Food Spot';
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
       }
 
       modal.classList.remove('hidden');
@@ -1048,120 +1062,99 @@
     function closeDiningModal(event, force = false) {
       if (force || (event && event.target.id === 'diningEditorModal')) {
         document.getElementById('diningEditorModal').classList.add('hidden');
-        pendingModalDiningPhoto = null;
       }
     }
 
-    function updateModalDiningPhotoPreview(src) {
-      const img = document.getElementById('modalDiningPhotoPreview');
-      const placeholder = document.getElementById('modalDiningPhotoPlaceholder');
-      const removeBtn = document.getElementById('btnRemoveModalDiningPhoto');
-      if (src) {
-        img.src = src;
-        img.classList.remove('hidden');
+    document.getElementById('modalDiningCameraInput').addEventListener('change', handleModalDiningPhotoSelect);
+    document.getElementById('modalDiningGalleryInput').addEventListener('change', handleModalDiningPhotoSelect);
+
+    async function handleModalDiningPhotoSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      showToast('Loading photo...');
+      try {
+        const compressed = await compressImageFile(file, 800, 800, 0.70);
+        pendingModalDiningPhoto = compressed;
+        const preview = document.getElementById('modalDiningPhotoPreview');
+        const placeholder = document.getElementById('modalDiningPhotoPlaceholder');
+        preview.src = compressed;
+        preview.classList.remove('hidden');
         placeholder.classList.add('hidden');
-        removeBtn.classList.remove('hidden');
-      } else {
-        img.src = '';
-        img.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-        removeBtn.classList.add('hidden');
+        showToast('Photo ready!');
+      } catch (err) {
+        showToast('Could not read photo');
+      } finally {
+        e.target.value = '';
       }
     }
 
-    function triggerModalDiningPhoto(source) {
-      photoPickerTargetType = 'dining-modal';
-      if (source === 'camera') {
-        const input = document.getElementById('diningCameraInput');
-        input.value = '';
-        input.click();
-      } else {
-        const input = document.getElementById('diningFileInput');
-        input.value = '';
-        input.click();
-      }
-    }
-
-    function clearModalDiningPhoto() {
-      pendingModalDiningPhoto = '__REMOVE__';
-      updateModalDiningPhotoPreview(null);
-    }
-
-    async function handleSaveDiningCard(e) {
+    async function handleSaveDiningSpot(e) {
       e.preventDefault();
       const id = document.getElementById('editDiningId').value;
       const name = document.getElementById('editDiningName').value.trim();
-      const tag = document.getElementById('editDiningTag').value.trim() || 'Food';
+      const tag = document.getElementById('editDiningTag').value.trim();
       const desc = document.getElementById('editDiningDesc').value.trim();
       const mapStop = document.getElementById('editDiningMapStop').value || null;
-      const query = document.getElementById('editDiningQuery').value.trim() || `${name} Las Vegas`;
+      const mapsQuery = document.getElementById('editDiningMapsQuery').value.trim();
+      const mapsUrl = mapsQuery ? `https://maps.google.com/?q=${encodeURIComponent(mapsQuery)}` : `https://maps.google.com/?q=${encodeURIComponent(name + ' Las Vegas')}`;
 
-      let targetId = id;
+      let targetSpotId = id;
 
       if (id) {
         const idx = diningSpots.findIndex(s => s.id === id);
         if (idx !== -1) {
-          diningSpots[idx] = {
-            ...diningSpots[idx],
-            name,
-            tag,
-            desc,
-            mapStop,
-            query
-          };
+          diningSpots[idx] = { ...diningSpots[idx], name, tag, desc, mapStop, mapsUrl };
         }
       } else {
-        targetId = 'dining-' + Date.now();
+        targetSpotId = 'dining-' + Date.now();
         diningSpots.push({
-          id: targetId,
+          id: targetSpotId,
           name,
           tag,
           desc,
+          defaultImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=700&q=80',
           mapStop,
-          query,
-          defaultImg: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=700&q=80'
+          mapsUrl
         });
       }
 
-      if (pendingModalDiningPhoto === '__REMOVE__') {
-        delete diningPhotos[targetId];
-        saveDiningPhotos();
-        if (window.removeDiningPhotoFromFirebase) {
-          await window.removeDiningPhotoFromFirebase(targetId);
-        }
-      } else if (pendingModalDiningPhoto) {
-        diningPhotos[targetId] = pendingModalDiningPhoto;
+      if (pendingModalDiningPhoto && targetSpotId) {
+        diningPhotos[targetSpotId] = pendingModalDiningPhoto;
         saveDiningPhotos();
         if (window.syncDiningPhotoToFirebase) {
-          await window.syncDiningPhotoToFirebase(targetId, pendingModalDiningPhoto);
+          await window.syncDiningPhotoToFirebase(targetSpotId, pendingModalDiningPhoto);
         }
       }
 
       saveDiningSpots();
-      if (window.firebaseSyncDiningSpots) {
-        await window.firebaseSyncDiningSpots(diningSpots);
+      if (window.firebaseSyncDiningCards) {
+        window.firebaseSyncDiningCards(diningSpots);
       }
 
+      showToast(id ? 'Food spot updated!' : 'Food spot added! 🍽️');
       closeDiningModal(null, true);
-      showToast(id ? 'Food spot updated! 🍽️' : 'Food spot added! 🍽️');
     }
 
     async function deleteDiningSpot(spotId) {
-      if (confirm('Delete this restaurant card?')) {
-        diningSpots = diningSpots.filter(s => s.id !== spotId);
-        saveDiningSpots();
-        if (diningPhotos[spotId]) {
-          delete diningPhotos[spotId];
-          saveDiningPhotos();
-          if (window.removeDiningPhotoFromFirebase) {
-            await window.removeDiningPhotoFromFirebase(spotId);
+      window.showConfirmDialog(
+        'Delete Food Spot',
+        'Remove this restaurant from your food bucket list?',
+        async () => {
+          diningSpots = diningSpots.filter(s => s.id !== spotId);
+          if (diningPhotos[spotId]) {
+            delete diningPhotos[spotId];
+            saveDiningPhotos();
+            if (window.removeDiningPhotoFromFirebase) {
+              await window.removeDiningPhotoFromFirebase(spotId);
+            }
           }
+          saveDiningSpots();
+          if (window.firebaseSyncDiningCards) {
+            window.firebaseSyncDiningCards(diningSpots);
+          }
+          showToast('Dining card deleted');
         }
-        if (window.firebaseSyncDiningSpots) {
-          await window.firebaseSyncDiningSpots(diningSpots);
-        }
-        showToast('Food spot removed');
-      }
+      );
     }
 
     function triggerDiningPhotoUpload(slotId) {
@@ -1169,7 +1162,7 @@
       photoPickerTargetType = 'dining';
       const modal = document.getElementById('photoSourceModal');
       const title = document.getElementById('photoSourceModalTitle');
-      if (title) title.textContent = 'Update Dining Photo';
+      if (title) title.textContent = 'Swap Dining Photo';
       if (modal) modal.classList.remove('hidden');
     }
 
@@ -1178,41 +1171,22 @@
 
     async function handleDiningPhotoChosen(e) {
       const file = e.target.files[0];
-      if (!file) return;
-
-      if (photoPickerTargetType === 'dining-modal') {
-        showToast('Processing photo...');
-        try {
-          const compressed = await compressImageFile(file, 800, 800, 0.70);
-          pendingModalDiningPhoto = compressed;
-          updateModalDiningPhotoPreview(compressed);
-          showToast('Photo attached! 📸');
-        } catch (err) {
-          console.error('Modal photo error:', err);
-          showToast('Could not process photo');
-        } finally {
-          e.target.value = '';
-        }
-        return;
-      }
-
-      if (!activeDiningSlot) return;
+      if (!file || !activeDiningSlot) return;
 
       showToast('Processing photo...');
-      setCloudStatus('Syncing photo...', 'text-amber-400');
+      window.setCloudStatus('Syncing...', 'text-amber-400');
       try {
         const compressed = await compressImageFile(file, 800, 800, 0.70);
         diningPhotos[activeDiningSlot] = compressed;
         saveDiningPhotos();
-        
-        // Sync to Firebase so all devices see the updated dining photo
-        await syncDiningPhotoToFirebase(activeDiningSlot, compressed);
-        showToast('Dining photo synced to all devices! 🍽️☁️');
-        setCloudStatus('Cloud Sync', 'text-emerald-400');
+        if (window.syncDiningPhotoToFirebase) {
+          await window.syncDiningPhotoToFirebase(activeDiningSlot, compressed);
+        }
+        showToast('Dining photo updated! 🍽️');
+        window.setCloudStatus('Cloud Sync', 'text-emerald-400');
       } catch (err) {
-        console.error('Failed to update dining photo:', err);
         showToast('Could not process photo');
-        setCloudStatus('Sync error', 'text-rose-400');
+        window.setCloudStatus('Sync error', 'text-rose-400');
       } finally {
         e.target.value = '';
       }
@@ -1220,7 +1194,7 @@
 
     function previewDiningPhoto(slotId, title) {
       const spot = diningSpots.find(s => s.id === slotId);
-      const imgSrc = diningPhotos[slotId] || (spot && spot.defaultImg) || defaultDiningPhotos[slotId];
+      const imgSrc = diningPhotos[slotId] || (spot && spot.defaultImage);
       if (!imgSrc) return;
 
       isDiningLightbox = true;
@@ -1234,16 +1208,18 @@
       if (navControls) navControls.classList.add('hidden');
 
       modalTitle.textContent = title;
-      time.textContent = diningPhotos[slotId] ? 'Synced Photo' : 'Default Photo';
+      time.textContent = spot ? spot.tag : 'Dining';
       img.src = imgSrc;
 
-      deleteBtn.textContent = 'Reset to Default';
+      deleteBtn.textContent = 'Reset Photo';
       deleteBtn.onclick = async () => {
         if (diningPhotos[slotId]) {
           delete diningPhotos[slotId];
           saveDiningPhotos();
-          await removeDiningPhotoFromFirebase(slotId);
-          showToast('Photo reset & synced across devices');
+          if (window.removeDiningPhotoFromFirebase) {
+            await window.removeDiningPhotoFromFirebase(slotId);
+          }
+          showToast('Photo reset');
         }
         closeLightbox(null, true);
       };
@@ -1252,17 +1228,22 @@
     }
 
     function resetAllDiningPhotos() {
-      if (confirm('Reset all custom dining photos back to default across all devices?')) {
-        diningPhotos = {};
-        saveDiningPhotos();
-        if (window.firebaseResetAllDining) {
-          window.firebaseResetAllDining();
-        }
-        showToast('All dining photos reset');
-      }
+      window.showConfirmDialog(
+        'Reset Dining Photos',
+        'Reset all custom dining photos back to their defaults?',
+        () => {
+          diningPhotos = {};
+          saveDiningPhotos();
+          if (window.firebaseResetAllDining) {
+            window.firebaseResetAllDining();
+          }
+          showToast('All dining photos reset');
+        },
+        'Reset'
+      );
     }
 
-    // Default built-in schedule data structure (timestamps kept only on fixed-time events)
+    // ================= DEFAULT SCHEDULE (Chinatown moved to Fri; Sat focused on Strip) =================
     const defaultSchedule = [
       // Friday Nov 27
       {
@@ -1271,9 +1252,9 @@
         sortTime: '03:30',
         timeLabel: '',
         category: 'travel',
-        tag: 'Prep',
-        title: 'Toledo ➔ DTW Airport',
-        desc: '50-min drive via I-75 N • Arrive at airport by 5:10 AM.',
+        tag: 'Departure',
+        title: 'Toledo to DTW Airport',
+        desc: '50-min drive via I-75 N. Target airport arrival around 5:10 AM.',
         mapStop: null,
         address: ''
       },
@@ -1285,7 +1266,7 @@
         category: 'travel',
         tag: 'Flight',
         title: 'Fly DTW ➔ LAS ✈️',
-        desc: 'Non-stop flight • Gain 3 hrs across time zones.',
+        desc: 'Non-stop flight to Vegas (gains 3 hrs crossing time zones).',
         mapStop: null,
         address: ''
       },
@@ -1296,20 +1277,20 @@
         timeLabel: '8:39 AM PST',
         category: 'hotel',
         tag: 'Arrival',
-        title: 'Land LAS & Luxor Bag Drop',
-        desc: '10-min Uber to Luxor • Drop bags at bell desk.',
+        title: 'Land at LAS & Luxor Bag Drop',
+        desc: '10-min Uber to Luxor. Drop bags at bell desk before room check-in.',
         mapStop: 'luxor',
         address: '3900 S Las Vegas Blvd, Las Vegas, NV 89119'
       },
       {
         id: 'fri-mandalay',
         day: 'fri',
-        sortTime: '10:00',
+        sortTime: '10:30',
         timeLabel: '',
         category: 'hotel',
         tag: 'Explore',
-        title: 'Mandalay Place & Pyramid Atrium',
-        desc: 'Brunch on skybridge & explore the Luxor atrium.',
+        title: 'Mandalay Place & Luxor Atrium',
+        desc: 'Brunch along the indoor skybridge and explore the pyramid.',
         mapStop: null,
         address: ''
       },
@@ -1319,21 +1300,33 @@
         sortTime: '15:00',
         timeLabel: '3:00 PM PST',
         category: 'hotel',
-        tag: 'Hotel',
-        title: 'Luxor Check-In & Nap',
-        desc: 'Mobile check-in, unpack & 90-min recharge nap.',
+        tag: 'Hotel Check-In',
+        title: 'Luxor Room Check-in & Nap',
+        desc: 'Mobile check-in, unpack, and recharge before heading to Chinatown.',
         mapStop: 'luxor',
         address: '3900 S Las Vegas Blvd, Las Vegas, NV 89119'
       },
       {
+        id: 'fri-chinatown',
+        day: 'fri',
+        sortTime: '17:30',
+        timeLabel: '',
+        category: 'food',
+        tag: 'Chinatown',
+        title: 'Chinatown: Phở Đà Lạt & Molly Tea',
+        desc: 'Explore Chinatown after check-in! Beef phở at Phở Đà Lạt followed by fresh jasmine milk tea at Molly Tea.',
+        mapStop: 'phodalat',
+        address: '4553 W Flamingo Rd, Las Vegas, NV 89103'
+      },
+      {
         id: 'fri-nyny',
         day: 'fri',
-        sortTime: '18:00',
+        sortTime: '20:00',
         timeLabel: '',
         category: 'sight',
         tag: 'South Strip',
         title: 'New York-New York & The Park',
-        desc: 'Brooklyn Bridge walk & casual dinner at The Park.',
+        desc: 'Walk the Brooklyn Bridge replica and enjoy South Strip lights.',
         mapStop: 'nyny',
         address: '3790 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1343,14 +1336,14 @@
         sortTime: '22:30',
         timeLabel: '',
         category: 'sight',
-        tag: 'Free Sight',
+        tag: 'Photo Op',
         title: 'Welcome to Las Vegas Sign',
-        desc: '4 mins south of Luxor • Zero lines late at night.',
+        desc: '4 mins south of Luxor. Late night visit = zero tour bus crowds.',
         mapStop: 'vegassign',
         address: '5200 S Las Vegas Blvd, Las Vegas, NV 89119'
       },
 
-      // Saturday Nov 28
+      // Saturday Nov 28 (All-Strip Focus)
       {
         id: 'sat-wake',
         day: 'sat',
@@ -1358,34 +1351,34 @@
         timeLabel: '',
         category: 'hotel',
         tag: 'Morning',
-        title: 'Coffee & Concert Prep',
-        desc: 'Morning coffee at Luxor & outfit prep.',
+        title: 'Morning Coffee & Concert Prep',
+        desc: 'Fuel up at Luxor and get concert-ready for a full Strip day.',
         mapStop: null,
         address: ''
       },
       {
         id: 'sat-bellagio',
         day: 'sat',
-        sortTime: '10:00',
+        sortTime: '10:30',
         timeLabel: '',
         category: 'sight',
-        tag: 'Free Sights',
-        title: 'Bellagio Conservatory & Flamingos',
-        desc: 'Botanical gardens & Flamingo Wildlife Habitat.',
+        tag: 'Mid-Strip',
+        title: 'Bellagio Conservatory & Flamingo Habitat',
+        desc: 'Seasonal botanical gardens at Bellagio and live flamingos across the street.',
         mapStop: 'bellagio',
         address: '3600 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
       {
-        id: 'sat-chinatown',
+        id: 'sat-strip-lunch',
         day: 'sat',
-        sortTime: '12:00',
+        sortTime: '12:30',
         timeLabel: '',
         category: 'food',
-        tag: 'Food Run',
-        title: 'Phở Đà Lạt + Molly Tea',
-        desc: 'Chinatown lunch: beef phở & jasmine cheese-foam tea.',
-        mapStop: 'phodalat',
-        address: '4553 W Flamingo Rd, Las Vegas, NV 89103'
+        tag: 'Strip Lunch',
+        title: 'Mid-Strip Lunch & Miracle Mile',
+        desc: 'Grab lunch and browse shops along the Strip between Bellagio & Planet Hollywood.',
+        mapStop: 'phlive',
+        address: '3663 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
       {
         id: 'sat-atlantis',
@@ -1395,7 +1388,7 @@
         category: 'sight',
         tag: 'Free Show',
         title: 'Fall of Atlantis (Caesars)',
-        desc: 'Forum Shops fire & water animatronic show (hourly).',
+        desc: 'Forum Shops animatronic fire & water show on the hour.',
         mapStop: 'atlantis',
         address: '3500 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1407,7 +1400,7 @@
         category: 'concert',
         tag: 'MAIN EVENT',
         title: '"Vũ Trụ Say Hi" Concert 🎤',
-        desc: 'PH Live at Planet Hollywood • Have digital tickets ready.',
+        desc: 'PH Live at Planet Hollywood. Have digital tickets ready.',
         mapStop: 'phlive',
         address: '3667 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1417,9 +1410,9 @@
         sortTime: '22:30',
         timeLabel: '',
         category: 'sight',
-        tag: 'Free Show',
+        tag: 'Night Show',
         title: 'Bellagio Dancing Fountains',
-        desc: 'Night fountain show right outside Planet Hollywood.',
+        desc: 'Water & music spectacle right across from Planet Hollywood.',
         mapStop: 'bellagio',
         address: '3600 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1431,9 +1424,9 @@
         sortTime: '09:30',
         timeLabel: '',
         category: 'hotel',
-        tag: 'Sleep In',
-        title: 'Wake Up & Brunch',
-        desc: 'Relaxed morning after the concert.',
+        tag: 'Morning',
+        title: 'Sleep In & Brunch',
+        desc: 'Relaxed recovery morning after the concert.',
         mapStop: null,
         address: ''
       },
@@ -1445,7 +1438,7 @@
         category: 'zipline',
         tag: 'Mid-Strip',
         title: 'LINQ Promenade & Venetian Canals',
-        desc: 'High Roller views, indoor canals & gondolas.',
+        desc: 'High Roller plaza, Fly LINQ zipline & indoor Venetian gondolas.',
         mapStop: 'linq',
         address: '3535 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1456,8 +1449,8 @@
         timeLabel: '',
         category: 'zipline',
         tag: 'Downtown',
-        title: 'SlotZilla Zipline & Fremont St',
-        desc: 'Fly under Viva Vision LED canopy & vintage neon casinos.',
+        title: 'SlotZilla Zipline & Fremont Street',
+        desc: 'Fly under the Viva Vision LED canopy and explore vintage neon casinos.',
         mapStop: 'slotzilla',
         address: '425 E Fremont St, Las Vegas, NV 89101'
       },
@@ -1469,9 +1462,9 @@
         sortTime: '09:30',
         timeLabel: '',
         category: 'hotel',
-        tag: 'Late Room',
-        title: 'No Checkout Rush',
-        desc: 'Room booked through tonight • Leave bags & explore.',
+        tag: 'No Rush',
+        title: 'Keep Room Through Tonight',
+        desc: 'Luxor room is booked tonight—leave bags inside and explore freely.',
         mapStop: 'luxor',
         address: '3900 S Las Vegas Blvd, Las Vegas, NV 89119'
       },
@@ -1483,7 +1476,7 @@
         category: 'sight',
         tag: 'Free Show',
         title: 'Circus Circus Midway',
-        desc: 'Free live trapeze & aerialist performances.',
+        desc: 'Free live trapeze & acrobatic acts above the carnival arena.',
         mapStop: 'circus',
         address: '2880 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1495,7 +1488,7 @@
         category: 'food',
         tag: 'Lunch',
         title: 'Famous Foods (Resorts World)',
-        desc: 'Asian street food hawker hall • Claypot rice & skewers.',
+        desc: 'Asian street food hawker stalls: claypot rice, dumplings & skewers.',
         mapStop: 'resortsworld',
         address: '3000 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1507,7 +1500,7 @@
         category: 'food',
         tag: 'Dinner',
         title: 'Tacos El Gordo',
-        desc: 'Across Resorts World • Go straight to the Adobada line.',
+        desc: 'Across from Resorts World. Jump straight into the Adobada line.',
         mapStop: 'tacos',
         address: '3041 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1519,7 +1512,7 @@
         category: 'sight',
         tag: 'Free Show',
         title: 'Wynn Lake of Dreams',
-        desc: 'Multimedia waterfall & hologram show.',
+        desc: 'Multimedia waterfall, holographic & puppet show after dusk.',
         mapStop: 'wynn',
         address: '3131 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
@@ -1530,8 +1523,8 @@
         timeLabel: '',
         category: 'hotel',
         tag: 'Pack Up',
-        title: 'Shower, Pack & App Checkout',
-        desc: 'Refresh at Luxor & checkout via MGM app.',
+        title: 'Luxor Shower & App Checkout',
+        desc: 'Freshen up, pack bags, and check out via the MGM mobile app.',
         mapStop: 'luxor',
         address: '3900 S Las Vegas Blvd, Las Vegas, NV 89119'
       },
@@ -1541,9 +1534,9 @@
         sortTime: '23:59',
         timeLabel: '12:59 AM (Tue)',
         category: 'travel',
-        tag: 'Flight',
-        title: 'Red-Eye LAS ➔ DTW ✈️',
-        desc: 'Airport by 10:45 PM • Lands 1:23 PM EST.',
+        tag: 'Flight Home',
+        title: 'Fly LAS ➔ DTW ✈️',
+        desc: 'Head to airport by 10:45 PM. Lands in Detroit 1:23 PM Tuesday.',
         mapStop: 'lasairport',
         address: '5757 Wayne Newton Blvd, Las Vegas, NV 89119'
       }
@@ -1551,26 +1544,26 @@
 
     let scheduleCards = [];
 
-    // Load persisted cards or fallback to default
     function loadScheduleStorage() {
       try {
         const stored = localStorage.getItem('vegas_schedule_cards_v1');
         if (stored) {
-          const parsed = JSON.parse(stored);
-          // Migrate existing default cards to clean compromise timestamps if untouched
-          const defaultMap = new Map(defaultSchedule.map(d => [d.id, d]));
-          scheduleCards = parsed.map(c => {
-            if (defaultMap.has(c.id) && defaultMap.get(c.id).timeLabel === '') {
-              return { ...c, timeLabel: '' };
-            }
-            return c;
-          });
+          scheduleCards = JSON.parse(stored);
+          // Migrate old Chinatown card to Friday if still on Saturday
+          const oldSatChinaIdx = scheduleCards.findIndex(c => c.id === 'sat-chinatown' && c.day === 'sat');
+          if (oldSatChinaIdx !== -1) {
+            scheduleCards[oldSatChinaIdx].day = 'fri';
+            scheduleCards[oldSatChinaIdx].sortTime = '17:30';
+            scheduleCards[oldSatChinaIdx].tag = 'Chinatown';
+            scheduleCards[oldSatChinaIdx].title = 'Chinatown: Phở Đà Lạt & Molly Tea';
+            scheduleCards[oldSatChinaIdx].desc = 'Explore Chinatown after check-in! Beef phở at Phở Đà Lạt followed by fresh jasmine milk tea at Molly Tea.';
+            saveScheduleStorage();
+          }
         } else {
           scheduleCards = JSON.parse(JSON.stringify(defaultSchedule));
           saveScheduleStorage();
         }
       } catch (e) {
-        console.warn('Could not load schedule cards:', e);
         scheduleCards = JSON.parse(JSON.stringify(defaultSchedule));
       }
     }
@@ -1578,11 +1571,9 @@
     function saveScheduleStorage() {
       try {
         localStorage.setItem('vegas_schedule_cards_v1', JSON.stringify(scheduleCards));
-      } catch (e) {
-        console.warn('LocalStorage error while saving cards:', e);
-      }
+      } catch (e) {}
     }
-    // Load persisted check-ins and normalize legacy single-photo entries to photos array
+
     function loadCheckinStorage() {
       try {
         const stored = localStorage.getItem('vegas_checkins_v1');
@@ -1607,7 +1598,6 @@
           checkinData = parsed;
         }
       } catch (e) {
-        console.warn('Could not read check-in storage:', e);
         checkinData = {};
       }
     }
@@ -1616,75 +1606,46 @@
       try {
         localStorage.setItem('vegas_checkins_v1', JSON.stringify(checkinData));
       } catch (e) {
-        console.warn('LocalStorage full, attempting recovery:', e);
-        showToast('Storage quota reached! Clearing temporary cache.');
+        showToast('Storage limit reached!');
       }
       renderItinerary();
       renderAlbumView();
       updateCheckinProgress();
     }
 
-    // Sort cards chronologically by sortTime (24h format like "03:30", "19:00")
     function getSortedCardsForDay(dayKey) {
       return scheduleCards
         .filter(c => c.day === dayKey)
         .sort((a, b) => (a.sortTime || '00:00').localeCompare(b.sortTime || '00:00'));
     }
 
-    // Category style helper
     function getCategoryStyle(cat) {
       switch (cat) {
         case 'food':
-          return {
-            timeColor: 'text-orange-400',
-            tagBg: 'bg-orange-400/15 text-orange-300',
-            border: 'border-orange-500/25'
-          };
+          return { timeColor: 'text-orange-400', tagBg: 'bg-orange-400/15 text-orange-300', border: 'border-orange-500/25' };
         case 'sight':
-          return {
-            timeColor: 'text-emerald-400',
-            tagBg: 'bg-emerald-400/15 text-emerald-300',
-            border: 'border-emerald-500/25'
-          };
+          return { timeColor: 'text-emerald-400', tagBg: 'bg-emerald-400/15 text-emerald-300', border: 'border-emerald-500/25' };
         case 'concert':
-          return {
-            timeColor: 'text-purple-400',
-            tagBg: 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
-            border: 'border-purple-500/40 relative overflow-hidden'
-          };
+          return { timeColor: 'text-purple-400', tagBg: 'bg-purple-500/20 text-purple-300 border border-purple-500/30', border: 'border-purple-500/40 relative overflow-hidden' };
         case 'zipline':
-          return {
-            timeColor: 'text-sky-400',
-            tagBg: 'bg-sky-400/15 text-sky-300',
-            border: 'border-sky-500/30'
-          };
+          return { timeColor: 'text-sky-400', tagBg: 'bg-sky-400/15 text-sky-300', border: 'border-sky-500/30' };
         case 'hotel':
-          return {
-            timeColor: 'text-gold-400',
-            tagBg: 'bg-gold-400/15 text-gold-300',
-            border: 'border-gold-500/25'
-          };
+          return { timeColor: 'text-gold-400', tagBg: 'bg-gold-400/15 text-gold-300', border: 'border-gold-500/25' };
         case 'travel':
         default:
-          return {
-            timeColor: 'text-sky-400',
-            tagBg: 'bg-sky-400/15 text-sky-300',
-            border: 'border-white/10'
-          };
+          return { timeColor: 'text-sky-400', tagBg: 'bg-sky-400/15 text-sky-300', border: 'border-white/10' };
       }
     }
 
-    // Trigger file picker for checkin capture
     function triggerCheckinSnap(slotId) {
       activeSlotForPhoto = slotId;
       photoPickerTargetType = 'checkin';
       const modal = document.getElementById('photoSourceModal');
       const title = document.getElementById('photoSourceModalTitle');
-      if (title) title.textContent = 'Add Check-In Story';
+      if (title) title.textContent = 'Add Story';
       if (modal) modal.classList.remove('hidden');
     }
 
-    // Modal controls for Photo Source Sheet
     function closePhotoSourceModal(event, force = false) {
       if (force || (event && event.target.id === 'photoSourceModal')) {
         const modal = document.getElementById('photoSourceModal');
@@ -1718,7 +1679,6 @@
       }
     }
 
-    // Render cards for the currently selected day with multi-photo gallery
     function renderItinerary() {
       const container = document.getElementById('itineraryContainer');
       if (!container) return;
@@ -1731,10 +1691,9 @@
             <div class="w-10 h-10 rounded-xl bg-gold-400/10 text-gold-400 flex items-center justify-center mx-auto text-xl">
               <i class="ph-bold ph-calendar-plus"></i>
             </div>
-            <h4 class="text-sm font-bold text-white">No stops planned for this day</h4>
-            <p class="text-xs text-slate-400">Tap "+ Add Stop" above to create an activity card.</p>
+            <h4 class="text-sm font-bold text-white">No stops planned</h4>
             <button onclick="openCardModal('${currentSelectedDay}')" class="mt-2 text-xs font-bold text-dark-950 bg-gold-400 px-3.5 py-1.5 rounded-xl tap-effect">
-              Add Activity
+              Add Stop
             </button>
           </div>
         `;
@@ -1766,64 +1725,45 @@
         let checkinSlotHtml = '';
         if (photos.length > 0) {
           const verticalStorySlides = photos.map((p, idx) => `
-            <div onclick="openLightbox('${card.id}', ${idx})" class="story-snap-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-800">
+            <div class="story-slide-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-850" onclick="openLightbox('${card.id}', ${idx})">
               <img src="${p.dataUrl}" alt="Story ${idx + 1}" class="w-full h-full object-cover">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-black/40 flex flex-col justify-between p-2.5">
-                <!-- Top Row: Story Badge + Delete -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/35 flex flex-col justify-between p-2.5">
                 <div class="flex items-center justify-between">
-                  <span class="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span class="px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono">
                     ${idx + 1}/${photos.length}
                   </span>
-                  <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 backdrop-blur-md text-slate-200 hover:text-rose-400 border border-white/15 flex items-center justify-center text-[10px] tap-effect" title="Delete story">
+                  <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 text-white/90 hover:text-rose-400 border border-white/20 flex items-center justify-center text-[10px] shadow tap-effect" title="Delete">
                     <i class="ph-bold ph-x"></i>
                   </button>
                 </div>
-
-                <!-- Bottom Row: Timestamp -->
                 <div>
-                  <p class="text-[9px] text-gold-300 font-mono font-semibold truncate flex items-center gap-1">
+                  <p class="text-[9px] text-gold-300 font-mono font-bold truncate flex items-center gap-1">
                     <i class="ph-bold ph-clock"></i> ${p.checkinTimestamp}
                   </p>
-                  <p class="text-[10px] font-bold text-white truncate mt-0.5">Story ${idx + 1}</p>
                 </div>
               </div>
             </div>
           `).join('');
 
-          const addStorySlide = `
-            <div onclick="triggerCheckinSnap('${card.id}')" class="story-snap-item relative aspect-[9/15] rounded-2xl border-2 border-dashed border-gold-400/45 bg-dark-800/70 hover:bg-dark-800 hover:border-gold-400 flex flex-col items-center justify-center p-3 text-center cursor-pointer tap-effect transition-all group">
-              <div class="w-11 h-11 rounded-full story-ring-gradient p-[2px] mb-2 shadow-md group-hover:scale-105 transition-transform">
-                <div class="w-full h-full bg-dark-900 rounded-full flex items-center justify-center text-white">
-                  <i class="ph-bold ph-plus text-lg"></i>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-gold-400">Add Story</span>
-              <span class="text-[10px] text-slate-400 mt-0.5 leading-tight">Snap or upload</span>
-            </div>
-          `;
-
           checkinSlotHtml = `
             <div class="space-y-2">
               <div class="flex items-center justify-between px-0.5">
-                <span class="text-[10px] font-bold text-slate-300 flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[10px] font-bold text-slate-300 flex items-center gap-1.5 font-mono">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   ${photos.length} Stor${photos.length > 1 ? 'ies' : 'y'}
                 </span>
                 <div class="flex items-center gap-2">
-                  <button onclick="triggerCheckinSnap('${card.id}')" class="tap-effect px-2.5 py-1 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 hover:bg-gold-500/30 font-bold text-[10px] flex items-center gap-1">
+                  <button onclick="triggerCheckinSnap('${card.id}')" class="tap-effect px-2.5 py-1 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-[10px] font-bold flex items-center gap-1 hover:bg-gold-500/30">
                     <i class="ph-bold ph-plus"></i> Add
                   </button>
-                  <button onclick="deleteAllCheckinPhotosForStop('${card.id}')" class="text-[10px] text-slate-400 hover:text-rose-400 font-semibold tap-effect px-1">
-                    Clear
+                  <button onclick="deleteAllCheckinPhotosForStop('${card.id}')" class="text-[10px] text-slate-400 hover:text-rose-400 flex items-center gap-0.5 tap-effect" title="Clear">
+                    <i class="ph-bold ph-trash"></i>
                   </button>
                 </div>
               </div>
 
-              <!-- 2-Column Horizontal Snap Slider for Vertical Stories -->
-              <div class="story-snap-slider flex items-stretch gap-2.5 overflow-x-auto no-scrollbar pb-1">
+              <div class="story-snap-slider no-scrollbar pb-0.5">
                 ${verticalStorySlides}
-                ${addStorySlide}
               </div>
             </div>
           `;
@@ -1843,17 +1783,20 @@
           `;
         }
 
+        const timeBadgeHtml = card.timeLabel 
+          ? `<span class="text-[11px] font-bold ${style.timeColor} uppercase tracking-wider font-mono">${card.timeLabel}</span>` 
+          : '';
+
         return `
           <div class="itinerary-card glass-card rounded-2xl p-3.5 space-y-2.5 ${style.border}" data-card-id="${card.id}">
             <div class="flex items-start justify-between gap-2">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-1.5 truncate">
-                    ${card.timeLabel ? `<span class="text-[11px] font-bold ${style.timeColor} uppercase tracking-wider font-mono">${card.timeLabel}</span>` : ''}
-                    <span class="px-1.5 py-0.2 rounded ${style.tagBg} text-[10px] font-semibold">${card.tag || 'Stop'}</span>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    ${timeBadgeHtml}
+                    <span class="px-2 py-0.5 rounded ${style.tagBg} text-[10px] font-semibold">${card.tag || 'Stop'}</span>
                   </div>
-                  <!-- Edit & Delete Card Actions -->
-                  <div class="flex items-center gap-1 flex-shrink-0">
+                  <div class="flex items-center gap-1">
                     <button onclick="openCardModal(null, '${card.id}')" class="w-6 h-6 rounded-lg bg-dark-800 text-slate-400 hover:text-gold-400 flex items-center justify-center tap-effect border border-white/5" title="Edit">
                       <i class="ph-bold ph-pencil-simple text-xs"></i>
                     </button>
@@ -1863,12 +1806,11 @@
                   </div>
                 </div>
                 <h3 class="text-sm font-bold text-white mt-1">${card.title}</h3>
-                ${card.desc ? `<p class="text-xs text-slate-400 mt-0.5 leading-snug">${card.desc}</p>` : ''}
+                <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">${card.desc || ''}</p>
                 ${actionButtonsHtml ? `<div class="flex flex-wrap gap-2 mt-2">${actionButtonsHtml}</div>` : ''}
               </div>
             </div>
-            <!-- Check-in photo section -->
-            <div class="checkin-slot-container pt-2 border-t border-white/5" data-slot-id="${card.id}" data-title="${card.title.replace(/"/g, '&quot;')}" data-time="${card.timeLabel}">
+            <div class="checkin-slot-container pt-2 border-t border-white/5" data-slot-id="${card.id}">
               ${checkinSlotHtml}
             </div>
           </div>
@@ -1878,7 +1820,6 @@
       updateCheckinProgress();
     }
 
-    // Modal Add / Edit Card Handling
     function openCardModal(day = null, cardId = null) {
       const modal = document.getElementById('cardEditorModal');
       const modalTitle = document.getElementById('modalEditorTitle').querySelector('span');
@@ -1891,7 +1832,7 @@
       if (cardId) {
         const card = scheduleCards.find(c => c.id === cardId);
         if (card) {
-          modalTitle.textContent = 'Edit Activity Stop';
+          modalTitle.textContent = 'Edit Activity';
           document.getElementById('editCardDay').value = card.day;
           document.getElementById('editCardSortTime').value = card.sortTime || '12:00';
           document.getElementById('editCardTimeLabel').value = card.timeLabel || '';
@@ -1903,7 +1844,7 @@
           document.getElementById('editCardAddress').value = card.address || '';
         }
       } else {
-        modalTitle.textContent = 'Add New Activity';
+        modalTitle.textContent = 'Add Activity';
         document.getElementById('editCardSortTime').value = '12:00';
         document.getElementById('editCardTimeLabel').value = '';
       }
@@ -1931,26 +1872,13 @@
       const address = document.getElementById('editCardAddress').value.trim();
 
       if (id) {
-        // Update existing card
         const idx = scheduleCards.findIndex(c => c.id === id);
         if (idx !== -1) {
-          scheduleCards[idx] = {
-            ...scheduleCards[idx],
-            day,
-            sortTime,
-            timeLabel,
-            title,
-            category,
-            tag,
-            desc,
-            mapStop,
-            address
-          };
-          showToast('Stop updated & reordered by time! ⏰');
+          scheduleCards[idx] = { ...scheduleCards[idx], day, sortTime, timeLabel, title, category, tag, desc, mapStop, address };
+          showToast('Updated!');
         }
       } else {
-        // Create new card
-        const newCard = {
+        scheduleCards.push({
           id: 'custom-' + Date.now(),
           day,
           sortTime,
@@ -1961,9 +1889,8 @@
           desc,
           mapStop,
           address
-        };
-        scheduleCards.push(newCard);
-        showToast('New stop added & sorted! 🌟');
+        });
+        showToast('Stop added!');
       }
 
       saveScheduleStorage();
@@ -1976,7 +1903,32 @@
       renderAlbumView();
     }
 
-    // Handle check-in photo selection from either direct camera or gallery
+    async function deleteScheduleCard(cardId) {
+      window.showConfirmDialog(
+        'Delete Activity',
+        'Remove this stop from your trip schedule?',
+        async () => {
+          scheduleCards = scheduleCards.filter(c => c.id !== cardId);
+          saveScheduleStorage();
+          if (window.firebaseSyncSchedule) {
+            window.firebaseSyncSchedule(scheduleCards);
+          }
+          if (checkinData[cardId]) {
+            delete checkinData[cardId];
+            saveCheckinStorage();
+            if (window.firebaseDeleteCheckin) {
+              await window.firebaseDeleteCheckin(cardId);
+            }
+          }
+          renderItinerary();
+          renderAlbumView();
+          updateCheckinProgress();
+          showToast('Activity deleted');
+        }
+      );
+    }
+
+    // Handle check-in photo selection
     document.getElementById('cameraFileInput').addEventListener('change', handleCheckinPhotoChosen);
     document.getElementById('directCameraInput').addEventListener('change', handleCheckinPhotoChosen);
 
@@ -1984,8 +1936,8 @@
       const files = Array.from(e.target.files || []);
       if (!files.length || !activeSlotForPhoto) return;
 
-      showToast(files.length > 1 ? `Loading ${files.length} photos...` : `Loading photo...`);
-      setCloudStatus('Processing...', 'text-amber-400');
+      showToast(files.length > 1 ? `Adding ${files.length} photos...` : `Loading photo...`);
+      window.setCloudStatus('Processing...', 'text-amber-400');
 
       try {
         const card = scheduleCards.find(c => c.id === activeSlotForPhoto);
@@ -1993,11 +1945,7 @@
         const scheduledTime = card ? card.timeLabel : '';
 
         if (!checkinData[activeSlotForPhoto]) {
-          checkinData[activeSlotForPhoto] = {
-            title: title,
-            scheduledTime: scheduledTime,
-            photos: []
-          };
+          checkinData[activeSlotForPhoto] = { title, scheduledTime, photos: [] };
         } else if (!Array.isArray(checkinData[activeSlotForPhoto].photos)) {
           checkinData[activeSlotForPhoto].photos = [];
         }
@@ -2011,9 +1959,8 @@
           const file = files[i];
           try {
             if (files.length > 1) {
-              setCloudStatus(`Processing ${i + 1}/${files.length}...`, 'text-amber-400');
+              window.setCloudStatus(`Photo ${i + 1}/${files.length}...`, 'text-amber-400');
             }
-            // Compress photo safely with HEIC conversion & ObjectURL pipeline
             const compressedData = await compressImageFile(file, 900, 900, 0.70);
             checkinData[activeSlotForPhoto].photos.push({
               id: 'p-' + Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6),
@@ -2023,74 +1970,101 @@
             });
             successCount++;
           } catch (fileErr) {
-            console.warn('Skipping unreadable phone file:', file.name, fileErr);
             showToast(fileErr.message || 'File skipped');
           }
         }
 
         if (successCount === 0) {
-          throw new Error('Could not read photo from camera. Try choosing from your photo gallery.');
+          throw new Error('Could not read photo. Try choosing from gallery.');
         }
 
         checkinData[activeSlotForPhoto].title = title;
         checkinData[activeSlotForPhoto].scheduledTime = scheduledTime;
-
         saveCheckinStorage();
 
-        // Push full multi-photo checkin record to Firestore
         if (window.firebaseSyncCheckin) {
-          setCloudStatus('Syncing to Cloud...', 'text-amber-400');
+          window.setCloudStatus('Syncing...', 'text-amber-400');
           await window.firebaseSyncCheckin(activeSlotForPhoto, checkinData[activeSlotForPhoto]);
         }
 
-        showToast(`${successCount} story photo added & synced! 📸☁️`);
-        setCloudStatus('Cloud Sync', 'text-emerald-400');
+        showToast(`${successCount} stor${successCount > 1 ? 'ies' : 'y'} added! 📸`);
+        window.setCloudStatus('Cloud Sync', 'text-emerald-400');
       } catch (err) {
-        console.error('Image processing error:', err);
-        showToast(err.message || 'Error saving picture. Please try again.');
-        setCloudStatus('Sync error', 'text-rose-400');
+        showToast(err.message || 'Error saving picture.');
+        window.setCloudStatus('Sync error', 'text-rose-400');
       } finally {
         e.target.value = '';
       }
     }
 
-    // Delete a single photo from a checkin stop
     async function deleteSinglePhoto(slotId, photoId, event) {
       if (event) event.stopPropagation();
       const checkin = checkinData[slotId];
       if (!checkin || !Array.isArray(checkin.photos)) return;
 
-      if (confirm('Delete this photo?')) {
-        checkin.photos = checkin.photos.filter(p => p.id !== photoId);
-        if (checkin.photos.length === 0) {
+      window.showConfirmDialog(
+        'Delete Story',
+        'Remove this check-in photo?',
+        async () => {
+          checkin.photos = checkin.photos.filter(p => p.id !== photoId);
+          if (checkin.photos.length === 0) {
+            delete checkinData[slotId];
+            saveCheckinStorage();
+            if (window.firebaseDeleteCheckin) {
+              await window.firebaseDeleteCheckin(slotId);
+            }
+          } else {
+            saveCheckinStorage();
+            if (window.firebaseSyncCheckin) {
+              await window.firebaseSyncCheckin(slotId, checkin);
+            }
+          }
+          if (!document.getElementById('photoLightboxModal').classList.contains('hidden')) {
+            const updatedCheckin = checkinData[slotId];
+            if (updatedCheckin && Array.isArray(updatedCheckin.photos) && updatedCheckin.photos.length > 0) {
+              activeLightboxPhotoIdx = Math.max(0, activeLightboxPhotoIdx - 1);
+              updateLightboxDisplay();
+            } else {
+              closeLightbox(null, true);
+            }
+          }
+          showToast('Story removed');
+        }
+      );
+    }
+
+    async function deleteAllCheckinPhotosForStop(slotId) {
+      window.showConfirmDialog(
+        'Clear Stop Stories',
+        'Remove all check-in stories for this stop?',
+        async () => {
           delete checkinData[slotId];
           saveCheckinStorage();
           if (window.firebaseDeleteCheckin) {
             await window.firebaseDeleteCheckin(slotId);
           }
-        } else {
+          showToast('Stories cleared');
+        },
+        'Clear All'
+      );
+    }
+
+    async function clearAllCheckinPhotos() {
+      window.showConfirmDialog(
+        'Clear Scrapbook',
+        'Delete all check-in photos across the entire trip?',
+        async () => {
+          checkinData = {};
           saveCheckinStorage();
-          if (window.firebaseSyncCheckin) {
-            await window.firebaseSyncCheckin(slotId, checkin);
+          if (window.firebaseClearAllCheckins) {
+            await window.firebaseClearAllCheckins();
           }
-        }
-        showToast('Photo removed');
-      }
+          showToast('Scrapbook cleared');
+        },
+        'Clear Scrapbook'
+      );
     }
 
-    // Delete all checkin photos for a stop
-    async function deleteAllCheckinPhotosForStop(slotId) {
-      if (confirm('Remove all check-in photos for this stop?')) {
-        delete checkinData[slotId];
-        saveCheckinStorage();
-        if (window.firebaseDeleteCheckin) {
-          await window.firebaseDeleteCheckin(slotId);
-        }
-        showToast('Check-ins cleared for stop');
-      }
-    }
-
-    // Render the Scrapbook / Album View showing ALL individual photos
     function renderAlbumView() {
       const albumGrid = document.getElementById('albumGrid');
       const emptyState = document.getElementById('albumEmptyState');
@@ -2099,7 +2073,6 @@
       const remainingStat = document.getElementById('albumRemainingStat');
       const storageStat = document.getElementById('albumStorageStat');
 
-      // Flatten every photo across all stops
       const flattenedPhotos = [];
       Object.entries(checkinData).forEach(([slotId, entry]) => {
         if (entry && Array.isArray(entry.photos)) {
@@ -2110,7 +2083,7 @@
                 photoIndex: pIdx,
                 photoId: photo.id,
                 dataUrl: photo.dataUrl,
-                title: entry.title || 'Vegas Activity',
+                title: entry.title || 'Vegas',
                 scheduledTime: entry.scheduledTime || '',
                 checkinTimestamp: photo.checkinTimestamp || 'Checked In',
                 rawTime: photo.rawTime || 0
@@ -2127,7 +2100,6 @@
       const completedStops = Object.keys(checkinData).filter(k => checkinData[k] && Array.isArray(checkinData[k].photos) && checkinData[k].photos.length > 0).length;
       if (remainingStat) remainingStat.textContent = Math.max(0, totalSlots - completedStops);
 
-      // Estimate bytes stored
       const rawString = JSON.stringify(checkinData);
       const kb = Math.round(new Blob([rawString]).size / 1024);
       if (storageStat) storageStat.textContent = kb + ' KB';
@@ -2142,12 +2114,11 @@
       if (emptyState) emptyState.classList.add('hidden');
       if (albumBadge) albumBadge.classList.remove('hidden');
 
-      // Sort chronological
       flattenedPhotos.sort((a, b) => (a.rawTime || 0) - (b.rawTime || 0));
 
       if (albumGrid) {
         albumGrid.innerHTML = flattenedPhotos.map(item => `
-          <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-2">
+          <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-1.5">
             <div class="relative rounded-xl overflow-hidden group cursor-pointer tap-effect" onclick="openLightbox('${item.slotId}', ${item.photoIndex})">
               <img src="${item.dataUrl}" class="w-full h-36 object-cover" alt="${item.title}">
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
@@ -2156,14 +2127,12 @@
             </div>
             <div class="px-1">
               <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
-              <p class="text-[10px] text-slate-400 font-mono truncate">${item.scheduledTime || 'Las Vegas'}</p>
             </div>
           </div>
         `).join('');
       }
     }
 
-    // Update overall progress bar
     function updateCheckinProgress() {
       const totalSlots = scheduleCards.length || 17;
       const completed = Object.keys(checkinData).filter(k => checkinData[k] && Array.isArray(checkinData[k].photos) && checkinData[k].photos.length > 0).length;
@@ -2171,11 +2140,10 @@
 
       const text = document.getElementById('progressCheckinText');
       const bar = document.getElementById('checkinProgressBar');
-      if (text) text.textContent = `${completed} / ${totalSlots} (${pct}%)`;
+      if (text) text.textContent = `${completed} / ${totalSlots}`;
       if (bar) bar.style.width = `${pct}%`;
     }
 
-    // Lightbox Fullscreen viewer with multi-photo gallery navigation
     function openLightbox(slotId, photoIdx = 0) {
       const checkin = checkinData[slotId];
       if (!checkin || !Array.isArray(checkin.photos) || !checkin.photos.length) return;
@@ -2214,20 +2182,12 @@
       }
 
       title.textContent = checkin.title;
-      time.textContent = 'Checked In: ' + photo.checkinTimestamp;
+      time.textContent = photo.checkinTimestamp;
       img.src = photo.dataUrl;
 
       deleteBtn.textContent = 'Delete This Photo';
-      deleteBtn.onclick = async () => {
-        const photoToDeleteId = photo.id;
-        await deleteSinglePhoto(activeLightboxSlotId, photoToDeleteId);
-        const updatedCheckin = checkinData[activeLightboxSlotId];
-        if (updatedCheckin && Array.isArray(updatedCheckin.photos) && updatedCheckin.photos.length > 0) {
-          activeLightboxPhotoIdx = Math.max(0, activeLightboxPhotoIdx - 1);
-          updateLightboxDisplay();
-        } else {
-          closeLightbox(null, true);
-        }
+      deleteBtn.onclick = () => {
+        deleteSinglePhoto(activeLightboxSlotId, photo.id);
       };
     }
 
@@ -2249,240 +2209,34 @@
 
     function closeLightbox(event, force = false) {
       if (force || (event && event.target.id === 'photoLightboxModal')) {
-        const modal = document.getElementById('photoLightboxModal');
-        if (modal) modal.classList.add('hidden');
-        isDiningLightbox = false;
-        activeLightboxSlotId = null;
+        document.getElementById('photoLightboxModal').classList.add('hidden');
       }
     }
 
-    function clearAllCheckinPhotos() {
-      if (confirm('Clear all check-in photos from the scrapbook album across all devices?')) {
-        checkinData = {};
-        saveCheckinStorage();
-        if (window.firebaseClearAllCheckins) {
-          window.firebaseClearAllCheckins();
-        }
-        showToast('Trip album cleared');
-      }
-    }
-
-    function deleteScheduleCard(cardId) {
-      if (confirm('Delete this activity card from the schedule?')) {
-        scheduleCards = scheduleCards.filter(c => c.id !== cardId);
-        saveScheduleStorage();
-        if (checkinData[cardId]) {
-          delete checkinData[cardId];
-          saveCheckinStorage();
-          if (window.firebaseDeleteCheckin) {
-            window.firebaseDeleteCheckin(cardId);
-          }
-        }
-        if (window.firebaseSyncSchedule) {
-          window.firebaseSyncSchedule(scheduleCards);
-        }
-        renderItinerary();
-        renderAlbumView();
-        showToast('Activity removed');
-      }
-    }
-
-    // ================= LEAFLET MAP LOGIC WITH GOOGLE MAPS TILES =================
+    // ================= GOOGLE MAPS TILE LAYER + CUSTOM PINS =================
     let leafletMapInstance = null;
     let mapMarkers = [];
-    let googleRoadmapLayer = null;
-    let googleSatelliteLayer = null;
-    let activeGoogleLayer = 'roadmap';
+    let currentGoogleTileLayer = null;
+    let isSatelliteMode = false;
 
-    // All key coordinates for the Vegas trip
     const tripDestinations = [
-      {
-        id: 'luxor',
-        name: 'Luxor Hotel & Casino',
-        category: 'hotel',
-        lat: 36.0955,
-        lng: -115.1761,
-        time: 'Nov 27 – Dec 1 (Hotel Base)',
-        desc: '3900 S Las Vegas Blvd. Base hotel, atrium & luggage drop.',
-        icon: 'ph-buildings',
-        color: '#c59b27'
-      },
-      {
-        id: 'vegassign',
-        name: 'Welcome to Fabulous Las Vegas Sign',
-        category: 'shows',
-        lat: 36.0820,
-        lng: -115.1728,
-        time: 'Fri 10:30 PM (Late Night Photo)',
-        desc: 'South Strip median plaza. Visit late night to avoid tour buses.',
-        icon: 'ph-camera',
-        color: '#22c55e'
-      },
-      {
-        id: 'nyny',
-        name: 'New York-New York & The Park',
-        category: 'shows',
-        lat: 36.1024,
-        lng: -115.1746,
-        time: 'Fri 6:00 PM (South Strip)',
-        desc: 'Brooklyn Bridge replica, outdoor food & casino district.',
-        icon: 'ph-martini',
-        color: '#c59b27'
-      },
-      {
-        id: 'bellagio',
-        name: 'Bellagio Fountains & Conservatory',
-        category: 'shows',
-        lat: 36.1126,
-        lng: -115.1767,
-        time: 'Sat 10:00 AM & 10:30 PM',
-        desc: 'Choreographed dancing fountains & free indoor botanical holiday gardens.',
-        icon: 'ph-drop',
-        color: '#22c55e'
-      },
-      {
-        id: 'flamingos',
-        name: 'Flamingo Wildlife Habitat',
-        category: 'shows',
-        lat: 36.1165,
-        lng: -115.1708,
-        time: 'Sat 11:00 AM',
-        desc: 'Free 4-acre garden with real Chilean flamingos and waterfalls.',
-        icon: 'ph-bird',
-        color: '#f472b6'
-      },
-      {
-        id: 'phodalat',
-        name: 'Phở Đà Lạt (Chinatown)',
-        category: 'food',
-        lat: 36.1154,
-        lng: -115.2023,
-        time: 'Sat 12:00 PM Lunch',
-        desc: '4553 W Flamingo Rd. Traditional rich Vietnamese beef phở & com tam.',
-        icon: 'ph-bowl-food',
-        color: '#fb923c'
-      },
-      {
-        id: 'mollytea',
-        name: 'Molly Tea 茉莉奶白 (Chinatown)',
-        category: 'food',
-        lat: 36.1287,
-        lng: -115.2248,
-        time: 'Sat 1:30 PM Boba',
-        desc: '3400 S Jones Blvd #20. Fresh floral jasmine milk tea with foam.',
-        icon: 'ph-coffee',
-        color: '#fb923c'
-      },
-      {
-        id: 'atlantis',
-        name: 'Fall of Atlantis (Caesars Forum Shops)',
-        category: 'shows',
-        lat: 36.1172,
-        lng: -115.1752,
-        time: 'Sat 3:00 PM Show',
-        desc: 'Animatronic fire & water mythological spectacle by giant aquarium.',
-        icon: 'ph-fire',
-        color: '#22c55e'
-      },
-      {
-        id: 'phlive',
-        name: 'PH Live at Planet Hollywood (Vũ Trụ Say Hi)',
-        category: 'concert',
-        lat: 36.1098,
-        lng: -115.1706,
-        time: 'Sat 7:00 PM (Concert)',
-        desc: '3667 S Las Vegas Blvd. Live concert venue inside Miracle Mile Shops.',
-        icon: 'ph-microphone-stage',
-        color: '#a855f7'
-      },
-      {
-        id: 'linq',
-        name: 'The LINQ Promenade & Fly LINQ',
-        category: 'zipline',
-        lat: 36.1178,
-        lng: -115.1685,
-        time: 'Sun 11:30 AM',
-        desc: 'Open-air promenade, High Roller wheel & Fly LINQ 12-story zipline.',
-        icon: 'ph-person-simple-throw',
-        color: '#38bdf8'
-      },
-      {
-        id: 'venetian',
-        name: 'The Venetian Grand Canal Shoppes',
-        category: 'shows',
-        lat: 36.1212,
-        lng: -115.1697,
-        time: 'Sun 1:30 PM',
-        desc: 'Indoor canals, singing gondoliers & Streetmosphere performers.',
-        icon: 'ph-boat',
-        color: '#22c55e'
-      },
-      {
-        id: 'slotzilla',
-        name: 'SlotZilla Zipline & Fremont Street',
-        category: 'zipline',
-        lat: 36.1707,
-        lng: -115.1438,
-        time: 'Sun 6:00 PM (Downtown)',
-        desc: '425 E Fremont St. Superman flight under 5-block Viva Vision LED canopy.',
-        icon: 'ph-sparkle',
-        color: '#c59b27'
-      },
-      {
-        id: 'circus',
-        name: 'Circus Circus Carnival Midway',
-        category: 'shows',
-        lat: 36.1367,
-        lng: -115.1631,
-        time: 'Mon 11:30 AM',
-        desc: 'Free daily acrobats, aerialists, and high-wire trapeze acts.',
-        icon: 'ph-mask-happy',
-        color: '#22c55e'
-      },
-      {
-        id: 'resortsworld',
-        name: 'Famous Foods Street Eats (Resorts World)',
-        category: 'food',
-        lat: 36.1340,
-        lng: -115.1678,
-        time: 'Mon 1:45 PM Lunch',
-        desc: '3000 S Las Vegas Blvd. Southeast Asian night hawker market & stalls.',
-        icon: 'ph-fork-knife',
-        color: '#fb923c'
-      },
-      {
-        id: 'tacos',
-        name: 'Tacos El Gordo (North Strip)',
-        category: 'food',
-        lat: 36.1328,
-        lng: -115.1650,
-        time: 'Mon 4:30 PM Dinner',
-        desc: '3041 S Las Vegas Blvd (across Resorts World). Tijuana adobada pork tacos.',
-        icon: 'ph-bowl-food',
-        color: '#fb923c'
-      },
-      {
-        id: 'wynn',
-        name: 'Wynn Lake of Dreams',
-        category: 'shows',
-        lat: 36.1266,
-        lng: -115.1658,
-        time: 'Mon 6:30 PM Show',
-        desc: '3131 S Las Vegas Blvd. Free multimedia water, puppet & holographic show.',
-        icon: 'ph-waves',
-        color: '#22c55e'
-      },
-      {
-        id: 'lasairport',
-        name: 'Harry Reid International Airport (LAS)',
-        category: 'travel',
-        lat: 36.0840,
-        lng: -115.1537,
-        time: 'Mon 10:45 PM (Departure)',
-        desc: 'Terminal for 12:59 AM flight to Detroit (DTW).',
-        icon: 'ph-airplane-takeoff',
-        color: '#38bdf8'
-      }
+      { id: 'luxor', name: 'Luxor Hotel & Casino', category: 'hotel', lat: 36.0955, lng: -115.1761, time: 'Hotel Base', desc: '3900 S Las Vegas Blvd', icon: 'ph-buildings', color: '#c59b27' },
+      { id: 'vegassign', name: 'Welcome to Las Vegas Sign', category: 'shows', lat: 36.0820, lng: -115.1728, time: 'Fri Night', desc: 'South Strip median plaza', icon: 'ph-camera', color: '#22c55e' },
+      { id: 'nyny', name: 'New York-New York', category: 'shows', lat: 36.1024, lng: -115.1746, time: 'Fri Night', desc: 'Brooklyn Bridge & The Park', icon: 'ph-martini', color: '#c59b27' },
+      { id: 'bellagio', name: 'Bellagio Fountains', category: 'shows', lat: 36.1126, lng: -115.1767, time: 'Sat Day & Night', desc: 'Dancing fountains & Conservatory', icon: 'ph-drop', color: '#22c55e' },
+      { id: 'flamingos', name: 'Flamingo Wildlife Habitat', category: 'shows', lat: 36.1165, lng: -115.1708, time: 'Sat Morning', desc: 'Free live flamingos & waterfalls', icon: 'ph-bird', color: '#f472b6' },
+      { id: 'phodalat', name: 'Phở Đà Lạt', category: 'food', lat: 36.1154, lng: -115.2023, time: 'Fri Dinner', desc: '4553 W Flamingo Rd (Chinatown)', icon: 'ph-bowl-food', color: '#fb923c' },
+      { id: 'mollytea', name: 'Molly Tea 茉莉奶白', category: 'food', lat: 36.1287, lng: -115.2248, time: 'Fri Boba', desc: '3400 S Jones Blvd (Chinatown)', icon: 'ph-coffee', color: '#fb923c' },
+      { id: 'atlantis', name: 'Fall of Atlantis', category: 'shows', lat: 36.1172, lng: -115.1752, time: 'Sat Afternoon', desc: 'Caesars Forum Shops', icon: 'ph-fire', color: '#22c55e' },
+      { id: 'phlive', name: 'PH Live (Vũ Trụ Say Hi)', category: 'concert', lat: 36.1098, lng: -115.1706, time: 'Sat 7:00 PM', desc: 'Planet Hollywood Concert Venue', icon: 'ph-microphone-stage', color: '#a855f7' },
+      { id: 'linq', name: 'The LINQ Promenade', category: 'zipline', lat: 36.1178, lng: -115.1685, time: 'Sun Day', desc: 'High Roller & Fly LINQ Zipline', icon: 'ph-person-simple-throw', color: '#38bdf8' },
+      { id: 'venetian', name: 'The Venetian Canals', category: 'shows', lat: 36.1212, lng: -115.1697, time: 'Sun Day', desc: 'Indoor canals & gondolas', icon: 'ph-boat', color: '#22c55e' },
+      { id: 'slotzilla', name: 'SlotZilla & Fremont St', category: 'zipline', lat: 36.1707, lng: -115.1438, time: 'Sun Night', desc: 'Downtown zipline & LED canopy', icon: 'ph-sparkle', color: '#c59b27' },
+      { id: 'circus', name: 'Circus Circus Midway', category: 'shows', lat: 36.1367, lng: -115.1631, time: 'Mon Morning', desc: 'Free live acrobats & trapeze', icon: 'ph-mask-happy', color: '#22c55e' },
+      { id: 'resortsworld', name: 'Famous Foods (Resorts World)', category: 'food', lat: 36.1340, lng: -115.1678, time: 'Mon Lunch', desc: 'Asian street food hawker hall', icon: 'ph-fork-knife', color: '#fb923c' },
+      { id: 'tacos', name: 'Tacos El Gordo', category: 'food', lat: 36.1328, lng: -115.1650, time: 'Mon Dinner', desc: '3041 S Las Vegas Blvd', icon: 'ph-bowl-food', color: '#fb923c' },
+      { id: 'wynn', name: 'Wynn Lake of Dreams', category: 'shows', lat: 36.1266, lng: -115.1658, time: 'Mon Evening', desc: 'Waterfall hologram & music show', icon: 'ph-waves', color: '#22c55e' },
+      { id: 'lasairport', name: 'LAS Airport', category: 'travel', lat: 36.0840, lng: -115.1537, time: 'Mon Night', desc: 'Departure terminal', icon: 'ph-airplane-takeoff', color: '#38bdf8' }
     ];
 
     function initLeafletMap() {
@@ -2491,59 +2245,42 @@
         return;
       }
 
-      // Center around mid-strip
       leafletMapInstance = L.map('leafletMap', {
         zoomControl: true,
         scrollWheelZoom: true
-      }).setView([36.1200, -115.1720], 13);
+      }).setView([36.1200, -115.1720], 12);
 
-      // Google Maps Roadmap Tiles
-      googleRoadmapLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-        subdomains: ['0', '1', '2', '3'],
+      currentGoogleTileLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
         maxZoom: 20,
         attribution: '© Google Maps'
-      });
-
-      // Google Maps Hybrid Satellite Tiles (Satellite Imagery + Street Labels)
-      googleSatelliteLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-        subdomains: ['0', '1', '2', '3'],
-        maxZoom: 20,
-        attribution: '© Google Maps Satellite'
-      });
-
-      // Default to Google Maps Roadmap
-      googleRoadmapLayer.addTo(leafletMapInstance);
+      }).addTo(leafletMapInstance);
 
       renderMapMarkers('all');
     }
 
-    function switchGoogleMapLayer(layerType) {
+    function toggleGoogleMapStyle() {
       if (!leafletMapInstance) return;
-      activeGoogleLayer = layerType;
-      const btnRoadmap = document.getElementById('btn-map-layer-roadmap');
-      const btnSatellite = document.getElementById('btn-map-layer-satellite');
-
-      if (layerType === 'satellite') {
-        if (leafletMapInstance.hasLayer(googleRoadmapLayer)) {
-          leafletMapInstance.removeLayer(googleRoadmapLayer);
-        }
-        googleSatelliteLayer.addTo(leafletMapInstance);
-
-        btnRoadmap.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1';
-        btnSatellite.className = 'px-2.5 py-1 rounded-lg font-bold bg-sky-500 text-dark-950 tap-effect transition-all flex items-center gap-1';
-      } else {
-        if (leafletMapInstance.hasLayer(googleSatelliteLayer)) {
-          leafletMapInstance.removeLayer(googleSatelliteLayer);
-        }
-        googleRoadmapLayer.addTo(leafletMapInstance);
-
-        btnRoadmap.className = 'px-2.5 py-1 rounded-lg font-bold bg-gold-500 text-dark-950 tap-effect transition-all flex items-center gap-1';
-        btnSatellite.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-300 hover:text-white tap-effect transition-all flex items-center gap-1';
+      isSatelliteMode = !isSatelliteMode;
+      if (currentGoogleTileLayer) {
+        leafletMapInstance.removeLayer(currentGoogleTileLayer);
       }
+
+      const lyrs = isSatelliteMode ? 'y' : 'm';
+      currentGoogleTileLayer = L.tileLayer(`https://mt1.google.com/vt/lyrs=${lyrs}&x={x}&y={y}&z={z}`, {
+        maxZoom: 20,
+        attribution: '© Google Maps'
+      }).addTo(leafletMapInstance);
+
+      const styleBtn = document.getElementById('btn-gmap-style');
+      if (styleBtn) {
+        const span = styleBtn.querySelector('span');
+        if (span) span.textContent = isSatelliteMode ? 'Roadmap' : 'Satellite';
+      }
+      showToast(isSatelliteMode ? 'Google Satellite View' : 'Google Roadmap View');
     }
 
     function renderMapMarkers(categoryFilter = 'all') {
-      // Clear existing markers
+      if (!leafletMapInstance) return;
       mapMarkers.forEach(m => leafletMapInstance.removeLayer(m));
       mapMarkers = [];
 
@@ -2552,31 +2289,28 @@
           return;
         }
 
-        // Custom HTML Marker Icon with gold/neon ring layered directly on top of Google Maps
         const customIcon = L.divIcon({
           className: 'custom-map-pin',
           html: `
-            <div style="background-color: ${dest.color}; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 0 10px ${dest.color}bb; border: 2.5px solid #ffffff; cursor: pointer; transform: translate3d(0,0,0);">
+            <div style="background-color: ${dest.color}; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(0,0,0,0.45); border: 2px solid #ffffff; cursor: pointer;">
               <span style="font-size: 13px; color: #000; font-weight: bold;"><i class="ph-bold ${dest.icon}"></i></span>
             </div>
           `,
-          iconSize: [30, 30],
-          iconAnchor: [15, 15]
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
         });
 
         const marker = L.marker([dest.lat, dest.lng], { icon: customIcon }).addTo(leafletMapInstance);
-
         const googleMapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${dest.lat},${dest.lng}`;
 
-        // Custom Popup HTML
         marker.bindPopup(`
-          <div style="min-width: 190px;">
-            <div style="font-size: 10px; font-weight: 700; color: ${dest.color}; text-transform: uppercase; letter-spacing: 0.5px;">${dest.time}</div>
+          <div style="min-width: 170px;">
+            <div style="font-size: 10px; font-weight: 700; color: ${dest.color}; text-transform: uppercase;">${dest.time}</div>
             <div style="font-size: 13px; font-weight: 800; color: #fff; margin-top: 2px;">${dest.name}</div>
-            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; line-height: 1.35;">${dest.desc}</div>
-            <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 6px;">
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 3px;">${dest.desc}</div>
+            <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1);">
               <a href="${googleMapsNavUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: #c59b27; color: #000; padding: 4px 10px; border-radius: 6px; font-weight: 700; text-decoration: none;">
-                Navigate in App ➔
+                Directions ➔
               </a>
             </div>
           </div>
@@ -2602,17 +2336,15 @@
 
     function resetMapView() {
       if (leafletMapInstance) {
-        leafletMapInstance.setView([36.1200, -115.1720], 13);
+        leafletMapInstance.setView([36.1200, -115.1720], 12);
       }
     }
 
-    // Direct link from itinerary cards to jump to map and focus stop
     function flyToMapStop(stopId) {
       switchTab('map');
       setTimeout(() => {
         const target = tripDestinations.find(d => d.id === stopId);
         if (target) {
-          // Update the "Open in App" button with direct Google Maps turn-by-turn navigation link
           const openInGmapsBtn = document.getElementById('btn-open-in-google-maps');
           if (openInGmapsBtn) {
             openInGmapsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${target.lat},${target.lng}`;
@@ -2622,14 +2354,13 @@
             leafletMapInstance.flyTo([target.lat, target.lng], 16, { duration: 1 });
             const marker = mapMarkers.find(m => m.destinationId === stopId);
             if (marker) {
-              setTimeout(() => marker.openPopup(), 950);
+              setTimeout(() => marker.openPopup(), 900);
             }
           }
         }
       }, 150);
     }
 
-    // Tab Navigation
     function switchTab(tabName) {
       document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -2650,7 +2381,6 @@
         if (icon) icon.className = icon.className.replace('ph-bold', 'ph-fill');
       }
 
-      // If opening map tab, ensure Google Maps is displayed by default
       if (tabName === 'map') {
         initLeafletMap();
       }
@@ -2658,7 +2388,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Day Switcher Pills
     function switchDay(dayId) {
       currentSelectedDay = dayId;
       document.querySelectorAll('.day-pill').forEach(pill => {
@@ -2675,7 +2404,6 @@
       renderItinerary();
     }
 
-    // Clipboard copy
     function copyAddress(str) {
       const el = document.createElement('textarea');
       el.value = str;
@@ -2683,10 +2411,9 @@
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
-      showToast('Address copied to clipboard!');
+      showToast('Address copied!');
     }
 
-    // Toast alert
     function showToast(msg) {
       const toast = document.getElementById('toast');
       const toastMsg = document.getElementById('toastMsg');
@@ -2698,7 +2425,6 @@
       }, 2400);
     }
 
-    // Initialize on page load
     window.addEventListener('DOMContentLoaded', () => {
       loadScheduleStorage();
       loadCheckinStorage();
@@ -2723,7 +2449,6 @@
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Your Firebase Project Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAoSe3ptwtsq-AznzSy8hk2F6WrbRGumeM",
       authDomain: "vegassayhi.firebaseapp.com",
@@ -2745,7 +2470,20 @@
     }
 
     if (db) {
-      // 1. Real-time Listener for Dining Photos
+      onSnapshot(doc(db, "trip", "dining_cards"), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data && Array.isArray(data.spots) && data.spots.length > 0) {
+            if (JSON.stringify(diningSpots) !== JSON.stringify(data.spots)) {
+              diningSpots = data.spots;
+              saveDiningSpots();
+            }
+          }
+        }
+      }, (error) => {
+        console.warn("Dining cards sync notice:", error);
+      });
+
       onSnapshot(doc(db, "trip", "dining_photos"), (docSnap) => {
         if (docSnap.exists()) {
           const cloudDining = docSnap.data();
@@ -2756,23 +2494,20 @@
               changed = true;
             }
           });
-          // Also check for deletions/resets
           Object.keys(diningPhotos).forEach(key => {
             if (!cloudDining[key]) {
               delete diningPhotos[key];
               changed = true;
             }
           });
-
           if (changed) {
             saveDiningPhotos();
           }
         }
       }, (error) => {
-        console.warn("Dining photos cloud sync notice:", error);
+        console.warn("Dining photos sync notice:", error);
       });
 
-      // 2. Real-time Listener for Check-Ins (supports multi-photo arrays)
       onSnapshot(doc(db, "trip", "checkins"), (docSnap) => {
         if (docSnap.exists()) {
           const cloudCheckins = docSnap.data();
@@ -2780,7 +2515,6 @@
           Object.keys(cloudCheckins).forEach(slotId => {
             const cloudEntry = cloudCheckins[slotId];
             if (cloudEntry) {
-              // Normalize legacy single-photo payload if necessary
               if (!Array.isArray(cloudEntry.photos) && cloudEntry.photo) {
                 cloudEntry.photos = [{
                   id: 'p-' + (cloudEntry.rawTime || Date.now()),
@@ -2790,7 +2524,6 @@
                 }];
                 delete cloudEntry.photo;
               }
-
               const localEntry = checkinData[slotId];
               if (!localEntry || JSON.stringify(localEntry.photos) !== JSON.stringify(cloudEntry.photos)) {
                 checkinData[slotId] = cloudEntry;
@@ -2798,24 +2531,20 @@
               }
             }
           });
-
-          // Handle deleted checkins
           Object.keys(checkinData).forEach(slotId => {
             if (!cloudCheckins[slotId]) {
               delete checkinData[slotId];
               changed = true;
             }
           });
-
           if (changed) {
             saveCheckinStorage();
           }
         }
       }, (error) => {
-        console.warn("Checkins cloud sync notice:", error);
+        console.warn("Checkins sync notice:", error);
       });
 
-      // 3. Real-time Listener for Dynamic Cards / Schedule Changes
       onSnapshot(doc(db, "trip", "itinerary"), (docSnap) => {
         if (docSnap.exists()) {
           const cloudItinerary = docSnap.data();
@@ -2830,31 +2559,15 @@
           }
         }
       }, (error) => {
-        console.warn("Itinerary cloud sync notice:", error);
-      });
-
-      // 4. Real-time Listener for Dynamic Dining Cards
-      onSnapshot(doc(db, "trip", "dining_cards"), (docSnap) => {
-        if (docSnap.exists()) {
-          const cloudDiningSpots = docSnap.data();
-          if (cloudDiningSpots && Array.isArray(cloudDiningSpots.spots) && cloudDiningSpots.spots.length > 0) {
-            if (JSON.stringify(diningSpots) !== JSON.stringify(cloudDiningSpots.spots)) {
-              diningSpots = cloudDiningSpots.spots;
-              saveDiningSpots();
-            }
-          }
-        }
-      }, (error) => {
-        console.warn("Dining cards cloud sync notice:", error);
+        console.warn("Itinerary sync notice:", error);
       });
     }
 
-    // Expose helpers globally to hook into UI events
-    window.firebaseSyncDiningCards = async function(cardsList) {
+    window.firebaseSyncDiningCards = async function(spotsList) {
       if (!db) return;
       try {
         await setDoc(doc(db, "trip", "dining_cards"), {
-          cards: cardsList,
+          spots: spotsList,
           updatedAt: Date.now()
         }, { merge: true });
       } catch (err) {
@@ -2933,18 +2646,6 @@
         }, { merge: true });
       } catch (err) {
         console.error("Firestore syncSchedule error:", err);
-      }
-    };
-
-    window.firebaseSyncDiningSpots = async function(spotsList) {
-      if (!db) return;
-      try {
-        await setDoc(doc(db, "trip", "dining_cards"), {
-          spots: spotsList,
-          updatedAt: Date.now()
-        }, { merge: true });
-      } catch (err) {
-        console.error("Firestore syncDiningSpots error:", err);
       }
     };
   </script>
