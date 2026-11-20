@@ -1057,7 +1057,7 @@
                   </button>
                 </div>
               </div>
-              <p class="text-xs text-slate-300 leading-relaxed">${spot.desc}</p>
+              <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${spot.desc}</p>
               <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px]">
                 ${spot.mapStop ? `
                   <button onclick="flyToMapStop('${spot.mapStop}')" class="text-gold-400 font-semibold hover:underline flex items-center gap-1 tap-effect">
@@ -1865,7 +1865,7 @@
                   </button>
                 </div>
               </div>
-              <p class="text-xs text-slate-300 leading-relaxed">${show.desc}</p>
+              <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${show.desc}</p>
               <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px]">
                 ${show.mapStop ? `
                   <button onclick="flyToMapStop('${show.mapStop}')" class="text-gold-400 font-semibold hover:underline flex items-center gap-1 tap-effect">
@@ -2209,7 +2209,7 @@
                   </div>
                 </div>
                 <h3 class="text-sm font-bold text-white mt-1">${card.title}</h3>
-                <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">${card.desc || ''}</p>
+                <p class="text-xs text-slate-300 mt-0.5 leading-relaxed whitespace-pre-line">${card.desc || ''}</p>
                 ${actionButtonsHtml ? `<div class="flex flex-wrap gap-2 mt-2">${actionButtonsHtml}</div>` : ''}
               </div>
             </div>
