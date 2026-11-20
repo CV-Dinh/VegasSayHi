@@ -58,7 +58,12 @@
       background-color: var(--app-bg);
       color: #f1f2f6;
       -webkit-tap-highlight-color: transparent;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    button, nav {
       user-select: none;
+      -webkit-user-select: none;
     }
     .no-scrollbar::-webkit-scrollbar {
       display: none;
@@ -241,45 +246,14 @@
           </h2>
         </div>
 
-        <div class="glass-card rounded-2xl p-3.5 space-y-1">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white">Bellagio Fountains & Conservatory</h3>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Daily</span>
-          </div>
-          <p class="text-xs text-slate-300">Fountains every 15–30 mins. Indoor botanical display open 24/7.</p>
-        </div>
+        <!-- Dynamic Shows Container -->
+        <div id="showsContainer" class="space-y-3"></div>
 
-        <div class="glass-card rounded-2xl p-3.5 space-y-1">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white">Fall of Atlantis (Caesars)</h3>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Hourly</span>
-          </div>
-          <p class="text-xs text-slate-300">Forum Shops animatronic fire & water show next to the aquarium.</p>
-        </div>
-
-        <div class="glass-card rounded-2xl p-3.5 space-y-1">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white">Circus Circus Midway Acts</h3>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Midday</span>
-          </div>
-          <p class="text-xs text-slate-300">Free aerialists, trapeze artists, and jugglers above the midway.</p>
-        </div>
-
-        <div class="glass-card rounded-2xl p-3.5 space-y-1">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white">Lake of Dreams (Wynn)</h3>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Every 30m</span>
-          </div>
-          <p class="text-xs text-slate-300">Dusk to 11:30 PM. Holograms, music & puppetry over a 40-ft waterfall.</p>
-        </div>
-
-        <div class="glass-card rounded-2xl p-3.5 space-y-1">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white">Viva Vision Canopy (Fremont)</h3>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Hourly</span>
-          </div>
-          <p class="text-xs text-slate-300">5-block overhead LED light & music show from 6 PM to 2 AM.</p>
-        </div>
+        <!-- Add Show Plus Button at Bottom of List -->
+        <button onclick="openShowModal()" class="w-full py-3 rounded-2xl border-2 border-dashed border-emerald-500/35 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-400/60 text-emerald-300 font-bold text-xs tap-effect flex items-center justify-center gap-2 transition-all">
+          <i class="ph-bold ph-plus-circle text-base"></i>
+          <span>Add Show</span>
+        </button>
       </section>
 
       <!-- ================= TAB 4: TRIP ALBUM ================= -->
@@ -667,6 +641,86 @@
       </div>
     </div>
 
+    <!-- ================= MODAL: ADD / EDIT SHOW ================= -->
+    <div id="showEditorModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeShowModal(event)">
+      <div class="w-full max-w-md bg-dark-900 border-t sm:border border-white/15 rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 id="showModalTitle" class="text-base font-extrabold text-white flex items-center gap-2">
+            <i class="ph-fill ph-sparkle text-emerald-400"></i> <span>Add Show</span>
+          </h3>
+          <button onclick="closeShowModal(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300 tap-effect">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+
+        <form id="showEditorForm" onsubmit="handleSaveShowSpot(event)" class="space-y-3.5 text-xs">
+          <input type="hidden" id="editShowId" value="">
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Show Photo (Optional)</label>
+            <div class="relative rounded-xl overflow-hidden border border-white/10 bg-dark-800 h-32 flex items-center justify-center">
+              <img id="modalShowPhotoPreview" src="" alt="Preview" class="hidden w-full h-full object-cover">
+              <div id="modalShowPhotoPlaceholder" class="text-center space-y-1 text-slate-400">
+                <i class="ph-bold ph-image text-2xl text-emerald-400"></i>
+                <p class="text-[11px]">No picture selected</p>
+              </div>
+              <div class="absolute bottom-2 right-2 flex items-center gap-1.5">
+                <button type="button" onclick="document.getElementById('modalShowCameraInput').click()" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-dark-950 font-bold text-[11px] tap-effect flex items-center gap-1 shadow">
+                  <i class="ph-bold ph-camera"></i> Camera
+                </button>
+                <button type="button" onclick="document.getElementById('modalShowGalleryInput').click()" class="px-2.5 py-1.5 rounded-lg bg-dark-900/90 border border-white/15 text-white font-semibold text-[11px] tap-effect flex items-center gap-1 shadow">
+                  <i class="ph-bold ph-image"></i> Gallery
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Show Name</label>
+              <input type="text" id="editShowName" placeholder="e.g. Sphere Exterior" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white font-bold focus:border-emerald-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Schedule Tag</label>
+              <input type="text" id="editShowTag" placeholder="e.g. Nightly" required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-emerald-500 outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Details</label>
+            <textarea id="editShowDesc" rows="2" placeholder="Show times, location, or highlights..." required class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-white focus:border-emerald-500 outline-none"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Map Pin (Optional)</label>
+            <select id="editShowMapStop" class="w-full bg-dark-800 border border-white/10 rounded-xl px-2 py-2 text-white focus:border-emerald-500 outline-none">
+              <option value="">None</option>
+              <option value="bellagio">Bellagio</option>
+              <option value="atlantis">Caesars Forum Shops</option>
+              <option value="circus">Circus Circus</option>
+              <option value="wynn">Wynn</option>
+              <option value="slotzilla">Fremont Street</option>
+              <option value="venetian">Venetian</option>
+              <option value="linq">The LINQ</option>
+              <option value="luxor">Luxor</option>
+              <option value="nyny">New York-New York</option>
+              <option value="flamingos">Flamingo Habitat</option>
+              <option value="vegassign">Vegas Sign</option>
+            </select>
+          </div>
+
+          <div class="pt-2 flex items-center gap-2">
+            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-500 text-dark-950 font-bold tap-effect shadow-md shadow-emerald-500/20 text-xs">
+              Save
+            </button>
+            <button type="button" onclick="closeShowModal(null, true)" class="px-4 py-2.5 rounded-xl bg-dark-800 border border-white/10 text-slate-300 font-semibold tap-effect text-xs">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Hidden native file inputs -->
     <input type="file" id="directCameraInput" accept="image/*" capture="environment" class="hidden">
     <input type="file" id="cameraFileInput" accept="image/*" multiple class="hidden">
@@ -674,6 +728,10 @@
     <input type="file" id="diningFileInput" accept="image/*" class="hidden">
     <input type="file" id="modalDiningCameraInput" accept="image/*" capture="environment" class="hidden">
     <input type="file" id="modalDiningGalleryInput" accept="image/*" class="hidden">
+    <input type="file" id="showCameraInput" accept="image/*" capture="environment" class="hidden">
+    <input type="file" id="showFileInput" accept="image/*" class="hidden">
+    <input type="file" id="modalShowCameraInput" accept="image/*" capture="environment" class="hidden">
+    <input type="file" id="modalShowGalleryInput" accept="image/*" class="hidden">
 
     <!-- ================= NATIVE MOBILE ACTION SHEET: PHOTO SOURCE ================= -->
     <div id="photoSourceModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end justify-center p-3 sm:p-4" onclick="closePhotoSourceModal(event)">
@@ -1659,6 +1717,10 @@
         const input = document.getElementById('diningCameraInput');
         input.value = '';
         input.click();
+      } else if (photoPickerTargetType === 'show') {
+        const input = document.getElementById('showCameraInput');
+        input.value = '';
+        input.click();
       } else {
         const input = document.getElementById('directCameraInput');
         input.value = '';
@@ -1672,11 +1734,357 @@
         const input = document.getElementById('diningFileInput');
         input.value = '';
         input.click();
+      } else if (photoPickerTargetType === 'show') {
+        const input = document.getElementById('showFileInput');
+        input.value = '';
+        input.click();
       } else {
         const input = document.getElementById('cameraFileInput');
         input.value = '';
         input.click();
       }
+    }
+
+    // ================= SHOWS & SIGHTS MANAGEMENT =================
+    const defaultShowSpots = [
+      {
+        id: 'show-bellagio',
+        name: 'Bellagio Fountains & Conservatory',
+        tag: 'Daily',
+        desc: 'Fountains every 15–30 mins. Indoor botanical display open 24/7.',
+        mapStop: 'bellagio'
+      },
+      {
+        id: 'show-atlantis',
+        name: 'Fall of Atlantis (Caesars)',
+        tag: 'Hourly',
+        desc: 'Forum Shops animatronic fire & water show next to the aquarium.',
+        mapStop: 'atlantis'
+      },
+      {
+        id: 'show-circus',
+        name: 'Circus Circus Midway Acts',
+        tag: 'Midday',
+        desc: 'Free aerialists, trapeze artists, and jugglers above the midway.',
+        mapStop: 'circus'
+      },
+      {
+        id: 'show-wynn',
+        name: 'Lake of Dreams (Wynn)',
+        tag: 'Every 30m',
+        desc: 'Dusk to 11:30 PM. Holograms, music & puppetry over a 40-ft waterfall.',
+        mapStop: 'wynn'
+      },
+      {
+        id: 'show-fremont',
+        name: 'Viva Vision Canopy (Fremont)',
+        tag: 'Hourly',
+        desc: '5-block overhead LED light & music show from 6 PM to 2 AM.',
+        mapStop: 'slotzilla'
+      }
+    ];
+
+    let showSpots = [];
+    let showPhotos = {};
+    let activeShowSlot = null;
+    let pendingModalShowPhoto = null;
+
+    function loadShowSpots() {
+      try {
+        const stored = localStorage.getItem('vegas_show_spots_v1');
+        if (stored) {
+          showSpots = JSON.parse(stored);
+        } else {
+          showSpots = JSON.parse(JSON.stringify(defaultShowSpots));
+          saveShowSpots();
+        }
+      } catch (e) {
+        showSpots = JSON.parse(JSON.stringify(defaultShowSpots));
+      }
+    }
+
+    function saveShowSpots() {
+      try {
+        localStorage.setItem('vegas_show_spots_v1', JSON.stringify(showSpots));
+      } catch (e) {}
+      renderShowCards();
+    }
+
+    function loadShowPhotos() {
+      try {
+        const stored = localStorage.getItem('vegas_show_photos_v1');
+        showPhotos = stored ? JSON.parse(stored) : {};
+      } catch (e) {
+        showPhotos = {};
+      }
+      renderShowCards();
+    }
+
+    function saveShowPhotos() {
+      try {
+        localStorage.setItem('vegas_show_photos_v1', JSON.stringify(showPhotos));
+      } catch (e) {
+        showToast('Storage limit reached!');
+      }
+      renderShowCards();
+    }
+
+    function renderShowCards() {
+      const container = document.getElementById('showsContainer');
+      if (!container) return;
+
+      container.innerHTML = showSpots.map(show => {
+        const customImg = showPhotos[show.id];
+        const safeName = show.name.replace(/'/g, "\\'");
+
+        const imageHeaderHtml = customImg ? `
+          <div class="relative group">
+            <img src="${customImg}" onclick="previewShowPhoto('${show.id}', '${safeName}')" class="w-full h-36 object-cover cursor-pointer tap-effect" alt="${show.name}">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none"></div>
+            <div class="absolute bottom-2 right-2 pointer-events-auto">
+              <button onclick="triggerShowPhotoUpload('${show.id}')" class="tap-effect w-8 h-8 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 hover:text-white border border-white/20 flex items-center justify-center shadow-lg" title="Swap Photo">
+                <i class="ph-bold ph-arrows-clockwise text-sm"></i>
+              </button>
+            </div>
+          </div>
+        ` : '';
+
+        return `
+          <div class="glass-card rounded-2xl overflow-hidden border-white/10" data-show-id="${show.id}">
+            ${imageHeaderHtml}
+            <div class="p-3.5 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="text-sm font-bold text-white truncate">${show.name}</h3>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">${show.tag}</span>
+                  <button onclick="openShowModal('${show.id}')" class="w-6 h-6 rounded-lg bg-dark-800 text-slate-400 hover:text-emerald-400 flex items-center justify-center tap-effect border border-white/5" title="Edit">
+                    <i class="ph-bold ph-pencil-simple text-xs"></i>
+                  </button>
+                  <button onclick="deleteShowSpot('${show.id}')" class="w-6 h-6 rounded-lg bg-dark-800 text-slate-400 hover:text-rose-400 flex items-center justify-center tap-effect border border-white/5" title="Delete">
+                    <i class="ph-bold ph-trash text-xs"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">${show.desc}</p>
+              <div class="flex items-center justify-between pt-2 border-t border-white/5 text-[11px]">
+                ${show.mapStop ? `
+                  <button onclick="flyToMapStop('${show.mapStop}')" class="text-gold-400 font-semibold hover:underline flex items-center gap-1 tap-effect">
+                    <i class="ph-bold ph-map-pin"></i> Map
+                  </button>
+                ` : '<span></span>'}
+                ${!customImg ? `
+                  <button onclick="triggerShowPhotoUpload('${show.id}')" class="text-emerald-400 font-semibold hover:underline flex items-center gap-1 tap-effect ml-auto">
+                    <i class="ph-bold ph-camera"></i> Add Photo
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openShowModal(showId = null) {
+      const modal = document.getElementById('showEditorModal');
+      const modalTitle = document.getElementById('showModalTitle').querySelector('span');
+      const form = document.getElementById('showEditorForm');
+      const preview = document.getElementById('modalShowPhotoPreview');
+      const placeholder = document.getElementById('modalShowPhotoPlaceholder');
+
+      form.reset();
+      pendingModalShowPhoto = null;
+      document.getElementById('editShowId').value = showId || '';
+
+      if (showId) {
+        const show = showSpots.find(s => s.id === showId);
+        if (show) {
+          modalTitle.textContent = 'Edit Show';
+          document.getElementById('editShowName').value = show.name || '';
+          document.getElementById('editShowTag').value = show.tag || '';
+          document.getElementById('editShowDesc').value = show.desc || '';
+          document.getElementById('editShowMapStop').value = show.mapStop || '';
+
+          const existingImg = showPhotos[show.id];
+          if (existingImg) {
+            preview.src = existingImg;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+          } else {
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+          }
+        }
+      } else {
+        modalTitle.textContent = 'Add Show';
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeShowModal(event, force = false) {
+      if (force || (event && event.target.id === 'showEditorModal')) {
+        document.getElementById('showEditorModal').classList.add('hidden');
+      }
+    }
+
+    document.getElementById('modalShowCameraInput').addEventListener('change', handleModalShowPhotoSelect);
+    document.getElementById('modalShowGalleryInput').addEventListener('change', handleModalShowPhotoSelect);
+
+    async function handleModalShowPhotoSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      showToast('Loading photo...');
+      try {
+        const compressed = await compressImageFile(file, 800, 800, 0.70);
+        pendingModalShowPhoto = compressed;
+        const preview = document.getElementById('modalShowPhotoPreview');
+        const placeholder = document.getElementById('modalShowPhotoPlaceholder');
+        preview.src = compressed;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        showToast('Photo ready!');
+      } catch (err) {
+        showToast('Could not read photo');
+      } finally {
+        e.target.value = '';
+      }
+    }
+
+    async function handleSaveShowSpot(e) {
+      e.preventDefault();
+      const id = document.getElementById('editShowId').value;
+      const name = document.getElementById('editShowName').value.trim();
+      const tag = document.getElementById('editShowTag').value.trim();
+      const desc = document.getElementById('editShowDesc').value.trim();
+      const mapStop = document.getElementById('editShowMapStop').value || null;
+
+      let targetShowId = id;
+
+      if (id) {
+        const idx = showSpots.findIndex(s => s.id === id);
+        if (idx !== -1) {
+          showSpots[idx] = { ...showSpots[idx], name, tag, desc, mapStop };
+        }
+      } else {
+        targetShowId = 'show-' + Date.now();
+        showSpots.push({
+          id: targetShowId,
+          name,
+          tag,
+          desc,
+          mapStop
+        });
+      }
+
+      if (pendingModalShowPhoto && targetShowId) {
+        showPhotos[targetShowId] = pendingModalShowPhoto;
+        saveShowPhotos();
+        if (window.syncShowPhotoToFirebase) {
+          await window.syncShowPhotoToFirebase(targetShowId, pendingModalShowPhoto);
+        }
+      }
+
+      saveShowSpots();
+      if (window.firebaseSyncShowCards) {
+        window.firebaseSyncShowCards(showSpots);
+      }
+
+      showToast(id ? 'Show updated!' : 'Show added! ✨');
+      closeShowModal(null, true);
+    }
+
+    async function deleteShowSpot(showId) {
+      window.showConfirmDialog(
+        'Delete Show',
+        'Remove this show from your list?',
+        async () => {
+          showSpots = showSpots.filter(s => s.id !== showId);
+          if (showPhotos[showId]) {
+            delete showPhotos[showId];
+            saveShowPhotos();
+            if (window.removeShowPhotoFromFirebase) {
+              await window.removeShowPhotoFromFirebase(showId);
+            }
+          }
+          saveShowSpots();
+          if (window.firebaseSyncShowCards) {
+            window.firebaseSyncShowCards(showSpots);
+          }
+          showToast('Show deleted');
+        }
+      );
+    }
+
+    function triggerShowPhotoUpload(slotId) {
+      activeShowSlot = slotId;
+      photoPickerTargetType = 'show';
+      const modal = document.getElementById('photoSourceModal');
+      const title = document.getElementById('photoSourceModalTitle');
+      if (title) title.textContent = 'Add Show Photo';
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    document.getElementById('showFileInput').addEventListener('change', handleShowPhotoChosen);
+    document.getElementById('showCameraInput').addEventListener('change', handleShowPhotoChosen);
+
+    async function handleShowPhotoChosen(e) {
+      const file = e.target.files[0];
+      if (!file || !activeShowSlot) return;
+
+      showToast('Processing photo...');
+      window.setCloudStatus('Syncing...', 'text-amber-400');
+      try {
+        const compressed = await compressImageFile(file, 800, 800, 0.70);
+        showPhotos[activeShowSlot] = compressed;
+        saveShowPhotos();
+        if (window.syncShowPhotoToFirebase) {
+          await window.syncShowPhotoToFirebase(activeShowSlot, compressed);
+        }
+        showToast('Show photo saved! ✨');
+        window.setCloudStatus('Cloud Sync', 'text-emerald-400');
+      } catch (err) {
+        showToast('Could not process photo');
+        window.setCloudStatus('Sync error', 'text-rose-400');
+      } finally {
+        e.target.value = '';
+      }
+    }
+
+    function previewShowPhoto(slotId, title) {
+      const show = showSpots.find(s => s.id === slotId);
+      const imgSrc = showPhotos[slotId];
+      if (!imgSrc) return;
+
+      isDiningLightbox = true;
+      const modal = document.getElementById('photoLightboxModal');
+      const img = document.getElementById('lightboxImage');
+      const modalTitle = document.getElementById('lightboxTitle');
+      const time = document.getElementById('lightboxTime');
+      const deleteBtn = document.getElementById('lightboxDeleteBtn');
+      const navControls = document.getElementById('lightboxNavControls');
+
+      if (navControls) navControls.classList.add('hidden');
+
+      modalTitle.textContent = title;
+      time.textContent = show ? show.tag : 'Show';
+      img.src = imgSrc;
+
+      deleteBtn.textContent = 'Remove Photo';
+      deleteBtn.onclick = async () => {
+        if (showPhotos[slotId]) {
+          delete showPhotos[slotId];
+          saveShowPhotos();
+          if (window.removeShowPhotoFromFirebase) {
+            await window.removeShowPhotoFromFirebase(slotId);
+          }
+          showToast('Photo removed');
+        }
+        closeLightbox(null, true);
+      };
+
+      modal.classList.remove('hidden');
     }
 
     function renderItinerary() {
@@ -2425,6 +2833,8 @@
       loadCheckinStorage();
       loadDiningSpots();
       loadDiningPhotos();
+      loadShowSpots();
+      loadShowPhotos();
       renderItinerary();
       renderAlbumView();
       updateCheckinProgress();
@@ -2556,7 +2966,79 @@
       }, (error) => {
         console.warn("Itinerary sync notice:", error);
       });
+
+      onSnapshot(doc(db, "trip", "show_cards"), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data && Array.isArray(data.shows) && data.shows.length > 0) {
+            if (JSON.stringify(showSpots) !== JSON.stringify(data.shows)) {
+              showSpots = data.shows;
+              saveShowSpots();
+            }
+          }
+        }
+      }, (error) => {
+        console.warn("Show cards sync notice:", error);
+      });
+
+      onSnapshot(doc(db, "trip", "show_photos"), (docSnap) => {
+        if (docSnap.exists()) {
+          const cloudShows = docSnap.data();
+          let changed = false;
+          Object.keys(cloudShows).forEach(key => {
+            if (cloudShows[key] && showPhotos[key] !== cloudShows[key]) {
+              showPhotos[key] = cloudShows[key];
+              changed = true;
+            }
+          });
+          Object.keys(showPhotos).forEach(key => {
+            if (!cloudShows[key]) {
+              delete showPhotos[key];
+              changed = true;
+            }
+          });
+          if (changed) {
+            saveShowPhotos();
+          }
+        }
+      }, (error) => {
+        console.warn("Show photos sync notice:", error);
+      });
     }
+
+    window.firebaseSyncShowCards = async function(showsList) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "show_cards"), {
+          shows: showsList,
+          updatedAt: Date.now()
+        }, { merge: true });
+      } catch (err) {
+        console.error("Firestore syncShowCards error:", err);
+      }
+    };
+
+    window.syncShowPhotoToFirebase = async function(slotId, base64Data) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "show_photos"), {
+          [slotId]: base64Data
+        }, { merge: true });
+      } catch (err) {
+        console.error("Firestore syncShowPhoto error:", err);
+      }
+    };
+
+    window.removeShowPhotoFromFirebase = async function(slotId) {
+      if (!db) return;
+      try {
+        await updateDoc(doc(db, "trip", "show_photos"), {
+          [slotId]: deleteField()
+        });
+      } catch (err) {
+        console.error("Firestore removeShowPhoto error:", err);
+      }
+    };
 
     window.firebaseSyncDiningCards = async function(spotsList) {
       if (!db) return;
