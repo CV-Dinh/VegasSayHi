@@ -1745,26 +1745,21 @@
             </div>
           `).join('');
 
-          checkinSlotHtml = `
-            <div class="space-y-2">
-              <div class="flex items-center justify-between px-0.5">
-                <span class="text-[10px] font-bold text-slate-300 flex items-center gap-1.5 font-mono">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  ${photos.length} Stor${photos.length > 1 ? 'ies' : 'y'}
-                </span>
-                <div class="flex items-center gap-2">
-                  <button onclick="triggerCheckinSnap('${card.id}')" class="tap-effect px-2.5 py-1 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-[10px] font-bold flex items-center gap-1 hover:bg-gold-500/30">
-                    <i class="ph-bold ph-plus"></i> Add
-                  </button>
-                  <button onclick="deleteAllCheckinPhotosForStop('${card.id}')" class="text-[10px] text-slate-400 hover:text-rose-400 flex items-center gap-0.5 tap-effect" title="Clear">
-                    <i class="ph-bold ph-trash"></i>
-                  </button>
+          const addStorySlideHtml = `
+            <div onclick="triggerCheckinSnap('${card.id}')" class="story-slide-item relative aspect-[9/15] rounded-2xl border-2 border-dashed border-gold-400/40 bg-dark-800/60 hover:bg-dark-800 hover:border-gold-400/80 flex flex-col items-center justify-center gap-2 cursor-pointer tap-effect transition-all group">
+              <div class="w-11 h-11 rounded-full story-ring-gradient p-[2px] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                <div class="w-full h-full bg-dark-900 rounded-full flex items-center justify-center text-white">
+                  <i class="ph-bold ph-plus text-lg"></i>
                 </div>
               </div>
+              <span class="text-[11px] font-bold text-gold-400">Add Story</span>
+            </div>
+          `;
 
-              <div class="story-snap-slider no-scrollbar pb-0.5">
-                ${verticalStorySlides}
-              </div>
+          checkinSlotHtml = `
+            <div class="story-snap-slider no-scrollbar pb-0.5">
+              ${verticalStorySlides}
+              ${addStorySlideHtml}
             </div>
           `;
         } else {
