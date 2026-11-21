@@ -161,15 +161,9 @@
 
         <div class="text-right flex flex-col items-end">
           <div id="vegasClock" class="font-mono text-xs font-bold text-gold-400 tracking-wider">--:-- PST</div>
-          <div class="flex items-center justify-end gap-2 mt-0.5">
-            <button onclick="openAuthorProfileModal()" id="headerAuthorBadge" class="text-[10px] text-slate-300 hover:text-gold-400 font-semibold flex items-center gap-1 bg-white/5 hover:bg-white/10 px-1.5 py-0.5 rounded-md border border-white/10 tap-effect transition-colors" title="Set Your Locket Display Name">
-              <i class="ph-bold ph-user-circle text-gold-400"></i>
-              <span id="headerAuthorName">Set Name</span>
-            </button>
-            <div id="cloudSyncStatus" class="text-[10px] text-emerald-400 font-medium flex items-center justify-end gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Cloud Sync</span>
-            </div>
+          <div id="cloudSyncStatus" class="text-[10px] text-emerald-400 font-medium flex items-center justify-end gap-1 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Cloud Sync</span>
           </div>
         </div>
       </div>
@@ -654,13 +648,7 @@
       <div class="flex items-center justify-between text-white pt-2">
         <div>
           <h4 id="lightboxTitle" class="text-sm font-bold">Check-In Photo</h4>
-          <div class="flex items-center gap-2 mt-0.5">
-            <span id="lightboxAuthorBadge" class="hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold-500/20 border border-gold-400/35 text-gold-300 text-[10px] font-bold">
-              <i class="ph-fill ph-user-circle"></i>
-              <span id="lightboxAuthorName">You</span>
-            </span>
-            <p id="lightboxTime" class="text-[11px] text-slate-300 font-mono">Timestamp</p>
-          </div>
+          <p id="lightboxTime" class="text-[11px] text-gold-400 font-mono">Timestamp</p>
         </div>
         <div class="flex items-center gap-2">
           <span id="lightboxCounter" class="hidden text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-1 rounded-full">1 / 1</span>
@@ -673,58 +661,10 @@
       <div id="lightboxSwipeArea" class="flex-1 flex flex-col items-center justify-center py-2 touch-none select-none overflow-hidden">
         <div id="lightboxCardFrame" class="h-full max-h-[76vh] aspect-[9/16] rounded-2xl overflow-hidden bg-dark-900 border border-white/15 shadow-2xl relative flex items-center justify-center will-change-transform">
           <img id="lightboxImage" src="" alt="Full view" class="w-full h-full object-cover">
-          <div id="lightboxFrameAuthorPill" class="hidden absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
-            <span id="lightboxFrameAuthorInitial" class="w-4 h-4 rounded-full bg-gradient-to-tr from-gold-600 to-gold-400 text-dark-950 text-[10px] font-extrabold flex items-center justify-center">?</span>
-            <span id="lightboxFrameAuthorText">Friend</span>
-          </div>
         </div>
         <p id="lightboxSwipeHint" class="hidden text-[10px] text-slate-400 mt-2.5 flex items-center gap-1 font-medium">
           <i class="ph-bold ph-arrows-vertical text-gold-400"></i> Swipe up or down to browse
         </p>
-      </div>
-    </div>
-
-    <!-- ================= MODAL: SET LOCKET AUTHOR NAME ================= -->
-    <div id="authorProfileModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-3 sm:p-4" onclick="closeAuthorProfileModal(event)">
-      <div class="w-full max-w-sm bg-dark-850 border border-white/15 rounded-3xl p-5 space-y-4 shadow-2xl" onclick="event.stopPropagation()">
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-2xl story-ring-gradient p-[2px] flex items-center justify-center">
-              <div class="w-full h-full bg-dark-900 rounded-2xl flex items-center justify-center text-gold-400">
-                <i class="ph-fill ph-user-circle text-lg"></i>
-              </div>
-            </div>
-            <div>
-              <h4 class="text-sm font-extrabold text-white">Who's Posting?</h4>
-              <p class="text-[11px] text-slate-400">Shown in the corner of your stories</p>
-            </div>
-          </div>
-          <button onclick="closeAuthorProfileModal(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300 tap-effect">
-            <i class="ph-bold ph-x"></i>
-          </button>
-        </div>
-
-        <form onsubmit="handleSaveAuthorProfile(event)" class="space-y-3 text-xs">
-          <div>
-            <label class="block text-slate-400 font-semibold mb-1.5">Your Name on This Phone</label>
-            <input type="text" id="authorNameInput" maxlength="18" placeholder="e.g. Vinh, Babe, Alex..." required class="w-full bg-dark-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-white font-bold text-sm focus:border-gold-500 outline-none">
-          </div>
-
-          <div class="flex flex-wrap gap-1.5">
-            <button type="button" onclick="selectQuickAuthorName('Vinh')" class="px-2.5 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 border border-white/10 text-slate-300 font-semibold text-[11px] tap-effect">Vinh</button>
-            <button type="button" onclick="selectQuickAuthorName('Babe ❤️')" class="px-2.5 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 border border-white/10 text-slate-300 font-semibold text-[11px] tap-effect">Babe ❤️</button>
-            <button type="button" onclick="selectQuickAuthorName('Me')" class="px-2.5 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 border border-white/10 text-slate-300 font-semibold text-[11px] tap-effect">Me</button>
-          </div>
-
-          <div class="pt-1 flex items-center gap-2">
-            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 text-dark-950 font-bold tap-effect shadow-md shadow-gold-500/20 text-xs">
-              Save Name
-            </button>
-            <button type="button" onclick="closeAuthorProfileModal(null, true)" class="px-4 py-2.5 rounded-xl bg-dark-800 border border-white/10 text-slate-300 font-semibold tap-effect text-xs">
-              Cancel
-            </button>
-          </div>
-        </form>
       </div>
     </div>
 
@@ -1398,7 +1338,6 @@
     // State
     let checkinData = {};
     let activeSlotForPhoto = null;
-    let pendingStorySlotAfterName = null;
     let currentSelectedDay = 'fri';
     let activeLightboxSlotId = null;
     let activeLightboxPhotoIdx = 0;
@@ -1407,85 +1346,15 @@
     let activeAlbumFlattenedPhotos = [];
     let activeAlbumLightboxIdx = 0;
 
-    // Locket-style Device Author Identity & Per-Device Unread Album Tracking
-    let deviceAuthorName = '';
+    // Per-Device Unread Album Tracking
     let lastSeenAlbumPhotoTime = 0;
 
-    function loadDeviceAuthorProfile() {
+    function loadAlbumSeenState() {
       try {
-        deviceAuthorName = (localStorage.getItem('vegas_device_author_v1') || '').trim();
         lastSeenAlbumPhotoTime = Number(localStorage.getItem('vegas_album_last_seen_v1') || '0');
       } catch (e) {
-        deviceAuthorName = '';
         lastSeenAlbumPhotoTime = 0;
       }
-      updateHeaderAuthorUI();
-    }
-
-    function updateHeaderAuthorUI() {
-      const label = document.getElementById('headerAuthorName');
-      if (label) {
-        label.textContent = deviceAuthorName || 'Set Name';
-      }
-    }
-
-    function openAuthorProfileModal(pendingSlotId = null) {
-      pendingStorySlotAfterName = pendingSlotId;
-      const modal = document.getElementById('authorProfileModal');
-      const input = document.getElementById('authorNameInput');
-      if (input) {
-        input.value = deviceAuthorName || '';
-      }
-      if (modal) {
-        modal.classList.remove('hidden');
-        setTimeout(() => input && input.focus(), 80);
-      }
-    }
-
-    function closeAuthorProfileModal(event, force = false) {
-      if (force || (event && event.target.id === 'authorProfileModal')) {
-        document.getElementById('authorProfileModal').classList.add('hidden');
-        pendingStorySlotAfterName = null;
-      }
-    }
-
-    function selectQuickAuthorName(name) {
-      const input = document.getElementById('authorNameInput');
-      if (input) input.value = name;
-    }
-
-    function handleSaveAuthorProfile(e) {
-      e.preventDefault();
-      const input = document.getElementById('authorNameInput');
-      const cleaned = (input ? input.value : '').trim();
-      if (!cleaned) return;
-      deviceAuthorName = cleaned;
-      try {
-        localStorage.setItem('vegas_device_author_v1', deviceAuthorName);
-      } catch (err) {}
-      updateHeaderAuthorUI();
-      showToast(`Posting as ${deviceAuthorName} ✨`);
-
-      const slotToResume = pendingStorySlotAfterName;
-      closeAuthorProfileModal(null, true);
-      if (slotToResume) {
-        openPhotoSourceSheetForSlot(slotToResume);
-      }
-    }
-
-    function getAuthorInitial(name) {
-      if (!name) return '?';
-      const trimmed = name.trim();
-      return Array.from(trimmed)[0].toUpperCase();
-    }
-
-    function escapeHtml(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
     }
 
     function markAlbumAsSeen() {
@@ -2316,19 +2185,11 @@
     }
 
     function triggerCheckinSnap(slotId) {
-      if (!deviceAuthorName) {
-        openAuthorProfileModal(slotId);
-        return;
-      }
-      openPhotoSourceSheetForSlot(slotId);
-    }
-
-    function openPhotoSourceSheetForSlot(slotId) {
       activeSlotForPhoto = slotId;
       photoPickerTargetType = 'checkin';
       const modal = document.getElementById('photoSourceModal');
       const title = document.getElementById('photoSourceModalTitle');
-      if (title) title.textContent = `Add Story (${deviceAuthorName})`;
+      if (title) title.textContent = 'Add Story';
       if (modal) modal.classList.remove('hidden');
     }
 
@@ -2798,38 +2659,26 @@
 
         let checkinSlotHtml = '';
         if (photos.length > 0) {
-          const verticalStorySlides = photos.map((p, idx) => {
-            const authorLabel = p.author ? escapeHtml(p.author) : '';
-            const authorInitial = p.author ? escapeHtml(getAuthorInitial(p.author)) : '';
-            const locketAuthorPill = authorLabel ? `
-              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold shadow max-w-full mb-1">
-                <span class="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-gold-600 to-gold-400 text-dark-950 text-[8px] font-extrabold flex items-center justify-center flex-shrink-0">${authorInitial}</span>
-                <span class="truncate">${authorLabel}</span>
-              </div>
-            ` : '';
-
-            return `
-              <div class="story-slide-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-850" onclick="openLightbox('${card.id}', ${idx})">
-                <img src="${p.dataUrl}" alt="Story ${idx + 1}" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/35 flex flex-col justify-between p-2.5">
-                  <div class="flex items-center justify-between">
-                    <span class="px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono">
-                      ${idx + 1}/${photos.length}
-                    </span>
-                    <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 text-white/90 hover:text-rose-400 border border-white/20 flex items-center justify-center text-[10px] shadow tap-effect" title="Delete">
-                      <i class="ph-bold ph-x"></i>
-                    </button>
-                  </div>
-                  <div class="flex flex-col items-start">
-                    ${locketAuthorPill}
-                    <p class="text-[9px] text-gold-300 font-mono font-bold truncate flex items-center gap-1">
-                      <i class="ph-bold ph-clock"></i> ${p.checkinTimestamp}
-                    </p>
-                  </div>
+          const verticalStorySlides = photos.map((p, idx) => `
+            <div class="story-slide-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-850" onclick="openLightbox('${card.id}', ${idx})">
+              <img src="${p.dataUrl}" alt="Story ${idx + 1}" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/35 flex flex-col justify-between p-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono">
+                    ${idx + 1}/${photos.length}
+                  </span>
+                  <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 text-white/90 hover:text-rose-400 border border-white/20 flex items-center justify-center text-[10px] shadow tap-effect" title="Delete">
+                    <i class="ph-bold ph-x"></i>
+                  </button>
+                </div>
+                <div>
+                  <p class="text-[9px] text-gold-300 font-mono font-bold truncate flex items-center gap-1">
+                    <i class="ph-bold ph-clock"></i> ${p.checkinTimestamp}
+                  </p>
                 </div>
               </div>
-            `;
-          }).join('');
+            </div>
+          `).join('');
 
           const addStorySlideHtml = `
             <div onclick="triggerCheckinSnap('${card.id}')" class="story-slide-item relative aspect-[9/15] rounded-2xl border-2 border-dashed border-gold-400/40 bg-dark-800/60 hover:bg-dark-800 hover:border-gold-400/80 flex flex-col items-center justify-center gap-2 cursor-pointer tap-effect transition-all group">
@@ -3047,7 +2896,6 @@
             checkinData[activeSlotForPhoto].photos.push({
               id: 'p-' + Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6),
               dataUrl: compressedData,
-              author: deviceAuthorName || 'Vegas Guest',
               checkinTimestamp: formattedTimestamp,
               rawTime: Date.now() + i
             });
@@ -3140,7 +2988,6 @@
                 photoIndex: pIdx,
                 photoId: photo.id,
                 dataUrl: photo.dataUrl,
-                author: photo.author || '',
                 title: entry.title || 'Vegas',
                 scheduledTime: entry.scheduledTime || '',
                 checkinTimestamp: photo.checkinTimestamp || 'Checked In',
@@ -3235,31 +3082,19 @@
       }
 
       if (albumGrid) {
-        albumGrid.innerHTML = flattenedPhotos.map((item, albumIdx) => {
-          const authorLabel = item.author ? escapeHtml(item.author) : '';
-          const authorInitial = item.author ? escapeHtml(getAuthorInitial(item.author)) : '';
-          const locketCornerPill = authorLabel ? `
-            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold shadow max-w-full mb-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-gold-600 to-gold-400 text-dark-950 text-[8px] font-extrabold flex items-center justify-center flex-shrink-0">${authorInitial}</span>
-              <span class="truncate">${authorLabel}</span>
-            </div>
-          ` : '';
-
-          return `
-            <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-1.5">
-              <div class="relative aspect-[9/16] rounded-xl overflow-hidden group cursor-pointer tap-effect bg-dark-900" onclick="openAlbumLightbox(${albumIdx})">
-                <img src="${item.dataUrl}" class="w-full h-full object-cover" alt="${item.title}">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex flex-col justify-end items-start p-2">
-                  ${locketCornerPill}
-                  <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
-                </div>
-              </div>
-              <div class="px-1">
-                <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
+        albumGrid.innerHTML = flattenedPhotos.map((item, albumIdx) => `
+          <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-1.5">
+            <div class="relative aspect-[9/16] rounded-xl overflow-hidden group cursor-pointer tap-effect bg-dark-900" onclick="openAlbumLightbox(${albumIdx})">
+              <img src="${item.dataUrl}" class="w-full h-full object-cover" alt="${item.title}">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
+                <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
               </div>
             </div>
-          `;
-        }).join('');
+            <div class="px-1">
+              <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
+            </div>
+          </div>
+        `).join('');
       }
     }
 
@@ -3307,29 +3142,6 @@
       const time = document.getElementById('lightboxTime');
       const counter = document.getElementById('lightboxCounter');
       const swipeHint = document.getElementById('lightboxSwipeHint');
-      const headerAuthorBadge = document.getElementById('lightboxAuthorBadge');
-      const headerAuthorName = document.getElementById('lightboxAuthorName');
-      const frameAuthorPill = document.getElementById('lightboxFrameAuthorPill');
-      const frameAuthorInitial = document.getElementById('lightboxFrameAuthorInitial');
-      const frameAuthorText = document.getElementById('lightboxFrameAuthorText');
-
-      function applyLightboxAuthor(authorStr) {
-        const cleanAuthor = (authorStr || '').trim();
-        if (cleanAuthor) {
-          if (headerAuthorBadge && headerAuthorName) {
-            headerAuthorName.textContent = cleanAuthor;
-            headerAuthorBadge.classList.remove('hidden');
-          }
-          if (frameAuthorPill && frameAuthorInitial && frameAuthorText) {
-            frameAuthorInitial.textContent = getAuthorInitial(cleanAuthor);
-            frameAuthorText.textContent = cleanAuthor;
-            frameAuthorPill.classList.remove('hidden');
-          }
-        } else {
-          if (headerAuthorBadge) headerAuthorBadge.classList.add('hidden');
-          if (frameAuthorPill) frameAuthorPill.classList.add('hidden');
-        }
-      }
 
       if (isAlbumLightbox) {
         const item = activeAlbumFlattenedPhotos[activeAlbumLightboxIdx];
@@ -3350,7 +3162,6 @@
         }
         title.textContent = item.title;
         time.textContent = item.checkinTimestamp;
-        applyLightboxAuthor(item.author);
         img.src = item.dataUrl;
         return;
       }
@@ -3376,7 +3187,6 @@
 
       title.textContent = checkin.title;
       time.textContent = photo.checkinTimestamp;
-      applyLightboxAuthor(photo.author);
       img.src = photo.dataUrl;
     }
 
@@ -3698,7 +3508,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      loadDeviceAuthorProfile();
+      loadAlbumSeenState();
       loadScheduleStorage();
       await loadCheckinStorage();
       loadDiningPhotoPositions();
@@ -3793,7 +3603,6 @@
           merged[photoDoc.slotId].photos.push({
             id: photoDoc.id,
             dataUrl: photoDoc.dataUrl,
-            author: photoDoc.author || '',
             checkinTimestamp: photoDoc.checkinTimestamp || 'Checked In',
             rawTime: photoDoc.rawTime || 0
           });
@@ -4052,7 +3861,6 @@
               title: checkinObj.title || 'Vegas Activity',
               scheduledTime: checkinObj.scheduledTime || '',
               dataUrl: photo.dataUrl,
-              author: photo.author || '',
               checkinTimestamp: photo.checkinTimestamp || 'Checked In',
               rawTime: photo.rawTime || Date.now()
             });
