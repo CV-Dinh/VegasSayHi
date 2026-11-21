@@ -421,37 +421,21 @@
           <h4 id="lightboxTitle" class="text-sm font-bold">Check-In Photo</h4>
           <p id="lightboxTime" class="text-[11px] text-gold-400 font-mono">Timestamp</p>
         </div>
-        <button onclick="closeLightbox(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white tap-effect">
-          <i class="ph-bold ph-x text-base"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <span id="lightboxCounter" class="hidden text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-1 rounded-full">1 / 1</span>
+          <button onclick="closeLightbox(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white tap-effect">
+            <i class="ph-bold ph-x text-base"></i>
+          </button>
+        </div>
       </div>
 
       <div id="lightboxSwipeArea" class="flex-1 flex flex-col items-center justify-center py-2 touch-none select-none overflow-hidden">
-        <div class="h-full max-h-[66vh] aspect-[9/16] rounded-2xl overflow-hidden bg-dark-900 border border-white/15 shadow-2xl relative flex items-center justify-center">
+        <div class="h-full max-h-[76vh] aspect-[9/16] rounded-2xl overflow-hidden bg-dark-900 border border-white/15 shadow-2xl relative flex items-center justify-center">
           <img id="lightboxImage" src="" alt="Full view" class="w-full h-full object-cover transition-transform duration-200">
         </div>
-        <p id="lightboxSwipeHint" class="hidden text-[10px] text-slate-400 mt-2 flex items-center gap-1 font-medium">
-          <i class="ph-bold ph-arrows-vertical text-gold-400"></i> Swipe up for next • Swipe down for previous
+        <p id="lightboxSwipeHint" class="hidden text-[10px] text-slate-400 mt-2.5 flex items-center gap-1 font-medium">
+          <i class="ph-bold ph-arrows-vertical text-gold-400"></i> Swipe up or down to browse
         </p>
-      </div>
-
-      <div id="lightboxNavControls" class="flex items-center justify-between px-2 pb-2 text-white">
-        <button id="lightboxPrevBtn" onclick="prevLightboxPhoto(event)" class="px-3 py-1.5 rounded-xl bg-dark-750 border border-white/10 text-xs font-bold tap-effect flex items-center gap-1">
-          <i class="ph-bold ph-caret-up"></i> Prev
-        </button>
-        <span id="lightboxCounter" class="text-xs font-mono text-slate-300">1 / 1</span>
-        <button id="lightboxNextBtn" onclick="nextLightboxPhoto(event)" class="px-3 py-1.5 rounded-xl bg-dark-750 border border-white/10 text-xs font-bold tap-effect flex items-center gap-1">
-          Next <i class="ph-bold ph-caret-down"></i>
-        </button>
-      </div>
-
-      <div class="flex items-center justify-between gap-3 pb-safe pt-1">
-        <button id="lightboxDeleteBtn" class="flex-1 py-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-bold tap-effect flex items-center justify-center gap-1.5">
-          <i class="ph-bold ph-trash"></i> Delete This Photo
-        </button>
-        <button onclick="closeLightbox(null, true)" class="flex-1 py-2.5 rounded-xl bg-dark-750 text-white text-xs font-bold border border-white/10 tap-effect">
-          Done
-        </button>
       </div>
     </div>
 
@@ -1306,29 +1290,15 @@
       const img = document.getElementById('lightboxImage');
       const modalTitle = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
-      const deleteBtn = document.getElementById('lightboxDeleteBtn');
-      const navControls = document.getElementById('lightboxNavControls');
+      const counter = document.getElementById('lightboxCounter');
       const swipeHint = document.getElementById('lightboxSwipeHint');
 
-      if (navControls) navControls.classList.add('hidden');
+      if (counter) counter.classList.add('hidden');
       if (swipeHint) swipeHint.classList.add('hidden');
 
       modalTitle.textContent = title;
       time.textContent = spot ? spot.tag : 'Dining';
       img.src = imgSrc;
-
-      deleteBtn.textContent = 'Reset Photo';
-      deleteBtn.onclick = async () => {
-        if (diningPhotos[slotId]) {
-          delete diningPhotos[slotId];
-          saveDiningPhotos();
-          if (window.removeDiningPhotoFromFirebase) {
-            await window.removeDiningPhotoFromFirebase(slotId);
-          }
-          showToast('Photo reset');
-        }
-        closeLightbox(null, true);
-      };
 
       modal.classList.remove('hidden');
     }
@@ -2148,29 +2118,15 @@
       const img = document.getElementById('lightboxImage');
       const modalTitle = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
-      const deleteBtn = document.getElementById('lightboxDeleteBtn');
-      const navControls = document.getElementById('lightboxNavControls');
+      const counter = document.getElementById('lightboxCounter');
       const swipeHint = document.getElementById('lightboxSwipeHint');
 
-      if (navControls) navControls.classList.add('hidden');
+      if (counter) counter.classList.add('hidden');
       if (swipeHint) swipeHint.classList.add('hidden');
 
       modalTitle.textContent = title;
       time.textContent = show ? show.tag : 'Show';
       img.src = imgSrc;
-
-      deleteBtn.textContent = 'Remove Photo';
-      deleteBtn.onclick = async () => {
-        if (showPhotos[slotId]) {
-          delete showPhotos[slotId];
-          saveShowPhotos();
-          if (window.removeShowPhotoFromFirebase) {
-            await window.removeShowPhotoFromFirebase(slotId);
-          }
-          showToast('Photo removed');
-        }
-        closeLightbox(null, true);
-      };
 
       modal.classList.remove('hidden');
     }
@@ -2681,8 +2637,6 @@
       const title = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
       const counter = document.getElementById('lightboxCounter');
-      const navControls = document.getElementById('lightboxNavControls');
-      const deleteBtn = document.getElementById('lightboxDeleteBtn');
       const swipeHint = document.getElementById('lightboxSwipeHint');
 
       if (isAlbumLightbox) {
@@ -2692,24 +2646,19 @@
           return;
         }
         const total = activeAlbumFlattenedPhotos.length;
-        if (navControls) {
-          if (total > 1) {
-            navControls.classList.remove('hidden');
-            if (swipeHint) swipeHint.classList.remove('hidden');
-            if (counter) counter.textContent = `${activeAlbumLightboxIdx + 1} / ${total}`;
-          } else {
-            navControls.classList.add('hidden');
-            if (swipeHint) swipeHint.classList.add('hidden');
+        if (total > 1) {
+          if (counter) {
+            counter.classList.remove('hidden');
+            counter.textContent = `${activeAlbumLightboxIdx + 1} / ${total}`;
           }
+          if (swipeHint) swipeHint.classList.remove('hidden');
+        } else {
+          if (counter) counter.classList.add('hidden');
+          if (swipeHint) swipeHint.classList.add('hidden');
         }
         title.textContent = item.title;
         time.textContent = item.checkinTimestamp;
         img.src = item.dataUrl;
-
-        deleteBtn.textContent = 'Delete This Photo';
-        deleteBtn.onclick = () => {
-          deleteSinglePhoto(item.slotId, item.photoId);
-        };
         return;
       }
 
@@ -2721,25 +2670,20 @@
 
       const photo = checkin.photos[activeLightboxPhotoIdx];
 
-      if (navControls) {
-        if (checkin.photos.length > 1) {
-          navControls.classList.remove('hidden');
-          if (swipeHint) swipeHint.classList.remove('hidden');
-          if (counter) counter.textContent = `${activeLightboxPhotoIdx + 1} / ${checkin.photos.length}`;
-        } else {
-          navControls.classList.add('hidden');
-          if (swipeHint) swipeHint.classList.add('hidden');
+      if (checkin.photos.length > 1) {
+        if (counter) {
+          counter.classList.remove('hidden');
+          counter.textContent = `${activeLightboxPhotoIdx + 1} / ${checkin.photos.length}`;
         }
+        if (swipeHint) swipeHint.classList.remove('hidden');
+      } else {
+        if (counter) counter.classList.add('hidden');
+        if (swipeHint) swipeHint.classList.add('hidden');
       }
 
       title.textContent = checkin.title;
       time.textContent = photo.checkinTimestamp;
       img.src = photo.dataUrl;
-
-      deleteBtn.textContent = 'Delete This Photo';
-      deleteBtn.onclick = () => {
-        deleteSinglePhoto(activeLightboxSlotId, photo.id);
-      };
     }
 
     function prevLightboxPhoto(event) {
