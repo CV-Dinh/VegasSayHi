@@ -123,6 +123,20 @@
       flex: 0 0 calc(50% - 5px);
       scroll-snap-align: start;
     }
+    @keyframes storySlideFromBottom {
+      0% { transform: translateY(36%) scale(0.96); opacity: 0.25; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    @keyframes storySlideFromTop {
+      0% { transform: translateY(-36%) scale(0.96); opacity: 0.25; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .animate-slide-from-bottom {
+      animation: storySlideFromBottom 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .animate-slide-from-top {
+      animation: storySlideFromTop 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
   </style>
 </head>
 <body class="font-sans antialiased text-slate-100 min-h-screen bg-dark-950 selection:bg-gold-500/30">
@@ -430,8 +444,8 @@
       </div>
 
       <div id="lightboxSwipeArea" class="flex-1 flex flex-col items-center justify-center py-2 touch-none select-none overflow-hidden">
-        <div class="h-full max-h-[76vh] aspect-[9/16] rounded-2xl overflow-hidden bg-dark-900 border border-white/15 shadow-2xl relative flex items-center justify-center">
-          <img id="lightboxImage" src="" alt="Full view" class="w-full h-full object-cover transition-transform duration-200">
+        <div id="lightboxCardFrame" class="h-full max-h-[76vh] aspect-[9/16] rounded-2xl overflow-hidden bg-dark-900 border border-white/15 shadow-2xl relative flex items-center justify-center will-change-transform">
+          <img id="lightboxImage" src="" alt="Full view" class="w-full h-full object-cover">
         </div>
         <p id="lightboxSwipeHint" class="hidden text-[10px] text-slate-400 mt-2.5 flex items-center gap-1 font-medium">
           <i class="ph-bold ph-arrows-vertical text-gold-400"></i> Swipe up or down to browse
@@ -2702,12 +2716,14 @@
         if (activeAlbumFlattenedPhotos.length <= 1) return;
         activeAlbumLightboxIdx = (activeAlbumLightboxIdx - 1 + activeAlbumFlattenedPhotos.length) % activeAlbumFlattenedPhotos.length;
         updateLightboxDisplay();
+        triggerLightboxSlideAnimation('down');
         return;
       }
       const checkin = checkinData[activeLightboxSlotId];
       if (!checkin || !Array.isArray(checkin.photos) || checkin.photos.length <= 1) return;
       activeLightboxPhotoIdx = (activeLightboxPhotoIdx - 1 + checkin.photos.length) % checkin.photos.length;
       updateLightboxDisplay();
+      triggerLightboxSlideAnimation('down');
     }
 
     function nextLightboxPhoto(event) {
@@ -2716,25 +2732,58 @@
         if (activeAlbumFlattenedPhotos.length <= 1) return;
         activeAlbumLightboxIdx = (activeAlbumLightboxIdx + 1) % activeAlbumFlattenedPhotos.length;
         updateLightboxDisplay();
+        triggerLightboxSlideAnimation('up');
         return;
       }
       const checkin = checkinData[activeLightboxSlotId];
       if (!checkin || !Array.isArray(checkin.photos) || checkin.photos.length <= 1) return;
       activeLightboxPhotoIdx = (activeLightboxPhotoIdx + 1) % checkin.photos.length;
       updateLightboxDisplay();
+      triggerLightboxSlideAnimation('up');
     }
 
-    // Touch swipe up (next) / swipe down (previous) in fullscreen viewer
+    function triggerLightboxSlideAnimation(direction) {
+      const frame = document.getElementById('lightboxCardFrame');
+      if (!frame) return;
+      frame.style.transition = '';
+      frame.style.transform = '';
+      frame.style.opacity = '';
+      frame.classList.remove('animate-slide-from-bottom', 'animate-slide-from-top');
+      void frame.offsetWidth; // Force reflow so repeated swipes re-trigger cleanly
+      frame.classList.add(direction === 'up' ? 'animate-slide-from-bottom' : 'animate-slide-from-top');
+    }
+
+    // Touch swipe up (next) / swipe down (previous) with live finger tracking & slide transitions
     (function setupLightboxVerticalSwipe() {
       const swipeArea = document.getElementById('lightboxSwipeArea');
-      if (!swipeArea) return;
+      const frame = document.getElementById('lightboxCardFrame');
+      if (!swipeArea || !frame) return;
       let touchStartY = 0;
       let touchStartX = 0;
+      let isDraggingVertical = false;
 
       swipeArea.addEventListener('touchstart', (e) => {
+        if (isDiningLightbox) return;
         if (e.touches && e.touches.length === 1) {
           touchStartY = e.touches[0].clientY;
           touchStartX = e.touches[0].clientX;
+          isDraggingVertical = false;
+          frame.classList.remove('animate-slide-from-bottom', 'animate-slide-from-top');
+          frame.style.transition = 'none';
+        }
+      }, { passive: true });
+
+      swipeArea.addEventListener('touchmove', (e) => {
+        if (isDiningLightbox || !e.touches || e.touches.length !== 1) return;
+        const deltaY = e.touches[0].clientY - touchStartY;
+        const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+
+        if (Math.abs(deltaY) > 10 && Math.abs(deltaY) > deltaX) {
+          isDraggingVertical = true;
+          const dampedY = deltaY * 0.45;
+          const fadeOpacity = Math.max(0.45, 1 - Math.abs(deltaY) / 420);
+          frame.style.transform = `translateY(${dampedY}px) scale(${Math.max(0.95, 1 - Math.abs(deltaY) / 1800)})`;
+          frame.style.opacity = fadeOpacity;
         }
       }, { passive: true });
 
@@ -2743,16 +2792,22 @@
         const deltaY = touchStartY - e.changedTouches[0].clientY;
         const deltaX = Math.abs(touchStartX - e.changedTouches[0].clientX);
 
-        // Require clear vertical swipe (> 40px)
-        if (Math.abs(deltaY) > 40 && Math.abs(deltaY) > deltaX) {
+        // Reset inline drag transforms
+        frame.style.transition = 'transform 0.22s ease, opacity 0.22s ease';
+        frame.style.transform = '';
+        frame.style.opacity = '';
+
+        // Require clear vertical swipe (> 45px)
+        if (isDraggingVertical && Math.abs(deltaY) > 45 && Math.abs(deltaY) > deltaX) {
           if (deltaY > 0) {
-            // Swiped Up -> Next picture
+            // Swiped Up -> Slide next photo in from bottom
             nextLightboxPhoto();
           } else {
-            // Swiped Down -> Previous picture
+            // Swiped Down -> Slide previous photo in from top
             prevLightboxPhoto();
           }
         }
+        isDraggingVertical = false;
       }, { passive: true });
     })();
 
