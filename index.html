@@ -828,8 +828,9 @@
 
   <!-- ================= MAIN APPLICATION LOGIC ================= -->
   <script>
-    // Mobile-hardened high-clarity image compressor with HEIC / iPhone camera detection & decoding
-    window.compressImageFile = async function(file, maxW = 1600, maxH = 1600, quality = 0.86) {
+    // High-clarity image compressor tuned for ~1,500 full-HD photos (up to 2160px @ 0.92 JPEG quality)
+    // Keeps each photo safely under Firestore's 1 MB per-document limit (~550-750 KB max)
+    window.compressImageFile = async function(file, maxW = 2160, maxH = 2160, quality = 0.92) {
       if (!file) throw new Error("No file provided");
 
       let processedBlob = file;
@@ -843,7 +844,7 @@
           const converted = await heic2any({
             blob: file,
             toType: 'image/jpeg',
-            quality: 0.92
+            quality: 0.95
           });
           processedBlob = Array.isArray(converted) ? converted[0] : converted;
         } catch (heicErr) {
@@ -879,10 +880,12 @@
             ctx.imageSmoothingQuality = 'high';
             ctx.drawImage(img, 0, 0, width, height);
 
-            // Keep crisp 0.86 quality, stepping down slightly only if single image exceeds ~320KB for Firestore safety
-            let dataUrl = canvas.toDataURL('image/jpeg', quality);
-            if (dataUrl.length > 440000 && quality > 0.78) {
-              dataUrl = canvas.toDataURL('image/jpeg', 0.80);
+            // Encode at 0.92 ultra-high quality; only step down slightly if base64 nears Firestore's 1MB doc cap (~920KB)
+            let currentQuality = quality;
+            let dataUrl = canvas.toDataURL('image/jpeg', currentQuality);
+            while (dataUrl.length > 920000 && currentQuality > 0.80) {
+              currentQuality = Math.round((currentQuality - 0.04) * 100) / 100;
+              dataUrl = canvas.toDataURL('image/jpeg', currentQuality);
             }
 
             resolve(dataUrl);
@@ -1184,7 +1187,7 @@
       if (!file) return;
       showToast('Loading photo...');
       try {
-        const compressed = await compressImageFile(file, 1400, 1400, 0.86);
+        const compressed = await compressImageFile(file, 1920, 1920, 0.90);
         pendingModalDiningPhoto = compressed;
         const preview = document.getElementById('modalDiningPhotoPreview');
         const placeholder = document.getElementById('modalDiningPhotoPlaceholder');
@@ -1287,7 +1290,7 @@
       showToast('Processing photo...');
       window.setCloudStatus('Syncing...', 'text-amber-400');
       try {
-        const compressed = await compressImageFile(file, 1400, 1400, 0.86);
+        const compressed = await compressImageFile(file, 1920, 1920, 0.90);
         diningPhotos[activeDiningSlot] = compressed;
         saveDiningPhotos();
         if (window.syncDiningPhotoToFirebase) {
@@ -2016,7 +2019,7 @@
       if (!file) return;
       showToast('Loading photo...');
       try {
-        const compressed = await compressImageFile(file, 1400, 1400, 0.86);
+        const compressed = await compressImageFile(file, 1920, 1920, 0.90);
         pendingModalShowPhoto = compressed;
         const preview = document.getElementById('modalShowPhotoPreview');
         const placeholder = document.getElementById('modalShowPhotoPlaceholder');
@@ -2115,7 +2118,7 @@
       showToast('Processing photo...');
       window.setCloudStatus('Syncing...', 'text-amber-400');
       try {
-        const compressed = await compressImageFile(file, 1400, 1400, 0.86);
+        const compressed = await compressImageFile(file, 1920, 1920, 0.90);
         showPhotos[activeShowSlot] = compressed;
         saveShowPhotos();
         if (window.syncShowPhotoToFirebase) {
@@ -2281,7 +2284,8 @@
                 ${actionButtonsHtml ? `<div class="flex flex-wrap gap-2 mt-2">${actionButtonsHtml}</div>` : ''}
               </div>
             </div>
-            <div class="checkin-slot-container pt-2 border-t border-white/5" data-slot-id="${card.id}">
+
+            <div class="pt-1 border-t border-white/5">
               ${checkinSlotHtml}
             </div>
           </div>
@@ -2432,7 +2436,7 @@
             if (files.length > 1) {
               window.setCloudStatus(`Photo ${i + 1}/${files.length}...`, 'text-amber-400');
             }
-            const compressedData = await compressImageFile(file, 1600, 1600, 0.86);
+            const compressedData = await compressImageFile(file, 2160, 2160, 0.92);
             checkinData[activeSlotForPhoto].photos.push({
               id: 'p-' + Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6),
               dataUrl: compressedData,
@@ -2478,6 +2482,9 @@
         'Remove this check-in photo?',
         async () => {
           checkin.photos = checkin.photos.filter(p => p.id !== photoId);
+          if (window.firebaseDeleteSinglePhoto) {
+            await window.firebaseDeleteSinglePhoto(photoId);
+          }
           if (checkin.photos.length === 0) {
             delete checkinData[slotId];
             saveCheckinStorage();
@@ -2486,9 +2493,6 @@
             }
           } else {
             saveCheckinStorage();
-            if (window.firebaseSyncCheckin) {
-              await window.firebaseSyncCheckin(slotId, checkin);
-            }
           }
           if (!document.getElementById('photoLightboxModal').classList.contains('hidden')) {
             if (isAlbumLightbox) {
@@ -3053,6 +3057,9 @@
       doc, 
       setDoc, 
       updateDoc, 
+      deleteDoc,
+      collection,
+      getDocs,
       deleteField, 
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -3068,6 +3075,10 @@
     };
 
     let app, db;
+    let isSyncingCheckinUpload = false;
+    let legacyCloudCheckins = {};
+    let individualCloudPhotos = {};
+
     try {
       app = initializeApp(firebaseConfig);
       db = getFirestore(app);
@@ -3075,6 +3086,63 @@
     } catch (e) {
       console.error("Firebase initialization failed:", e);
       window.setCloudStatus('Offline Mode', 'text-slate-400');
+    }
+
+    function mergeAndApplyCloudCheckins() {
+      if (isSyncingCheckinUpload) return;
+
+      const merged = {};
+
+      // 1. Include any legacy photos stored in trip/checkins
+      Object.keys(legacyCloudCheckins).forEach(slotId => {
+        const entry = legacyCloudCheckins[slotId];
+        if (entry) {
+          const photos = Array.isArray(entry.photos) ? [...entry.photos] : (entry.photo ? [{
+            id: 'p-' + (entry.rawTime || Date.now()),
+            dataUrl: entry.photo,
+            checkinTimestamp: entry.checkinTimestamp || 'Checked In',
+            rawTime: entry.rawTime || Date.now()
+          }] : []);
+          if (photos.length > 0) {
+            merged[slotId] = {
+              title: entry.title || 'Vegas Activity',
+              scheduledTime: entry.scheduledTime || '',
+              photos
+            };
+          }
+        }
+      });
+
+      // 2. Merge individual high-res photo documents from trip_photos collection
+      Object.values(individualCloudPhotos).forEach(photoDoc => {
+        if (!photoDoc || !photoDoc.slotId || !photoDoc.dataUrl) return;
+        if (!merged[photoDoc.slotId]) {
+          merged[photoDoc.slotId] = {
+            title: photoDoc.title || 'Vegas Activity',
+            scheduledTime: photoDoc.scheduledTime || '',
+            photos: []
+          };
+        }
+        const exists = merged[photoDoc.slotId].photos.some(p => p.id === photoDoc.id);
+        if (!exists) {
+          merged[photoDoc.slotId].photos.push({
+            id: photoDoc.id,
+            dataUrl: photoDoc.dataUrl,
+            checkinTimestamp: photoDoc.checkinTimestamp || 'Checked In',
+            rawTime: photoDoc.rawTime || 0
+          });
+        }
+      });
+
+      // Sort each stop's photos chronologically
+      Object.keys(merged).forEach(slotId => {
+        merged[slotId].photos.sort((a, b) => (a.rawTime || 0) - (b.rawTime || 0));
+      });
+
+      if (JSON.stringify(checkinData) !== JSON.stringify(merged)) {
+        checkinData = merged;
+        saveCheckinStorage();
+      }
     }
 
     if (db) {
@@ -3117,40 +3185,22 @@
       });
 
       onSnapshot(doc(db, "trip", "checkins"), (docSnap) => {
-        if (docSnap.exists()) {
-          const cloudCheckins = docSnap.data();
-          let changed = false;
-          Object.keys(cloudCheckins).forEach(slotId => {
-            const cloudEntry = cloudCheckins[slotId];
-            if (cloudEntry) {
-              if (!Array.isArray(cloudEntry.photos) && cloudEntry.photo) {
-                cloudEntry.photos = [{
-                  id: 'p-' + (cloudEntry.rawTime || Date.now()),
-                  dataUrl: cloudEntry.photo,
-                  checkinTimestamp: cloudEntry.checkinTimestamp || 'Checked In',
-                  rawTime: cloudEntry.rawTime || Date.now()
-                }];
-                delete cloudEntry.photo;
-              }
-              const localEntry = checkinData[slotId];
-              if (!localEntry || JSON.stringify(localEntry.photos) !== JSON.stringify(cloudEntry.photos)) {
-                checkinData[slotId] = cloudEntry;
-                changed = true;
-              }
-            }
-          });
-          Object.keys(checkinData).forEach(slotId => {
-            if (!cloudCheckins[slotId]) {
-              delete checkinData[slotId];
-              changed = true;
-            }
-          });
-          if (changed) {
-            saveCheckinStorage();
-          }
-        }
+        legacyCloudCheckins = docSnap.exists() ? docSnap.data() : {};
+        mergeAndApplyCloudCheckins();
       }, (error) => {
-        console.warn("Checkins sync notice:", error);
+        console.warn("Legacy checkins sync notice:", error);
+      });
+
+      // Dedicated per-photo listener: allows 1,500+ ultra-high-res photos without hitting 1MB doc limit
+      onSnapshot(collection(db, "trip_photos"), (querySnap) => {
+        const latestMap = {};
+        querySnap.forEach((docItem) => {
+          latestMap[docItem.id] = { id: docItem.id, ...docItem.data() };
+        });
+        individualCloudPhotos = latestMap;
+        mergeAndApplyCloudCheckins();
+      }, (error) => {
+        console.warn("Individual photos sync notice:", error);
       });
 
       onSnapshot(doc(db, "trip", "itinerary"), (docSnap) => {
@@ -3325,19 +3375,53 @@
     };
 
     window.firebaseSyncCheckin = async function(slotId, checkinObj) {
-      if (!db) return;
+      if (!db || !checkinObj || !Array.isArray(checkinObj.photos)) return;
+      isSyncingCheckinUpload = true;
       try {
-        await setDoc(doc(db, "trip", "checkins"), {
-          [slotId]: checkinObj
-        }, { merge: true });
+        // Save each photo as its own separate Firestore document so every photo gets a full 1MB allowance
+        for (const photo of checkinObj.photos) {
+          if (!individualCloudPhotos[photo.id]) {
+            await setDoc(doc(db, "trip_photos", photo.id), {
+              slotId: slotId,
+              title: checkinObj.title || 'Vegas Activity',
+              scheduledTime: checkinObj.scheduledTime || '',
+              dataUrl: photo.dataUrl,
+              checkinTimestamp: photo.checkinTimestamp || 'Checked In',
+              rawTime: photo.rawTime || Date.now()
+            });
+          }
+        }
       } catch (err) {
         console.error("Firestore syncCheckin error:", err);
+        throw err;
+      } finally {
+        isSyncingCheckinUpload = false;
+      }
+    };
+
+    window.firebaseDeleteSinglePhoto = async function(photoId) {
+      if (!db || !photoId) return;
+      try {
+        await deleteDoc(doc(db, "trip_photos", photoId));
+      } catch (err) {
+        console.error("Firestore deleteSinglePhoto error:", err);
       }
     };
 
     window.firebaseDeleteCheckin = async function(slotId) {
       if (!db) return;
       try {
+        // Delete any individual photos belonging to this stop
+        const snap = await getDocs(collection(db, "trip_photos"));
+        const deletePromises = [];
+        snap.forEach((d) => {
+          if (d.data() && d.data().slotId === slotId) {
+            deletePromises.push(deleteDoc(doc(db, "trip_photos", d.id)));
+          }
+        });
+        await Promise.all(deletePromises);
+
+        // Also clean up legacy doc field if present
         await updateDoc(doc(db, "trip", "checkins"), {
           [slotId]: deleteField()
         });
@@ -3349,9 +3433,78 @@
     window.firebaseClearAllCheckins = async function() {
       if (!db) return;
       try {
+        const snap = await getDocs(collection(db, "trip_photos"));
+        const deletePromises = [];
+        snap.forEach((d) => {
+          deletePromises.push(deleteDoc(doc(db, "trip_photos", d.id)));
+        });
+        await Promise.all(deletePromises);
         await setDoc(doc(db, "trip", "checkins"), {});
       } catch (err) {
         console.error("Firestore clearAllCheckins error:", err);
+      }
+    };
+
+    window.firebaseDeleteSinglePhoto = async function(slotId, photoId) {
+      if (!db) return;
+      isSyncingUpload = true;
+      try {
+        await deleteDoc(doc(db, "trip_photos", photoId));
+        // Also prune from legacy doc if it existed there
+        if (legacyCloudCheckins[slotId] && Array.isArray(legacyCloudCheckins[slotId].photos)) {
+          const remaining = legacyCloudCheckins[slotId].photos.filter(p => p.id !== photoId);
+          if (remaining.length === 0) {
+            await updateDoc(doc(db, "trip", "checkins"), { [slotId]: deleteField() });
+          } else {
+            await setDoc(doc(db, "trip", "checkins"), {
+              [slotId]: { ...legacyCloudCheckins[slotId], photos: remaining }
+            }, { merge: true });
+          }
+        }
+      } catch (err) {
+        console.error("Firestore deleteSinglePhoto error:", err);
+      } finally {
+        isSyncingUpload = false;
+      }
+    };
+
+    window.firebaseDeleteCheckin = async function(slotId) {
+      if (!db) return;
+      isSyncingUpload = true;
+      try {
+        const snap = await getDocs(collection(db, "trip_photos"));
+        const deletes = [];
+        snap.forEach(d => {
+          if (d.data()?.slotId === slotId) {
+            deletes.push(deleteDoc(doc(db, "trip_photos", d.id)));
+          }
+        });
+        await Promise.all(deletes);
+        await updateDoc(doc(db, "trip", "checkins"), {
+          [slotId]: deleteField()
+        });
+      } catch (err) {
+        console.error("Firestore deleteCheckin error:", err);
+      } finally {
+        isSyncingUpload = false;
+      }
+    };
+
+    window.firebaseClearAllCheckins = async function() {
+      if (!db) return;
+      isSyncingUpload = true;
+      try {
+        const snap = await getDocs(collection(db, "trip_photos"));
+        const deletes = [];
+        snap.forEach(d => {
+          deletes.push(deleteDoc(doc(db, "trip_photos", d.id)));
+        });
+        await Promise.all(deletes);
+        await setDoc(doc(db, "trip", "checkins"), {});
+      } catch (err) {
+        console.error("Firestore clearAllCheckins error:", err);
+      } finally {
+        isSyncingUpload = false;
       }
     };
 
