@@ -802,6 +802,59 @@
       el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${colorClass.replace('text-', 'bg-')} animate-pulse"></span><span>${msg}</span>`;
     };
 
+    // High-capacity IndexedDB photo store (supports 1,500+ 2K photos without 5MB localStorage limits)
+    window.vegasPhotoDB = (function() {
+      const DB_NAME = 'VegasPlannerMediaDB';
+      const STORE_NAME = 'kv_store';
+      let dbPromise = null;
+
+      function open() {
+        if (!dbPromise) {
+          dbPromise = new Promise((resolve, reject) => {
+            const req = indexedDB.open(DB_NAME, 1);
+            req.onupgradeneeded = () => {
+              const db = req.result;
+              if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME);
+              }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          });
+        }
+        return dbPromise;
+      }
+
+      return {
+        async get(key) {
+          try {
+            const db = await open();
+            return await new Promise((resolve, reject) => {
+              const tx = db.transaction(STORE_NAME, 'readonly');
+              const req = tx.objectStore(STORE_NAME).get(key);
+              req.onsuccess = () => resolve(req.result);
+              req.onerror = () => reject(req.error);
+            });
+          } catch (e) {
+            return null;
+          }
+        },
+        async set(key, val) {
+          try {
+            const db = await open();
+            return await new Promise((resolve, reject) => {
+              const tx = db.transaction(STORE_NAME, 'readwrite');
+              const req = tx.objectStore(STORE_NAME).put(val, key);
+              req.onsuccess = () => resolve();
+              req.onerror = () => reject(req.error);
+            });
+          } catch (e) {
+            console.warn('IndexedDB write warning:', e);
+          }
+        }
+      };
+    })();
+
     let pendingConfirmCallback = null;
     window.showConfirmDialog = function(title, message, onConfirm, confirmBtnText = 'Delete') {
       const modal = document.getElementById('customConfirmModal');
@@ -1053,21 +1106,33 @@
       renderDiningCards();
     }
 
-    function loadDiningPhotos() {
+    async function loadDiningPhotos() {
       try {
-        const stored = localStorage.getItem('vegas_dining_photos_v1');
-        diningPhotos = stored ? JSON.parse(stored) : {};
+        const idbStored = await window.vegasPhotoDB.get('vegas_dining_photos_v1');
+        if (idbStored && typeof idbStored === 'object') {
+          diningPhotos = idbStored;
+        } else {
+          const legacyStored = localStorage.getItem('vegas_dining_photos_v1');
+          if (legacyStored) {
+            diningPhotos = JSON.parse(legacyStored);
+            await window.vegasPhotoDB.set('vegas_dining_photos_v1', diningPhotos);
+            localStorage.removeItem('vegas_dining_photos_v1');
+          } else {
+            diningPhotos = {};
+          }
+        }
       } catch (e) {
         diningPhotos = {};
       }
       renderDiningCards();
     }
 
-    function saveDiningPhotos() {
+    async function saveDiningPhotos() {
       try {
-        localStorage.setItem('vegas_dining_photos_v1', JSON.stringify(diningPhotos));
+        await window.vegasPhotoDB.set('vegas_dining_photos_v1', diningPhotos);
+        try { localStorage.removeItem('vegas_dining_photos_v1'); } catch (e) {}
       } catch (e) {
-        showToast('Storage limit reached!');
+        showToast('Device storage full!');
       }
       renderDiningCards();
     }
@@ -1234,7 +1299,7 @@
 
       if (pendingModalDiningPhoto && targetSpotId) {
         diningPhotos[targetSpotId] = pendingModalDiningPhoto;
-        saveDiningPhotos();
+        await saveDiningPhotos();
         if (window.syncDiningPhotoToFirebase) {
           await window.syncDiningPhotoToFirebase(targetSpotId, pendingModalDiningPhoto);
         }
@@ -1257,7 +1322,7 @@
           diningSpots = diningSpots.filter(s => s.id !== spotId);
           if (diningPhotos[spotId]) {
             delete diningPhotos[spotId];
-            saveDiningPhotos();
+            await saveDiningPhotos();
             if (window.removeDiningPhotoFromFirebase) {
               await window.removeDiningPhotoFromFirebase(spotId);
             }
@@ -1292,7 +1357,7 @@
       try {
         const compressed = await compressImageFile(file, 1920, 1920, 0.90);
         diningPhotos[activeDiningSlot] = compressed;
-        saveDiningPhotos();
+        await saveDiningPhotos();
         if (window.syncDiningPhotoToFirebase) {
           await window.syncDiningPhotoToFirebase(activeDiningSlot, compressed);
         }
@@ -1334,9 +1399,9 @@
       window.showConfirmDialog(
         'Reset Dining Photos',
         'Reset all custom dining photos back to their defaults?',
-        () => {
+        async () => {
           diningPhotos = {};
-          saveDiningPhotos();
+          await saveDiningPhotos();
           if (window.firebaseResetAllDining) {
             window.firebaseResetAllDining();
           }
@@ -1677,11 +1742,18 @@
       } catch (e) {}
     }
 
-    function loadCheckinStorage() {
+    async function loadCheckinStorage() {
       try {
-        const stored = localStorage.getItem('vegas_checkins_v1');
-        if (stored) {
-          const parsed = JSON.parse(stored);
+        let parsed = await window.vegasPhotoDB.get('vegas_checkins_v1');
+        if (!parsed) {
+          const legacyStored = localStorage.getItem('vegas_checkins_v1');
+          if (legacyStored) {
+            parsed = JSON.parse(legacyStored);
+            await window.vegasPhotoDB.set('vegas_checkins_v1', parsed);
+            localStorage.removeItem('vegas_checkins_v1');
+          }
+        }
+        if (parsed && typeof parsed === 'object') {
           Object.keys(parsed).forEach(slotId => {
             const entry = parsed[slotId];
             if (entry && !Array.isArray(entry.photos)) {
@@ -1705,11 +1777,12 @@
       }
     }
 
-    function saveCheckinStorage() {
+    async function saveCheckinStorage() {
       try {
-        localStorage.setItem('vegas_checkins_v1', JSON.stringify(checkinData));
+        await window.vegasPhotoDB.set('vegas_checkins_v1', checkinData);
+        try { localStorage.removeItem('vegas_checkins_v1'); } catch (e) {}
       } catch (e) {
-        showToast('Storage limit reached!');
+        showToast('Device storage full!');
       }
       renderItinerary();
       renderAlbumView();
@@ -1883,21 +1956,33 @@
       renderShowCards();
     }
 
-    function loadShowPhotos() {
+    async function loadShowPhotos() {
       try {
-        const stored = localStorage.getItem('vegas_show_photos_v1');
-        showPhotos = stored ? JSON.parse(stored) : {};
+        const idbStored = await window.vegasPhotoDB.get('vegas_show_photos_v1');
+        if (idbStored && typeof idbStored === 'object') {
+          showPhotos = idbStored;
+        } else {
+          const legacyStored = localStorage.getItem('vegas_show_photos_v1');
+          if (legacyStored) {
+            showPhotos = JSON.parse(legacyStored);
+            await window.vegasPhotoDB.set('vegas_show_photos_v1', showPhotos);
+            localStorage.removeItem('vegas_show_photos_v1');
+          } else {
+            showPhotos = {};
+          }
+        }
       } catch (e) {
         showPhotos = {};
       }
       renderShowCards();
     }
 
-    function saveShowPhotos() {
+    async function saveShowPhotos() {
       try {
-        localStorage.setItem('vegas_show_photos_v1', JSON.stringify(showPhotos));
+        await window.vegasPhotoDB.set('vegas_show_photos_v1', showPhotos);
+        try { localStorage.removeItem('vegas_show_photos_v1'); } catch (e) {}
       } catch (e) {
-        showToast('Storage limit reached!');
+        showToast('Device storage full!');
       }
       renderShowCards();
     }
@@ -2062,7 +2147,7 @@
 
       if (pendingModalShowPhoto && targetShowId) {
         showPhotos[targetShowId] = pendingModalShowPhoto;
-        saveShowPhotos();
+        await saveShowPhotos();
         if (window.syncShowPhotoToFirebase) {
           await window.syncShowPhotoToFirebase(targetShowId, pendingModalShowPhoto);
         }
@@ -2085,7 +2170,7 @@
           showSpots = showSpots.filter(s => s.id !== showId);
           if (showPhotos[showId]) {
             delete showPhotos[showId];
-            saveShowPhotos();
+            await saveShowPhotos();
             if (window.removeShowPhotoFromFirebase) {
               await window.removeShowPhotoFromFirebase(showId);
             }
@@ -2120,7 +2205,7 @@
       try {
         const compressed = await compressImageFile(file, 1920, 1920, 0.90);
         showPhotos[activeShowSlot] = compressed;
-        saveShowPhotos();
+        await saveShowPhotos();
         if (window.syncShowPhotoToFirebase) {
           await window.syncShowPhotoToFirebase(activeShowSlot, compressed);
         }
@@ -2390,7 +2475,7 @@
           }
           if (checkinData[cardId]) {
             delete checkinData[cardId];
-            saveCheckinStorage();
+            await saveCheckinStorage();
             if (window.firebaseDeleteCheckin) {
               await window.firebaseDeleteCheckin(cardId);
             }
@@ -2455,7 +2540,7 @@
 
         checkinData[activeSlotForPhoto].title = title;
         checkinData[activeSlotForPhoto].scheduledTime = scheduledTime;
-        saveCheckinStorage();
+        await saveCheckinStorage();
 
         if (window.firebaseSyncCheckin) {
           window.setCloudStatus('Syncing...', 'text-amber-400');
@@ -2487,12 +2572,12 @@
           }
           if (checkin.photos.length === 0) {
             delete checkinData[slotId];
-            saveCheckinStorage();
+            await saveCheckinStorage();
             if (window.firebaseDeleteCheckin) {
               await window.firebaseDeleteCheckin(slotId);
             }
           } else {
-            saveCheckinStorage();
+            await saveCheckinStorage();
           }
           if (!document.getElementById('photoLightboxModal').classList.contains('hidden')) {
             if (isAlbumLightbox) {
@@ -2548,7 +2633,7 @@
         'Remove all check-in stories for this stop?',
         async () => {
           delete checkinData[slotId];
-          saveCheckinStorage();
+          await saveCheckinStorage();
           if (window.firebaseDeleteCheckin) {
             await window.firebaseDeleteCheckin(slotId);
           }
@@ -2564,7 +2649,7 @@
         'Delete all check-in photos across the entire trip?',
         async () => {
           checkinData = {};
-          saveCheckinStorage();
+          await saveCheckinStorage();
           if (window.firebaseClearAllCheckins) {
             await window.firebaseClearAllCheckins();
           }
@@ -2593,7 +2678,9 @@
 
       const rawString = JSON.stringify(checkinData);
       const kb = Math.round(new Blob([rawString]).size / 1024);
-      if (storageStat) storageStat.textContent = kb + ' KB';
+      if (storageStat) {
+        storageStat.textContent = kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb + ' KB';
+      }
 
       if (count === 0) {
         if (albumGrid) albumGrid.innerHTML = '';
@@ -3033,15 +3120,15 @@
       }, 2400);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       loadScheduleStorage();
-      loadCheckinStorage();
+      await loadCheckinStorage();
       loadDiningPhotoPositions();
       loadDiningSpots();
-      loadDiningPhotos();
+      await loadDiningPhotos();
       loadShowPhotoPositions();
       loadShowSpots();
-      loadShowPhotos();
+      await loadShowPhotos();
       renderItinerary();
       renderAlbumView();
       updateCheckinProgress();
@@ -3088,7 +3175,7 @@
       window.setCloudStatus('Offline Mode', 'text-slate-400');
     }
 
-    function mergeAndApplyCloudCheckins() {
+    async function mergeAndApplyCloudCheckins() {
       if (isSyncingCheckinUpload) return;
 
       const merged = {};
@@ -3141,7 +3228,7 @@
 
       if (JSON.stringify(checkinData) !== JSON.stringify(merged)) {
         checkinData = merged;
-        saveCheckinStorage();
+        await saveCheckinStorage();
       }
     }
 
@@ -3160,7 +3247,7 @@
         console.warn("Dining cards sync notice:", error);
       });
 
-      onSnapshot(doc(db, "trip", "dining_photos"), (docSnap) => {
+      onSnapshot(doc(db, "trip", "dining_photos"), async (docSnap) => {
         if (docSnap.exists()) {
           const cloudDining = docSnap.data();
           let changed = false;
@@ -3177,7 +3264,7 @@
             }
           });
           if (changed) {
-            saveDiningPhotos();
+            await saveDiningPhotos();
           }
         }
       }, (error) => {
@@ -3234,7 +3321,7 @@
         console.warn("Show cards sync notice:", error);
       });
 
-      onSnapshot(doc(db, "trip", "show_photos"), (docSnap) => {
+      onSnapshot(doc(db, "trip", "show_photos"), async (docSnap) => {
         if (docSnap.exists()) {
           const cloudShows = docSnap.data();
           let changed = false;
@@ -3251,7 +3338,7 @@
             }
           });
           if (changed) {
-            saveShowPhotos();
+            await saveShowPhotos();
           }
         }
       }, (error) => {
@@ -3401,15 +3488,34 @@
 
     window.firebaseDeleteSinglePhoto = async function(photoId) {
       if (!db || !photoId) return;
+      isSyncingCheckinUpload = true;
       try {
         await deleteDoc(doc(db, "trip_photos", photoId));
+        // Also prune from legacy doc if it existed there
+        for (const slotId of Object.keys(legacyCloudCheckins)) {
+          if (legacyCloudCheckins[slotId] && Array.isArray(legacyCloudCheckins[slotId].photos)) {
+            const remaining = legacyCloudCheckins[slotId].photos.filter(p => p.id !== photoId);
+            if (remaining.length !== legacyCloudCheckins[slotId].photos.length) {
+              if (remaining.length === 0) {
+                await updateDoc(doc(db, "trip", "checkins"), { [slotId]: deleteField() });
+              } else {
+                await setDoc(doc(db, "trip", "checkins"), {
+                  [slotId]: { ...legacyCloudCheckins[slotId], photos: remaining }
+                }, { merge: true });
+              }
+            }
+          }
+        }
       } catch (err) {
         console.error("Firestore deleteSinglePhoto error:", err);
+      } finally {
+        isSyncingCheckinUpload = false;
       }
     };
 
     window.firebaseDeleteCheckin = async function(slotId) {
       if (!db) return;
+      isSyncingCheckinUpload = true;
       try {
         // Delete any individual photos belonging to this stop
         const snap = await getDocs(collection(db, "trip_photos"));
@@ -3427,11 +3533,14 @@
         });
       } catch (err) {
         console.error("Firestore deleteCheckin error:", err);
+      } finally {
+        isSyncingCheckinUpload = false;
       }
     };
 
     window.firebaseClearAllCheckins = async function() {
       if (!db) return;
+      isSyncingCheckinUpload = true;
       try {
         const snap = await getDocs(collection(db, "trip_photos"));
         const deletePromises = [];
@@ -3442,69 +3551,8 @@
         await setDoc(doc(db, "trip", "checkins"), {});
       } catch (err) {
         console.error("Firestore clearAllCheckins error:", err);
-      }
-    };
-
-    window.firebaseDeleteSinglePhoto = async function(slotId, photoId) {
-      if (!db) return;
-      isSyncingUpload = true;
-      try {
-        await deleteDoc(doc(db, "trip_photos", photoId));
-        // Also prune from legacy doc if it existed there
-        if (legacyCloudCheckins[slotId] && Array.isArray(legacyCloudCheckins[slotId].photos)) {
-          const remaining = legacyCloudCheckins[slotId].photos.filter(p => p.id !== photoId);
-          if (remaining.length === 0) {
-            await updateDoc(doc(db, "trip", "checkins"), { [slotId]: deleteField() });
-          } else {
-            await setDoc(doc(db, "trip", "checkins"), {
-              [slotId]: { ...legacyCloudCheckins[slotId], photos: remaining }
-            }, { merge: true });
-          }
-        }
-      } catch (err) {
-        console.error("Firestore deleteSinglePhoto error:", err);
       } finally {
-        isSyncingUpload = false;
-      }
-    };
-
-    window.firebaseDeleteCheckin = async function(slotId) {
-      if (!db) return;
-      isSyncingUpload = true;
-      try {
-        const snap = await getDocs(collection(db, "trip_photos"));
-        const deletes = [];
-        snap.forEach(d => {
-          if (d.data()?.slotId === slotId) {
-            deletes.push(deleteDoc(doc(db, "trip_photos", d.id)));
-          }
-        });
-        await Promise.all(deletes);
-        await updateDoc(doc(db, "trip", "checkins"), {
-          [slotId]: deleteField()
-        });
-      } catch (err) {
-        console.error("Firestore deleteCheckin error:", err);
-      } finally {
-        isSyncingUpload = false;
-      }
-    };
-
-    window.firebaseClearAllCheckins = async function() {
-      if (!db) return;
-      isSyncingUpload = true;
-      try {
-        const snap = await getDocs(collection(db, "trip_photos"));
-        const deletes = [];
-        snap.forEach(d => {
-          deletes.push(deleteDoc(doc(db, "trip_photos", d.id)));
-        });
-        await Promise.all(deletes);
-        await setDoc(doc(db, "trip", "checkins"), {});
-      } catch (err) {
-        console.error("Firestore clearAllCheckins error:", err);
-      } finally {
-        isSyncingUpload = false;
+        isSyncingCheckinUpload = false;
       }
     };
 
