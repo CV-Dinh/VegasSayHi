@@ -161,15 +161,25 @@
 
         <div class="text-right flex flex-col items-end">
           <div id="vegasClock" class="font-mono text-xs font-bold text-gold-400 tracking-wider">--:-- PST</div>
-          <div id="cloudSyncStatus" class="text-[10px] text-emerald-400 font-medium flex items-center justify-end gap-1 mt-0.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Cloud Sync</span>
+          <div class="flex items-center justify-end gap-2 mt-0.5">
+            <button onclick="openAuthorProfileModal()" id="headerAuthorBadge" class="text-[10px] text-slate-300 hover:text-gold-400 font-semibold flex items-center gap-1 bg-white/5 hover:bg-white/10 px-1.5 py-0.5 rounded-md border border-white/10 tap-effect transition-colors" title="Set Your Locket Display Name">
+              <i class="ph-bold ph-user-circle text-gold-400"></i>
+              <span id="headerAuthorName">Set Name</span>
+            </button>
+            <div id="cloudSyncStatus" class="text-[10px] text-emerald-400 font-medium flex items-center justify-end gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Cloud Sync</span>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-300">
-        <span class="flex items-center gap-1"><i class="ph-fill ph-airplane-takeoff text-sky-400"></i> DTW ➔ LAS</span>
+        <button onclick="openTripEssentialsModal()" class="flex items-center gap-1.5 px-2 py-0.5 -ml-2 rounded-lg bg-sky-500/10 border border-sky-400/25 text-sky-300 font-semibold tap-effect hover:bg-sky-500/20 transition-colors" title="View Flights, Clocks & Vegas Weather">
+          <i class="ph-fill ph-airplane-takeoff text-sky-400"></i>
+          <span>DTW ➔ LAS</span>
+          <i class="ph-bold ph-caret-down text-[10px] opacity-80"></i>
+        </button>
         <span class="flex items-center gap-1"><i class="ph-fill ph-microphone-stage text-purple-400"></i> Nov 28 Concert</span>
         <button onclick="switchTab('map')" class="flex items-center gap-1 text-gold-400 font-semibold tap-effect hover:underline">
           <i class="ph-bold ph-map-trifold"></i> <span>Map</span>
@@ -428,12 +438,229 @@
       </button>
     </nav>
 
+    <!-- ================= MODAL: TRIP ESSENTIALS (FLIGHTS, CLOCKS & 4-DAY VEGAS WEATHER) ================= -->
+    <div id="tripEssentialsModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeTripEssentialsModal(event)">
+      <div class="w-full max-w-md bg-dark-900 border-t sm:border border-white/15 rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-sky-500/15 border border-sky-400/30 flex items-center justify-center text-sky-400">
+              <i class="ph-fill ph-airplane-tilt text-base"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-white leading-tight">Trip Essentials</h3>
+              <p class="text-[11px] text-slate-400">Flights • Live Clocks • Vegas Weather</p>
+            </div>
+          </div>
+          <button onclick="closeTripEssentialsModal(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300 tap-effect">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+
+        <!-- Live Toledo vs Las Vegas Clocks -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="glass-card rounded-2xl p-3 border border-white/10 bg-dark-850/90">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+              <i class="ph-fill ph-house-line text-sky-400"></i> Toledo, OH (EST)
+            </div>
+            <div id="modalToledoClock" class="font-display font-extrabold text-lg text-white mt-0.5 tracking-tight">--:--:-- AM</div>
+            <div id="modalToledoDate" class="text-[10px] text-slate-400 font-mono mt-0.5">--</div>
+          </div>
+          <div class="glass-card rounded-2xl p-3 border border-gold-500/30 bg-gold-500/5">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-gold-400 flex items-center gap-1">
+              <i class="ph-fill ph-sparkle text-gold-400"></i> Las Vegas, NV (PST)
+            </div>
+            <div id="modalVegasClock" class="font-display font-extrabold text-lg text-gold-300 mt-0.5 tracking-tight">--:--:-- AM</div>
+            <div id="modalVegasDate" class="text-[10px] text-gold-400/80 font-mono mt-0.5">3 hrs behind Toledo</div>
+          </div>
+        </div>
+
+        <!-- Flight Schedule Details -->
+        <div class="space-y-2.5">
+          <div class="text-xs font-extrabold text-white flex items-center justify-between px-0.5">
+            <span class="flex items-center gap-1.5"><i class="ph-bold ph-ticket text-sky-400"></i> Frontier Flight Schedule</span>
+            <span class="text-[10px] text-slate-400 font-mono">Nov 27 – Dec 1</span>
+          </div>
+
+          <!-- Your Outbound Flight -->
+          <div class="glass-card rounded-2xl p-3 border border-sky-500/25 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 uppercase">Your Outbound • Fri Nov 27</span>
+              <span class="text-[10px] font-mono text-emerald-400 font-semibold">Non-Stop • 4h 58m</span>
+            </div>
+            <div class="flex items-center justify-between pt-0.5">
+              <div>
+                <div class="font-display font-extrabold text-base text-white">DTW</div>
+                <div class="text-xs font-mono font-bold text-sky-300">6:41 AM EST</div>
+                <div class="text-[10px] text-slate-400">Detroit Metro</div>
+              </div>
+              <div class="flex-1 px-3 flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">Gains 3 hrs</span>
+                <div class="w-full flex items-center gap-1 text-sky-400">
+                  <span class="h-px flex-1 bg-sky-500/40 border-dashed"></span>
+                  <i class="ph-fill ph-airplane text-sm"></i>
+                  <span class="h-px flex-1 bg-sky-500/40"></span>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="font-display font-extrabold text-base text-white">LAS</div>
+                <div class="text-xs font-mono font-bold text-gold-400">8:39 AM PST</div>
+                <div class="text-[10px] text-slate-400">Las Vegas (T3)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Your Return Connecting Flights: F9 1650 & F9 3178 -->
+          <div class="glass-card rounded-2xl p-3 border border-purple-500/25 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 uppercase">Your Return • Tue Dec 1</span>
+              <span class="text-[10px] font-mono text-slate-300 font-semibold">1 Stop (DFW) • 6h 47m</span>
+            </div>
+
+            <!-- Leg 1: F9 1650 -->
+            <div class="bg-dark-850/80 rounded-xl p-2.5 border border-white/5 space-y-1">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="font-mono font-bold text-purple-300">Leg 1 • Frontier F9 1650</span>
+                <span class="text-slate-400 font-mono">2h 40m</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-display font-extrabold text-sm text-white">LAS <span class="text-[10px] font-normal text-slate-400">(T3)</span></div>
+                  <div class="text-[11px] font-mono font-bold text-gold-400">12:55 AM PST</div>
+                </div>
+                <div class="flex-1 px-2 flex items-center justify-center text-purple-400">
+                  <span class="h-px flex-1 bg-purple-500/30"></span>
+                  <i class="ph-fill ph-airplane text-xs mx-1"></i>
+                  <span class="h-px flex-1 bg-purple-500/30"></span>
+                </div>
+                <div class="text-right">
+                  <div class="font-display font-extrabold text-sm text-white">DFW</div>
+                  <div class="text-[11px] font-mono font-bold text-sky-300">5:35 AM CST</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Layover Banner -->
+            <div class="flex items-center justify-center gap-1.5 text-[10px] text-amber-300 font-mono bg-amber-500/10 border border-amber-500/20 rounded-lg py-1">
+              <i class="ph-bold ph-clock-countdown"></i>
+              <span>1h 24m Layover in Dallas (DFW)</span>
+            </div>
+
+            <!-- Leg 2: F9 3178 -->
+            <div class="bg-dark-850/80 rounded-xl p-2.5 border border-white/5 space-y-1">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="font-mono font-bold text-purple-300">Leg 2 • Frontier F9 3178</span>
+                <span class="text-slate-400 font-mono">2h 43m</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-display font-extrabold text-sm text-white">DFW</div>
+                  <div class="text-[11px] font-mono font-bold text-sky-300">6:59 AM CST</div>
+                </div>
+                <div class="flex-1 px-2 flex items-center justify-center text-purple-400">
+                  <span class="h-px flex-1 bg-purple-500/30"></span>
+                  <i class="ph-fill ph-airplane text-xs mx-1"></i>
+                  <span class="h-px flex-1 bg-purple-500/30"></span>
+                </div>
+                <div class="text-right">
+                  <div class="font-display font-extrabold text-sm text-white">DTW</div>
+                  <div class="text-[11px] font-mono font-bold text-emerald-400">10:42 AM EST</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Girlfriend's Flights: F9 1184 & F9 1183 -->
+          <div class="glass-card rounded-2xl p-3 border border-pink-500/30 space-y-2.5 bg-pink-500/[0.03]">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-500/15 text-pink-300 uppercase flex items-center gap-1">
+                Los Angeles Flights • LAX ⇄ LAS
+              </span>
+              <span class="text-[10px] font-mono text-pink-300 font-semibold">Non-Stop</span>
+            </div>
+
+            <!-- Girlfriend Arrival: F9 1184 -->
+            <div class="bg-dark-850/80 rounded-xl p-2.5 border border-white/5 space-y-1">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="font-mono font-bold text-pink-300">Arrival • Frontier F9 1184</span>
+                <span class="text-slate-400 font-mono">Fri Nov 27 • 1h 15m</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-display font-extrabold text-sm text-white">LAX <span class="text-[10px] font-normal text-slate-400">(T1)</span></div>
+                  <div class="text-[11px] font-mono font-bold text-sky-300">8:23 AM PST</div>
+                </div>
+                <div class="flex-1 px-2 flex items-center justify-center text-pink-400">
+                  <span class="h-px flex-1 bg-pink-500/30"></span>
+                  <i class="ph-fill ph-airplane text-xs mx-1"></i>
+                  <span class="h-px flex-1 bg-pink-500/30"></span>
+                </div>
+                <div class="text-right">
+                  <div class="font-display font-extrabold text-sm text-white">LAS <span class="text-[10px] font-normal text-slate-400">(T3)</span></div>
+                  <div class="text-[11px] font-mono font-bold text-gold-400">9:38 AM PST</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Girlfriend Return: F9 1183 -->
+            <div class="bg-dark-850/80 rounded-xl p-2.5 border border-white/5 space-y-1">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="font-mono font-bold text-pink-300">Return • Frontier F9 1183</span>
+                <span class="text-slate-400 font-mono">Tue Dec 1 • 1h 21m</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-display font-extrabold text-sm text-white">LAS <span class="text-[10px] font-normal text-slate-400">(T3)</span></div>
+                  <div class="text-[11px] font-mono font-bold text-gold-400">9:59 AM PST</div>
+                </div>
+                <div class="flex-1 px-2 flex items-center justify-center text-pink-400">
+                  <span class="h-px flex-1 bg-pink-500/30"></span>
+                  <i class="ph-fill ph-airplane text-xs mx-1"></i>
+                  <span class="h-px flex-1 bg-pink-500/30"></span>
+                </div>
+                <div class="text-right">
+                  <div class="font-display font-extrabold text-sm text-white">LAX <span class="text-[10px] font-normal text-slate-400">(T1)</span></div>
+                  <div class="text-[11px] font-mono font-bold text-emerald-400">11:20 AM PST</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4-Day Las Vegas Weather Forecast -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between px-0.5">
+            <span class="text-xs font-extrabold text-white flex items-center gap-1.5">
+              <i class="ph-fill ph-sun text-amber-400"></i> Las Vegas 4-Day Forecast
+            </span>
+            <span id="vegasWeatherSourceLabel" class="text-[10px] text-slate-400 font-mono">Nov 27 – Nov 30</span>
+          </div>
+
+          <div id="vegasWeatherGrid" class="grid grid-cols-4 gap-2">
+            <!-- Populated dynamically with live/seasonal Vegas forecast -->
+          </div>
+          <p class="text-[10px] text-slate-400 px-0.5 flex items-center gap-1">
+            <i class="ph-bold ph-coat-hanger text-gold-400"></i> Crisp desert evenings (~43°F)—bring a light jacket for night walks!
+          </p>
+        </div>
+
+        <button onclick="closeTripEssentialsModal(null, true)" class="w-full py-2.5 rounded-xl bg-dark-800 border border-white/10 text-slate-200 font-bold text-xs tap-effect">
+          Done
+        </button>
+      </div>
+    </div>
+
     <!-- ================= FULLSCREEN PHOTO MODAL PREVIEW ================= -->
     <div id="photoLightboxModal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4" onclick="closeLightbox(event)">
       <div class="flex items-center justify-between text-white pt-2">
         <div>
           <h4 id="lightboxTitle" class="text-sm font-bold">Check-In Photo</h4>
-          <p id="lightboxTime" class="text-[11px] text-gold-400 font-mono">Timestamp</p>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span id="lightboxAuthorBadge" class="hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold-500/20 border border-gold-400/35 text-gold-300 text-[10px] font-bold">
+              <i class="ph-fill ph-user-circle"></i>
+              <span id="lightboxAuthorName">You</span>
+            </span>
+            <p id="lightboxTime" class="text-[11px] text-slate-300 font-mono">Timestamp</p>
+          </div>
         </div>
         <div class="flex items-center gap-2">
           <span id="lightboxCounter" class="hidden text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-1 rounded-full">1 / 1</span>
@@ -446,10 +673,58 @@
       <div id="lightboxSwipeArea" class="flex-1 flex flex-col items-center justify-center py-2 touch-none select-none overflow-hidden">
         <div id="lightboxCardFrame" class="h-full max-h-[76vh] aspect-[9/16] rounded-2xl overflow-hidden bg-dark-900 border border-white/15 shadow-2xl relative flex items-center justify-center will-change-transform">
           <img id="lightboxImage" src="" alt="Full view" class="w-full h-full object-cover">
+          <div id="lightboxFrameAuthorPill" class="hidden absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
+            <span id="lightboxFrameAuthorInitial" class="w-4 h-4 rounded-full bg-gradient-to-tr from-gold-600 to-gold-400 text-dark-950 text-[10px] font-extrabold flex items-center justify-center">?</span>
+            <span id="lightboxFrameAuthorText">Friend</span>
+          </div>
         </div>
         <p id="lightboxSwipeHint" class="hidden text-[10px] text-slate-400 mt-2.5 flex items-center gap-1 font-medium">
           <i class="ph-bold ph-arrows-vertical text-gold-400"></i> Swipe up or down to browse
         </p>
+      </div>
+    </div>
+
+    <!-- ================= MODAL: SET LOCKET AUTHOR NAME ================= -->
+    <div id="authorProfileModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-3 sm:p-4" onclick="closeAuthorProfileModal(event)">
+      <div class="w-full max-w-sm bg-dark-850 border border-white/15 rounded-3xl p-5 space-y-4 shadow-2xl" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl story-ring-gradient p-[2px] flex items-center justify-center">
+              <div class="w-full h-full bg-dark-900 rounded-2xl flex items-center justify-center text-gold-400">
+                <i class="ph-fill ph-user-circle text-lg"></i>
+              </div>
+            </div>
+            <div>
+              <h4 class="text-sm font-extrabold text-white">Who's Posting?</h4>
+              <p class="text-[11px] text-slate-400">Shown in the corner of your stories</p>
+            </div>
+          </div>
+          <button onclick="closeAuthorProfileModal(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300 tap-effect">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+
+        <form onsubmit="handleSaveAuthorProfile(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1.5">Your Name on This Phone</label>
+            <input type="text" id="authorNameInput" maxlength="18" placeholder="e.g. Vinh, Babe, Alex..." required class="w-full bg-dark-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-white font-bold text-sm focus:border-gold-500 outline-none">
+          </div>
+
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="selectQuickAuthorName('Vinh')" class="px-2.5 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 border border-white/10 text-slate-300 font-semibold text-[11px] tap-effect">Vinh</button>
+            <button type="button" onclick="selectQuickAuthorName('Babe ❤️')" class="px-2.5 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 border border-white/10 text-slate-300 font-semibold text-[11px] tap-effect">Babe ❤️</button>
+            <button type="button" onclick="selectQuickAuthorName('Me')" class="px-2.5 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 border border-white/10 text-slate-300 font-semibold text-[11px] tap-effect">Me</button>
+          </div>
+
+          <div class="pt-1 flex items-center gap-2">
+            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 text-dark-950 font-bold tap-effect shadow-md shadow-gold-500/20 text-xs">
+              Save Name
+            </button>
+            <button type="button" onclick="closeAuthorProfileModal(null, true)" class="px-4 py-2.5 rounded-xl bg-dark-800 border border-white/10 text-slate-300 font-semibold tap-effect text-xs">
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -978,27 +1253,152 @@
     };
 
     function updateVegasClock() {
+      const now = new Date();
       const clockEl = document.getElementById('vegasClock');
-      if (!clockEl) return;
-      const options = {
-        timeZone: 'America/Los_Angeles',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      };
       try {
-        const timeStr = new Intl.DateTimeFormat('en-US', options).format(new Date());
-        clockEl.textContent = `${timeStr} PST`;
+        const headerTimeStr = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/Los_Angeles',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        }).format(now);
+        if (clockEl) clockEl.textContent = `${headerTimeStr} PST`;
       } catch (err) {
-        clockEl.textContent = 'PST';
+        if (clockEl) clockEl.textContent = 'PST';
+      }
+
+      // Update live Toledo (EST) & Las Vegas (PST) clocks inside Trip Essentials modal
+      const toledoClockEl = document.getElementById('modalToledoClock');
+      const toledoDateEl = document.getElementById('modalToledoDate');
+      const vegasModalClockEl = document.getElementById('modalVegasClock');
+      if (toledoClockEl && vegasModalClockEl) {
+        try {
+          toledoClockEl.textContent = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Detroit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          }).format(now);
+
+          if (toledoDateEl) {
+            toledoDateEl.textContent = new Intl.DateTimeFormat('en-US', {
+              timeZone: 'America/Detroit',
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric'
+            }).format(now);
+          }
+
+          vegasModalClockEl.textContent = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Los_Angeles',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          }).format(now);
+        } catch (e) {}
       }
     }
     setInterval(updateVegasClock, 1000);
     updateVegasClock();
 
+    // ================= TRIP ESSENTIALS MODAL & 4-DAY VEGAS WEATHER =================
+    const defaultVegasWeather = [
+      { dayLabel: 'Fri', dateLabel: 'Nov 27', icon: 'ph-sun', color: 'text-amber-400', high: 65, low: 43, desc: 'Sunny' },
+      { dayLabel: 'Sat', dateLabel: 'Nov 28', icon: 'ph-sun', color: 'text-amber-400', high: 66, low: 44, desc: 'Clear' },
+      { dayLabel: 'Sun', dateLabel: 'Nov 29', icon: 'ph-cloud-sun', color: 'text-sky-300', high: 63, low: 42, desc: 'Breezy' },
+      { dayLabel: 'Mon', dateLabel: 'Nov 30', icon: 'ph-sun', color: 'text-amber-400', high: 64, low: 43, desc: 'Sunny' }
+    ];
+    let vegasForecastDays = [...defaultVegasWeather];
+    let hasFetchedLiveWeather = false;
+
+    function mapWmoWeatherCode(code) {
+      if (code === 0 || code === 1) return { icon: 'ph-sun', color: 'text-amber-400', desc: 'Sunny' };
+      if (code === 2 || code === 3) return { icon: 'ph-cloud-sun', color: 'text-sky-300', desc: 'Partly Cloudy' };
+      if (code >= 45 && code <= 48) return { icon: 'ph-cloud-fog', color: 'text-slate-300', desc: 'Hazy' };
+      if (code >= 51 && code <= 67) return { icon: 'ph-cloud-rain', color: 'text-sky-400', desc: 'Showers' };
+      if (code >= 80 && code <= 99) return { icon: 'ph-cloud-lightning', color: 'text-purple-400', desc: 'Storms' };
+      return { icon: 'ph-sun', color: 'text-amber-400', desc: 'Clear' };
+    }
+
+    function renderVegasWeatherGrid() {
+      const grid = document.getElementById('vegasWeatherGrid');
+      if (!grid) return;
+      grid.innerHTML = vegasForecastDays.map(d => `
+        <div class="glass-card rounded-2xl p-2.5 text-center border border-white/10 bg-dark-850/80 flex flex-col items-center justify-between space-y-1">
+          <div>
+            <div class="text-[11px] font-extrabold text-white">${d.dayLabel}</div>
+            <div class="text-[9px] font-mono text-slate-400">${d.dateLabel}</div>
+          </div>
+          <i class="ph-fill ${d.icon} ${d.color} text-2xl my-1"></i>
+          <div>
+            <div class="text-xs font-extrabold text-white font-mono">${d.high}° <span class="text-slate-400 font-normal">/ ${d.low}°</span></div>
+            <div class="text-[9px] text-slate-300 font-medium mt-0.5">${d.desc}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function fetchLiveVegasWeather() {
+      if (hasFetchedLiveWeather) return;
+      try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=36.1147&longitude=-115.1728&daily=weathercode,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=America%2FLos_Angeles&forecast_days=14');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.daily && Array.isArray(data.daily.time)) {
+          const targetDates = [
+            { suffix: '-11-27', dayLabel: 'Fri', dateLabel: 'Nov 27' },
+            { suffix: '-11-28', dayLabel: 'Sat', dateLabel: 'Nov 28' },
+            { suffix: '-11-29', dayLabel: 'Sun', dateLabel: 'Nov 29' },
+            { suffix: '-11-30', dayLabel: 'Mon', dateLabel: 'Nov 30' }
+          ];
+          const matched = [];
+          targetDates.forEach(t => {
+            const idx = data.daily.time.findIndex(dt => dt.endsWith(t.suffix));
+            if (idx !== -1) {
+              const info = mapWmoWeatherCode(data.daily.weathercode[idx]);
+              matched.push({
+                dayLabel: t.dayLabel,
+                dateLabel: t.dateLabel,
+                icon: info.icon,
+                color: info.color,
+                high: Math.round(data.daily.temperature_2m_max[idx]),
+                low: Math.round(data.daily.temperature_2m_min[idx]),
+                desc: info.desc
+              });
+            }
+          });
+          if (matched.length === 4) {
+            vegasForecastDays = matched;
+            hasFetchedLiveWeather = true;
+            const srcLabel = document.getElementById('vegasWeatherSourceLabel');
+            if (srcLabel) srcLabel.textContent = 'Live Forecast';
+            renderVegasWeatherGrid();
+          }
+        }
+      } catch (err) {
+        // Keep clean seasonal averages fallback
+      }
+    }
+
+    function openTripEssentialsModal() {
+      renderVegasWeatherGrid();
+      updateVegasClock();
+      document.getElementById('tripEssentialsModal').classList.remove('hidden');
+      fetchLiveVegasWeather();
+    }
+
+    function closeTripEssentialsModal(event, force = false) {
+      if (force || (event && event.target.id === 'tripEssentialsModal')) {
+        document.getElementById('tripEssentialsModal').classList.add('hidden');
+      }
+    }
+
     // State
     let checkinData = {};
     let activeSlotForPhoto = null;
+    let pendingStorySlotAfterName = null;
     let currentSelectedDay = 'fri';
     let activeLightboxSlotId = null;
     let activeLightboxPhotoIdx = 0;
@@ -1006,6 +1406,98 @@
     let isAlbumLightbox = false;
     let activeAlbumFlattenedPhotos = [];
     let activeAlbumLightboxIdx = 0;
+
+    // Locket-style Device Author Identity & Per-Device Unread Album Tracking
+    let deviceAuthorName = '';
+    let lastSeenAlbumPhotoTime = 0;
+
+    function loadDeviceAuthorProfile() {
+      try {
+        deviceAuthorName = (localStorage.getItem('vegas_device_author_v1') || '').trim();
+        lastSeenAlbumPhotoTime = Number(localStorage.getItem('vegas_album_last_seen_v1') || '0');
+      } catch (e) {
+        deviceAuthorName = '';
+        lastSeenAlbumPhotoTime = 0;
+      }
+      updateHeaderAuthorUI();
+    }
+
+    function updateHeaderAuthorUI() {
+      const label = document.getElementById('headerAuthorName');
+      if (label) {
+        label.textContent = deviceAuthorName || 'Set Name';
+      }
+    }
+
+    function openAuthorProfileModal(pendingSlotId = null) {
+      pendingStorySlotAfterName = pendingSlotId;
+      const modal = document.getElementById('authorProfileModal');
+      const input = document.getElementById('authorNameInput');
+      if (input) {
+        input.value = deviceAuthorName || '';
+      }
+      if (modal) {
+        modal.classList.remove('hidden');
+        setTimeout(() => input && input.focus(), 80);
+      }
+    }
+
+    function closeAuthorProfileModal(event, force = false) {
+      if (force || (event && event.target.id === 'authorProfileModal')) {
+        document.getElementById('authorProfileModal').classList.add('hidden');
+        pendingStorySlotAfterName = null;
+      }
+    }
+
+    function selectQuickAuthorName(name) {
+      const input = document.getElementById('authorNameInput');
+      if (input) input.value = name;
+    }
+
+    function handleSaveAuthorProfile(e) {
+      e.preventDefault();
+      const input = document.getElementById('authorNameInput');
+      const cleaned = (input ? input.value : '').trim();
+      if (!cleaned) return;
+      deviceAuthorName = cleaned;
+      try {
+        localStorage.setItem('vegas_device_author_v1', deviceAuthorName);
+      } catch (err) {}
+      updateHeaderAuthorUI();
+      showToast(`Posting as ${deviceAuthorName} ✨`);
+
+      const slotToResume = pendingStorySlotAfterName;
+      closeAuthorProfileModal(null, true);
+      if (slotToResume) {
+        openPhotoSourceSheetForSlot(slotToResume);
+      }
+    }
+
+    function getAuthorInitial(name) {
+      if (!name) return '?';
+      const trimmed = name.trim();
+      return Array.from(trimmed)[0].toUpperCase();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function markAlbumAsSeen() {
+      const flattened = getFlattenedAlbumPhotos();
+      const latestTime = flattened.reduce((max, p) => Math.max(max, Number(p.rawTime) || 0), Date.now());
+      lastSeenAlbumPhotoTime = latestTime;
+      try {
+        localStorage.setItem('vegas_album_last_seen_v1', String(lastSeenAlbumPhotoTime));
+      } catch (e) {}
+      const albumBadge = document.getElementById('albumBadge');
+      if (albumBadge) albumBadge.classList.add('hidden');
+    }
 
     // Default Dining Spots (Phở Đà Lạt & Molly Tea moved to Fri)
     const defaultDiningSpots = [
@@ -1434,7 +1926,7 @@
         category: 'travel',
         tag: 'Flight',
         title: 'Fly DTW ➔ LAS ✈️',
-        desc: 'Non-stop flight to Vegas (gains 3 hrs crossing time zones).',
+        desc: 'Non-stop flight to Vegas (gains 3 hrs crossing time zones). Girlfriend (F9 1184) lands at 9:38 AM PST.',
         mapStop: null,
         address: ''
       },
@@ -1700,11 +2192,11 @@
         id: 'mon-flight',
         day: 'mon',
         sortTime: '23:59',
-        timeLabel: '12:59 AM (Tue)',
+        timeLabel: '12:55 AM (Tue)',
         category: 'travel',
         tag: 'Flight Home',
-        title: 'Fly LAS ➔ DTW ✈️',
-        desc: 'Head to airport by 10:45 PM. Lands in Detroit 1:23 PM Tuesday.',
+        title: 'Fly LAS ➔ DFW ➔ DTW (F9 1650 / F9 3178) ✈️',
+        desc: 'Head to LAS Terminal 3 by 10:45 PM.\n• F9 1650: LAS 12:55 AM PST ➔ DFW 5:35 AM CST\n• F9 3178: DFW 6:59 AM CST ➔ DTW 10:42 AM EST\n• Girlfriend (F9 1183): LAS 9:59 AM ➔ LAX 11:20 AM PST',
         mapStop: 'lasairport',
         address: '5757 Wayne Newton Blvd, Las Vegas, NV 89119'
       }
@@ -1717,6 +2209,7 @@
         const stored = localStorage.getItem('vegas_schedule_cards_v1');
         if (stored) {
           scheduleCards = JSON.parse(stored);
+          let needsSave = false;
           // Migrate old Chinatown card to Friday if still on Saturday
           const oldSatChinaIdx = scheduleCards.findIndex(c => c.id === 'sat-chinatown' && c.day === 'sat');
           if (oldSatChinaIdx !== -1) {
@@ -1725,8 +2218,17 @@
             scheduleCards[oldSatChinaIdx].tag = 'Chinatown';
             scheduleCards[oldSatChinaIdx].title = 'Chinatown: Phở Đà Lạt & Molly Tea';
             scheduleCards[oldSatChinaIdx].desc = 'Explore Chinatown after check-in! Beef phở at Phở Đà Lạt followed by fresh jasmine milk tea at Molly Tea.';
-            saveScheduleStorage();
+            needsSave = true;
           }
+          // Migrate old return flight card to Frontier F9 1650 & F9 3178 + Girlfriend F9 1183
+          const oldFlightIdx = scheduleCards.findIndex(c => c.id === 'mon-flight');
+          if (oldFlightIdx !== -1 && !scheduleCards[oldFlightIdx].title.includes('F9 1650')) {
+            scheduleCards[oldFlightIdx].timeLabel = '12:55 AM (Tue)';
+            scheduleCards[oldFlightIdx].title = 'Fly LAS ➔ DFW ➔ DTW (F9 1650 / F9 3178) ✈️';
+            scheduleCards[oldFlightIdx].desc = 'Head to LAS Terminal 3 by 10:45 PM.\n• F9 1650: LAS 12:55 AM PST ➔ DFW 5:35 AM CST\n• F9 3178: DFW 6:59 AM CST ➔ DTW 10:42 AM EST\n• Girlfriend (F9 1183): LAS 9:59 AM ➔ LAX 11:20 AM PST';
+            needsSave = true;
+          }
+          if (needsSave) saveScheduleStorage();
         } else {
           scheduleCards = JSON.parse(JSON.stringify(defaultSchedule));
           saveScheduleStorage();
@@ -1814,11 +2316,19 @@
     }
 
     function triggerCheckinSnap(slotId) {
+      if (!deviceAuthorName) {
+        openAuthorProfileModal(slotId);
+        return;
+      }
+      openPhotoSourceSheetForSlot(slotId);
+    }
+
+    function openPhotoSourceSheetForSlot(slotId) {
       activeSlotForPhoto = slotId;
       photoPickerTargetType = 'checkin';
       const modal = document.getElementById('photoSourceModal');
       const title = document.getElementById('photoSourceModalTitle');
-      if (title) title.textContent = 'Add Story';
+      if (title) title.textContent = `Add Story (${deviceAuthorName})`;
       if (modal) modal.classList.remove('hidden');
     }
 
@@ -2288,26 +2798,38 @@
 
         let checkinSlotHtml = '';
         if (photos.length > 0) {
-          const verticalStorySlides = photos.map((p, idx) => `
-            <div class="story-slide-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-850" onclick="openLightbox('${card.id}', ${idx})">
-              <img src="${p.dataUrl}" alt="Story ${idx + 1}" class="w-full h-full object-cover">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/35 flex flex-col justify-between p-2.5">
-                <div class="flex items-center justify-between">
-                  <span class="px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono">
-                    ${idx + 1}/${photos.length}
-                  </span>
-                  <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 text-white/90 hover:text-rose-400 border border-white/20 flex items-center justify-center text-[10px] shadow tap-effect" title="Delete">
-                    <i class="ph-bold ph-x"></i>
-                  </button>
-                </div>
-                <div>
-                  <p class="text-[9px] text-gold-300 font-mono font-bold truncate flex items-center gap-1">
-                    <i class="ph-bold ph-clock"></i> ${p.checkinTimestamp}
-                  </p>
+          const verticalStorySlides = photos.map((p, idx) => {
+            const authorLabel = p.author ? escapeHtml(p.author) : '';
+            const authorInitial = p.author ? escapeHtml(getAuthorInitial(p.author)) : '';
+            const locketAuthorPill = authorLabel ? `
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold shadow max-w-full mb-1">
+                <span class="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-gold-600 to-gold-400 text-dark-950 text-[8px] font-extrabold flex items-center justify-center flex-shrink-0">${authorInitial}</span>
+                <span class="truncate">${authorLabel}</span>
+              </div>
+            ` : '';
+
+            return `
+              <div class="story-slide-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-850" onclick="openLightbox('${card.id}', ${idx})">
+                <img src="${p.dataUrl}" alt="Story ${idx + 1}" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/35 flex flex-col justify-between p-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono">
+                      ${idx + 1}/${photos.length}
+                    </span>
+                    <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 text-white/90 hover:text-rose-400 border border-white/20 flex items-center justify-center text-[10px] shadow tap-effect" title="Delete">
+                      <i class="ph-bold ph-x"></i>
+                    </button>
+                  </div>
+                  <div class="flex flex-col items-start">
+                    ${locketAuthorPill}
+                    <p class="text-[9px] text-gold-300 font-mono font-bold truncate flex items-center gap-1">
+                      <i class="ph-bold ph-clock"></i> ${p.checkinTimestamp}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          `).join('');
+            `;
+          }).join('');
 
           const addStorySlideHtml = `
             <div onclick="triggerCheckinSnap('${card.id}')" class="story-slide-item relative aspect-[9/15] rounded-2xl border-2 border-dashed border-gold-400/40 bg-dark-800/60 hover:bg-dark-800 hover:border-gold-400/80 flex flex-col items-center justify-center gap-2 cursor-pointer tap-effect transition-all group">
@@ -2525,6 +3047,7 @@
             checkinData[activeSlotForPhoto].photos.push({
               id: 'p-' + Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6),
               dataUrl: compressedData,
+              author: deviceAuthorName || 'Vegas Guest',
               checkinTimestamp: formattedTimestamp,
               rawTime: Date.now() + i
             });
@@ -2540,6 +3063,9 @@
 
         checkinData[activeSlotForPhoto].title = title;
         checkinData[activeSlotForPhoto].scheduledTime = scheduledTime;
+        // Mark our own newly posted photos as seen on this device
+        lastSeenAlbumPhotoTime = Date.now() + files.length + 5;
+        try { localStorage.setItem('vegas_album_last_seen_v1', String(lastSeenAlbumPhotoTime)); } catch (err) {}
         await saveCheckinStorage();
 
         if (window.firebaseSyncCheckin) {
@@ -2614,6 +3140,7 @@
                 photoIndex: pIdx,
                 photoId: photo.id,
                 dataUrl: photo.dataUrl,
+                author: photo.author || '',
                 title: entry.title || 'Vegas',
                 scheduledTime: entry.scheduledTime || '',
                 checkinTimestamp: photo.checkinTimestamp || 'Checked In',
@@ -2690,22 +3217,49 @@
       }
 
       if (emptyState) emptyState.classList.add('hidden');
-      if (albumBadge) albumBadge.classList.remove('hidden');
+
+      // Show unread badge only if there are photos newer than this device's last Album visit
+      const albumViewEl = document.getElementById('view-album');
+      const isAlbumCurrentlyOpen = albumViewEl && !albumViewEl.classList.contains('hidden');
+      if (isAlbumCurrentlyOpen) {
+        markAlbumAsSeen();
+      } else {
+        const hasUnread = flattenedPhotos.some(p => (Number(p.rawTime) || 0) > lastSeenAlbumPhotoTime);
+        if (albumBadge) {
+          if (hasUnread) {
+            albumBadge.classList.remove('hidden');
+          } else {
+            albumBadge.classList.add('hidden');
+          }
+        }
+      }
 
       if (albumGrid) {
-        albumGrid.innerHTML = flattenedPhotos.map((item, albumIdx) => `
-          <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-1.5">
-            <div class="relative aspect-[9/16] rounded-xl overflow-hidden group cursor-pointer tap-effect bg-dark-900" onclick="openAlbumLightbox(${albumIdx})">
-              <img src="${item.dataUrl}" class="w-full h-full object-cover" alt="${item.title}">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
-                <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
+        albumGrid.innerHTML = flattenedPhotos.map((item, albumIdx) => {
+          const authorLabel = item.author ? escapeHtml(item.author) : '';
+          const authorInitial = item.author ? escapeHtml(getAuthorInitial(item.author)) : '';
+          const locketCornerPill = authorLabel ? `
+            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold shadow max-w-full mb-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-gold-600 to-gold-400 text-dark-950 text-[8px] font-extrabold flex items-center justify-center flex-shrink-0">${authorInitial}</span>
+              <span class="truncate">${authorLabel}</span>
+            </div>
+          ` : '';
+
+          return `
+            <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-1.5">
+              <div class="relative aspect-[9/16] rounded-xl overflow-hidden group cursor-pointer tap-effect bg-dark-900" onclick="openAlbumLightbox(${albumIdx})">
+                <img src="${item.dataUrl}" class="w-full h-full object-cover" alt="${item.title}">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex flex-col justify-end items-start p-2">
+                  ${locketCornerPill}
+                  <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
+                </div>
+              </div>
+              <div class="px-1">
+                <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
               </div>
             </div>
-            <div class="px-1">
-              <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
     }
 
@@ -2753,6 +3307,29 @@
       const time = document.getElementById('lightboxTime');
       const counter = document.getElementById('lightboxCounter');
       const swipeHint = document.getElementById('lightboxSwipeHint');
+      const headerAuthorBadge = document.getElementById('lightboxAuthorBadge');
+      const headerAuthorName = document.getElementById('lightboxAuthorName');
+      const frameAuthorPill = document.getElementById('lightboxFrameAuthorPill');
+      const frameAuthorInitial = document.getElementById('lightboxFrameAuthorInitial');
+      const frameAuthorText = document.getElementById('lightboxFrameAuthorText');
+
+      function applyLightboxAuthor(authorStr) {
+        const cleanAuthor = (authorStr || '').trim();
+        if (cleanAuthor) {
+          if (headerAuthorBadge && headerAuthorName) {
+            headerAuthorName.textContent = cleanAuthor;
+            headerAuthorBadge.classList.remove('hidden');
+          }
+          if (frameAuthorPill && frameAuthorInitial && frameAuthorText) {
+            frameAuthorInitial.textContent = getAuthorInitial(cleanAuthor);
+            frameAuthorText.textContent = cleanAuthor;
+            frameAuthorPill.classList.remove('hidden');
+          }
+        } else {
+          if (headerAuthorBadge) headerAuthorBadge.classList.add('hidden');
+          if (frameAuthorPill) frameAuthorPill.classList.add('hidden');
+        }
+      }
 
       if (isAlbumLightbox) {
         const item = activeAlbumFlattenedPhotos[activeAlbumLightboxIdx];
@@ -2773,6 +3350,7 @@
         }
         title.textContent = item.title;
         time.textContent = item.checkinTimestamp;
+        applyLightboxAuthor(item.author);
         img.src = item.dataUrl;
         return;
       }
@@ -2798,6 +3376,7 @@
 
       title.textContent = checkin.title;
       time.textContent = photo.checkinTimestamp;
+      applyLightboxAuthor(photo.author);
       img.src = photo.dataUrl;
     }
 
@@ -2840,7 +3419,7 @@
       frame.style.transform = '';
       frame.style.opacity = '';
       frame.classList.remove('animate-slide-from-bottom', 'animate-slide-from-top');
-      void frame.offsetWidth; // Force reflow so repeated swipes re-trigger cleanly
+      void frame.offsetWidth;
       frame.classList.add(direction === 'up' ? 'animate-slide-from-bottom' : 'animate-slide-from-top');
     }
 
@@ -2883,18 +3462,14 @@
         const deltaY = touchStartY - e.changedTouches[0].clientY;
         const deltaX = Math.abs(touchStartX - e.changedTouches[0].clientX);
 
-        // Reset inline drag transforms
         frame.style.transition = 'transform 0.22s ease, opacity 0.22s ease';
         frame.style.transform = '';
         frame.style.opacity = '';
 
-        // Require clear vertical swipe (> 45px)
         if (isDraggingVertical && Math.abs(deltaY) > 45 && Math.abs(deltaY) > deltaX) {
           if (deltaY > 0) {
-            // Swiped Up -> Slide next photo in from bottom
             nextLightboxPhoto();
           } else {
-            // Swiped Down -> Slide previous photo in from top
             prevLightboxPhoto();
           }
         }
@@ -3078,6 +3653,8 @@
 
       if (tabName === 'map') {
         initLeafletMap();
+      } else if (tabName === 'album') {
+        markAlbumAsSeen();
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3121,6 +3698,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+      loadDeviceAuthorProfile();
       loadScheduleStorage();
       await loadCheckinStorage();
       loadDiningPhotoPositions();
@@ -3215,6 +3793,7 @@
           merged[photoDoc.slotId].photos.push({
             id: photoDoc.id,
             dataUrl: photoDoc.dataUrl,
+            author: photoDoc.author || '',
             checkinTimestamp: photoDoc.checkinTimestamp || 'Checked In',
             rawTime: photoDoc.rawTime || 0
           });
@@ -3473,6 +4052,7 @@
               title: checkinObj.title || 'Vegas Activity',
               scheduledTime: checkinObj.scheduledTime || '',
               dataUrl: photo.dataUrl,
+              author: photo.author || '',
               checkinTimestamp: photo.checkinTimestamp || 'Checked In',
               rawTime: photo.rawTime || Date.now()
             });
