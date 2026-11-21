@@ -426,17 +426,22 @@
         </button>
       </div>
 
-      <div class="flex-1 flex items-center justify-center py-4">
-        <img id="lightboxImage" src="" alt="Full view" class="max-w-full max-h-[70vh] rounded-2xl object-contain shadow-2xl border border-white/10">
+      <div id="lightboxSwipeArea" class="flex-1 flex flex-col items-center justify-center py-2 touch-none select-none overflow-hidden">
+        <div class="h-full max-h-[66vh] aspect-[9/16] rounded-2xl overflow-hidden bg-dark-900 border border-white/15 shadow-2xl relative flex items-center justify-center">
+          <img id="lightboxImage" src="" alt="Full view" class="w-full h-full object-cover transition-transform duration-200">
+        </div>
+        <p id="lightboxSwipeHint" class="hidden text-[10px] text-slate-400 mt-2 flex items-center gap-1 font-medium">
+          <i class="ph-bold ph-arrows-vertical text-gold-400"></i> Swipe up for next • Swipe down for previous
+        </p>
       </div>
 
       <div id="lightboxNavControls" class="flex items-center justify-between px-2 pb-2 text-white">
         <button id="lightboxPrevBtn" onclick="prevLightboxPhoto(event)" class="px-3 py-1.5 rounded-xl bg-dark-750 border border-white/10 text-xs font-bold tap-effect flex items-center gap-1">
-          <i class="ph-bold ph-caret-left"></i> Prev
+          <i class="ph-bold ph-caret-up"></i> Prev
         </button>
         <span id="lightboxCounter" class="text-xs font-mono text-slate-300">1 / 1</span>
         <button id="lightboxNextBtn" onclick="nextLightboxPhoto(event)" class="px-3 py-1.5 rounded-xl bg-dark-750 border border-white/10 text-xs font-bold tap-effect flex items-center gap-1">
-          Next <i class="ph-bold ph-caret-right"></i>
+          Next <i class="ph-bold ph-caret-down"></i>
         </button>
       </div>
 
@@ -934,6 +939,9 @@
     let activeLightboxSlotId = null;
     let activeLightboxPhotoIdx = 0;
     let isDiningLightbox = false;
+    let isAlbumLightbox = false;
+    let activeAlbumFlattenedPhotos = [];
+    let activeAlbumLightboxIdx = 0;
 
     // Default Dining Spots (Phở Đà Lạt & Molly Tea moved to Fri)
     const defaultDiningSpots = [
@@ -977,9 +985,37 @@
 
     let diningSpots = [];
     let diningPhotos = {};
+    let diningPhotoPositions = {};
     let activeDiningSlot = null;
     let photoPickerTargetType = 'checkin';
     let pendingModalDiningPhoto = null;
+
+    function loadDiningPhotoPositions() {
+      try {
+        const stored = localStorage.getItem('vegas_dining_positions_v1');
+        diningPhotoPositions = stored ? JSON.parse(stored) : {};
+      } catch (e) {
+        diningPhotoPositions = {};
+      }
+    }
+
+    function saveDiningPhotoPositions() {
+      try {
+        localStorage.setItem('vegas_dining_positions_v1', JSON.stringify(diningPhotoPositions));
+      } catch (e) {}
+      renderDiningCards();
+    }
+
+    async function adjustDiningPhotoPosition(spotId, delta, event) {
+      if (event) event.stopPropagation();
+      const current = diningPhotoPositions[spotId] !== undefined ? diningPhotoPositions[spotId] : 50;
+      const next = Math.max(0, Math.min(100, current + delta));
+      diningPhotoPositions[spotId] = next;
+      saveDiningPhotoPositions();
+      if (window.syncDiningPositionToFirebase) {
+        await window.syncDiningPositionToFirebase(spotId, next);
+      }
+    }
 
     function loadDiningSpots() {
       try {
@@ -1032,12 +1068,21 @@
       container.innerHTML = diningSpots.map(spot => {
         const currentImg = diningPhotos[spot.id] || spot.defaultImage || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=700&q=80';
         const safeName = spot.name.replace(/'/g, "\\'");
+        const posY = diningPhotoPositions[spot.id] !== undefined ? diningPhotoPositions[spot.id] : 50;
 
         return `
           <div class="glass-card rounded-2xl overflow-hidden border-white/10" data-dining-id="${spot.id}">
             <div class="relative group">
-              <img id="img-${spot.id}" src="${currentImg}" onclick="previewDiningPhoto('${spot.id}', '${safeName}')" class="w-full h-36 object-cover cursor-pointer tap-effect" alt="${spot.name}">
+              <img id="img-${spot.id}" src="${currentImg}" style="object-position: center ${posY}%;" onclick="previewDiningPhoto('${spot.id}', '${safeName}')" class="w-full h-36 object-cover cursor-pointer tap-effect transition-all duration-150" alt="${spot.name}">
               <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none"></div>
+              <div class="absolute bottom-2 left-2 flex items-center gap-1 pointer-events-auto">
+                <button onclick="adjustDiningPhotoPosition('${spot.id}', -10, event)" class="tap-effect w-7 h-7 rounded-full bg-black/70 backdrop-blur-md text-slate-200 hover:text-gold-400 border border-white/20 flex items-center justify-center shadow-lg" title="Move Picture Up">
+                  <i class="ph-bold ph-caret-up text-xs"></i>
+                </button>
+                <button onclick="adjustDiningPhotoPosition('${spot.id}', 10, event)" class="tap-effect w-7 h-7 rounded-full bg-black/70 backdrop-blur-md text-slate-200 hover:text-gold-400 border border-white/20 flex items-center justify-center shadow-lg" title="Move Picture Down">
+                  <i class="ph-bold ph-caret-down text-xs"></i>
+                </button>
+              </div>
               <div class="absolute bottom-2 right-2 pointer-events-auto">
                 <button onclick="triggerDiningPhotoUpload('${spot.id}')" class="tap-effect w-8 h-8 rounded-full bg-black/70 backdrop-blur-md text-gold-400 hover:text-white border border-white/20 flex items-center justify-center shadow-lg" title="Swap Photo">
                   <i class="ph-bold ph-arrows-clockwise text-sm"></i>
@@ -1256,14 +1301,17 @@
       if (!imgSrc) return;
 
       isDiningLightbox = true;
+      isAlbumLightbox = false;
       const modal = document.getElementById('photoLightboxModal');
       const img = document.getElementById('lightboxImage');
       const modalTitle = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
       const deleteBtn = document.getElementById('lightboxDeleteBtn');
       const navControls = document.getElementById('lightboxNavControls');
+      const swipeHint = document.getElementById('lightboxSwipeHint');
 
       if (navControls) navControls.classList.add('hidden');
+      if (swipeHint) swipeHint.classList.add('hidden');
 
       modalTitle.textContent = title;
       time.textContent = spot ? spot.tag : 'Dining';
@@ -1786,8 +1834,36 @@
 
     let showSpots = [];
     let showPhotos = {};
+    let showPhotoPositions = {};
     let activeShowSlot = null;
     let pendingModalShowPhoto = null;
+
+    function loadShowPhotoPositions() {
+      try {
+        const stored = localStorage.getItem('vegas_show_positions_v1');
+        showPhotoPositions = stored ? JSON.parse(stored) : {};
+      } catch (e) {
+        showPhotoPositions = {};
+      }
+    }
+
+    function saveShowPhotoPositions() {
+      try {
+        localStorage.setItem('vegas_show_positions_v1', JSON.stringify(showPhotoPositions));
+      } catch (e) {}
+      renderShowCards();
+    }
+
+    async function adjustShowPhotoPosition(showId, delta, event) {
+      if (event) event.stopPropagation();
+      const current = showPhotoPositions[showId] !== undefined ? showPhotoPositions[showId] : 50;
+      const next = Math.max(0, Math.min(100, current + delta));
+      showPhotoPositions[showId] = next;
+      saveShowPhotoPositions();
+      if (window.syncShowPositionToFirebase) {
+        await window.syncShowPositionToFirebase(showId, next);
+      }
+    }
 
     function loadShowSpots() {
       try {
@@ -1836,11 +1912,20 @@
       container.innerHTML = showSpots.map(show => {
         const customImg = showPhotos[show.id];
         const safeName = show.name.replace(/'/g, "\\'");
+        const posY = showPhotoPositions[show.id] !== undefined ? showPhotoPositions[show.id] : 50;
 
         const imageHeaderHtml = customImg ? `
           <div class="relative group">
-            <img src="${customImg}" onclick="previewShowPhoto('${show.id}', '${safeName}')" class="w-full h-36 object-cover cursor-pointer tap-effect" alt="${show.name}">
+            <img src="${customImg}" style="object-position: center ${posY}%;" onclick="previewShowPhoto('${show.id}', '${safeName}')" class="w-full h-36 object-cover cursor-pointer tap-effect transition-all duration-150" alt="${show.name}">
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none"></div>
+            <div class="absolute bottom-2 left-2 flex items-center gap-1 pointer-events-auto">
+              <button onclick="adjustShowPhotoPosition('${show.id}', -10, event)" class="tap-effect w-7 h-7 rounded-full bg-black/70 backdrop-blur-md text-slate-200 hover:text-emerald-400 border border-white/20 flex items-center justify-center shadow-lg" title="Move Picture Up">
+                <i class="ph-bold ph-caret-up text-xs"></i>
+              </button>
+              <button onclick="adjustShowPhotoPosition('${show.id}', 10, event)" class="tap-effect w-7 h-7 rounded-full bg-black/70 backdrop-blur-md text-slate-200 hover:text-emerald-400 border border-white/20 flex items-center justify-center shadow-lg" title="Move Picture Down">
+                <i class="ph-bold ph-caret-down text-xs"></i>
+              </button>
+            </div>
             <div class="absolute bottom-2 right-2 pointer-events-auto">
               <button onclick="triggerShowPhotoUpload('${show.id}')" class="tap-effect w-8 h-8 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 hover:text-white border border-white/20 flex items-center justify-center shadow-lg" title="Swap Photo">
                 <i class="ph-bold ph-arrows-clockwise text-sm"></i>
@@ -2058,14 +2143,17 @@
       if (!imgSrc) return;
 
       isDiningLightbox = true;
+      isAlbumLightbox = false;
       const modal = document.getElementById('photoLightboxModal');
       const img = document.getElementById('lightboxImage');
       const modalTitle = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
       const deleteBtn = document.getElementById('lightboxDeleteBtn');
       const navControls = document.getElementById('lightboxNavControls');
+      const swipeHint = document.getElementById('lightboxSwipeHint');
 
       if (navControls) navControls.classList.add('hidden');
+      if (swipeHint) swipeHint.classList.add('hidden');
 
       modalTitle.textContent = title;
       time.textContent = show ? show.tag : 'Show';
@@ -2423,17 +2511,51 @@
             }
           }
           if (!document.getElementById('photoLightboxModal').classList.contains('hidden')) {
-            const updatedCheckin = checkinData[slotId];
-            if (updatedCheckin && Array.isArray(updatedCheckin.photos) && updatedCheckin.photos.length > 0) {
-              activeLightboxPhotoIdx = Math.max(0, activeLightboxPhotoIdx - 1);
-              updateLightboxDisplay();
+            if (isAlbumLightbox) {
+              activeAlbumFlattenedPhotos = getFlattenedAlbumPhotos();
+              if (activeAlbumFlattenedPhotos.length > 0) {
+                activeAlbumLightboxIdx = Math.max(0, Math.min(activeAlbumLightboxIdx, activeAlbumFlattenedPhotos.length - 1));
+                updateLightboxDisplay();
+              } else {
+                closeLightbox(null, true);
+              }
             } else {
-              closeLightbox(null, true);
+              const updatedCheckin = checkinData[slotId];
+              if (updatedCheckin && Array.isArray(updatedCheckin.photos) && updatedCheckin.photos.length > 0) {
+                activeLightboxPhotoIdx = Math.max(0, activeLightboxPhotoIdx - 1);
+                updateLightboxDisplay();
+              } else {
+                closeLightbox(null, true);
+              }
             }
           }
           showToast('Story removed');
         }
       );
+    }
+
+    function getFlattenedAlbumPhotos() {
+      const flattened = [];
+      Object.entries(checkinData).forEach(([slotId, entry]) => {
+        if (entry && Array.isArray(entry.photos)) {
+          entry.photos.forEach((photo, pIdx) => {
+            if (photo && photo.dataUrl) {
+              flattened.push({
+                slotId,
+                photoIndex: pIdx,
+                photoId: photo.id,
+                dataUrl: photo.dataUrl,
+                title: entry.title || 'Vegas',
+                scheduledTime: entry.scheduledTime || '',
+                checkinTimestamp: photo.checkinTimestamp || 'Checked In',
+                rawTime: photo.rawTime || 0
+              });
+            }
+          });
+        }
+      });
+      flattened.sort((a, b) => (a.rawTime || 0) - (b.rawTime || 0));
+      return flattened;
     }
 
     async function deleteAllCheckinPhotosForStop(slotId) {
@@ -2476,25 +2598,7 @@
       const remainingStat = document.getElementById('albumRemainingStat');
       const storageStat = document.getElementById('albumStorageStat');
 
-      const flattenedPhotos = [];
-      Object.entries(checkinData).forEach(([slotId, entry]) => {
-        if (entry && Array.isArray(entry.photos)) {
-          entry.photos.forEach((photo, pIdx) => {
-            if (photo && photo.dataUrl) {
-              flattenedPhotos.push({
-                slotId,
-                photoIndex: pIdx,
-                photoId: photo.id,
-                dataUrl: photo.dataUrl,
-                title: entry.title || 'Vegas',
-                scheduledTime: entry.scheduledTime || '',
-                checkinTimestamp: photo.checkinTimestamp || 'Checked In',
-                rawTime: photo.rawTime || 0
-              });
-            }
-          });
-        }
-      });
+      const flattenedPhotos = getFlattenedAlbumPhotos();
 
       const totalSlots = scheduleCards.length || 17;
       const count = flattenedPhotos.length;
@@ -2517,13 +2621,11 @@
       if (emptyState) emptyState.classList.add('hidden');
       if (albumBadge) albumBadge.classList.remove('hidden');
 
-      flattenedPhotos.sort((a, b) => (a.rawTime || 0) - (b.rawTime || 0));
-
       if (albumGrid) {
-        albumGrid.innerHTML = flattenedPhotos.map(item => `
+        albumGrid.innerHTML = flattenedPhotos.map((item, albumIdx) => `
           <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-1.5">
-            <div class="relative rounded-xl overflow-hidden group cursor-pointer tap-effect" onclick="openLightbox('${item.slotId}', ${item.photoIndex})">
-              <img src="${item.dataUrl}" class="w-full h-36 object-cover" alt="${item.title}">
+            <div class="relative aspect-[9/16] rounded-xl overflow-hidden group cursor-pointer tap-effect bg-dark-900" onclick="openAlbumLightbox(${albumIdx})">
+              <img src="${item.dataUrl}" class="w-full h-full object-cover" alt="${item.title}">
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
                 <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
               </div>
@@ -2547,11 +2649,24 @@
       if (bar) bar.style.width = `${pct}%`;
     }
 
+    function openAlbumLightbox(albumIdx = 0) {
+      activeAlbumFlattenedPhotos = getFlattenedAlbumPhotos();
+      if (!activeAlbumFlattenedPhotos.length) return;
+
+      isDiningLightbox = false;
+      isAlbumLightbox = true;
+      activeAlbumLightboxIdx = Math.max(0, Math.min(albumIdx, activeAlbumFlattenedPhotos.length - 1));
+
+      updateLightboxDisplay();
+      document.getElementById('photoLightboxModal').classList.remove('hidden');
+    }
+
     function openLightbox(slotId, photoIdx = 0) {
       const checkin = checkinData[slotId];
       if (!checkin || !Array.isArray(checkin.photos) || !checkin.photos.length) return;
 
       isDiningLightbox = false;
+      isAlbumLightbox = false;
       activeLightboxSlotId = slotId;
       activeLightboxPhotoIdx = Math.max(0, Math.min(photoIdx, checkin.photos.length - 1));
 
@@ -2561,6 +2676,43 @@
 
     function updateLightboxDisplay() {
       if (isDiningLightbox) return;
+
+      const img = document.getElementById('lightboxImage');
+      const title = document.getElementById('lightboxTitle');
+      const time = document.getElementById('lightboxTime');
+      const counter = document.getElementById('lightboxCounter');
+      const navControls = document.getElementById('lightboxNavControls');
+      const deleteBtn = document.getElementById('lightboxDeleteBtn');
+      const swipeHint = document.getElementById('lightboxSwipeHint');
+
+      if (isAlbumLightbox) {
+        const item = activeAlbumFlattenedPhotos[activeAlbumLightboxIdx];
+        if (!item) {
+          closeLightbox(null, true);
+          return;
+        }
+        const total = activeAlbumFlattenedPhotos.length;
+        if (navControls) {
+          if (total > 1) {
+            navControls.classList.remove('hidden');
+            if (swipeHint) swipeHint.classList.remove('hidden');
+            if (counter) counter.textContent = `${activeAlbumLightboxIdx + 1} / ${total}`;
+          } else {
+            navControls.classList.add('hidden');
+            if (swipeHint) swipeHint.classList.add('hidden');
+          }
+        }
+        title.textContent = item.title;
+        time.textContent = item.checkinTimestamp;
+        img.src = item.dataUrl;
+
+        deleteBtn.textContent = 'Delete This Photo';
+        deleteBtn.onclick = () => {
+          deleteSinglePhoto(item.slotId, item.photoId);
+        };
+        return;
+      }
+
       const checkin = checkinData[activeLightboxSlotId];
       if (!checkin || !Array.isArray(checkin.photos) || !checkin.photos[activeLightboxPhotoIdx]) {
         closeLightbox(null, true);
@@ -2568,19 +2720,15 @@
       }
 
       const photo = checkin.photos[activeLightboxPhotoIdx];
-      const img = document.getElementById('lightboxImage');
-      const title = document.getElementById('lightboxTitle');
-      const time = document.getElementById('lightboxTime');
-      const counter = document.getElementById('lightboxCounter');
-      const navControls = document.getElementById('lightboxNavControls');
-      const deleteBtn = document.getElementById('lightboxDeleteBtn');
 
       if (navControls) {
         if (checkin.photos.length > 1) {
           navControls.classList.remove('hidden');
+          if (swipeHint) swipeHint.classList.remove('hidden');
           if (counter) counter.textContent = `${activeLightboxPhotoIdx + 1} / ${checkin.photos.length}`;
         } else {
           navControls.classList.add('hidden');
+          if (swipeHint) swipeHint.classList.add('hidden');
         }
       }
 
@@ -2596,6 +2744,12 @@
 
     function prevLightboxPhoto(event) {
       if (event) event.stopPropagation();
+      if (isAlbumLightbox) {
+        if (activeAlbumFlattenedPhotos.length <= 1) return;
+        activeAlbumLightboxIdx = (activeAlbumLightboxIdx - 1 + activeAlbumFlattenedPhotos.length) % activeAlbumFlattenedPhotos.length;
+        updateLightboxDisplay();
+        return;
+      }
       const checkin = checkinData[activeLightboxSlotId];
       if (!checkin || !Array.isArray(checkin.photos) || checkin.photos.length <= 1) return;
       activeLightboxPhotoIdx = (activeLightboxPhotoIdx - 1 + checkin.photos.length) % checkin.photos.length;
@@ -2604,11 +2758,49 @@
 
     function nextLightboxPhoto(event) {
       if (event) event.stopPropagation();
+      if (isAlbumLightbox) {
+        if (activeAlbumFlattenedPhotos.length <= 1) return;
+        activeAlbumLightboxIdx = (activeAlbumLightboxIdx + 1) % activeAlbumFlattenedPhotos.length;
+        updateLightboxDisplay();
+        return;
+      }
       const checkin = checkinData[activeLightboxSlotId];
       if (!checkin || !Array.isArray(checkin.photos) || checkin.photos.length <= 1) return;
       activeLightboxPhotoIdx = (activeLightboxPhotoIdx + 1) % checkin.photos.length;
       updateLightboxDisplay();
     }
+
+    // Touch swipe up (next) / swipe down (previous) in fullscreen viewer
+    (function setupLightboxVerticalSwipe() {
+      const swipeArea = document.getElementById('lightboxSwipeArea');
+      if (!swipeArea) return;
+      let touchStartY = 0;
+      let touchStartX = 0;
+
+      swipeArea.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length === 1) {
+          touchStartY = e.touches[0].clientY;
+          touchStartX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+
+      swipeArea.addEventListener('touchend', (e) => {
+        if (isDiningLightbox || !e.changedTouches || e.changedTouches.length === 0) return;
+        const deltaY = touchStartY - e.changedTouches[0].clientY;
+        const deltaX = Math.abs(touchStartX - e.changedTouches[0].clientX);
+
+        // Require clear vertical swipe (> 40px)
+        if (Math.abs(deltaY) > 40 && Math.abs(deltaY) > deltaX) {
+          if (deltaY > 0) {
+            // Swiped Up -> Next picture
+            nextLightboxPhoto();
+          } else {
+            // Swiped Down -> Previous picture
+            prevLightboxPhoto();
+          }
+        }
+      }, { passive: true });
+    })();
 
     function closeLightbox(event, force = false) {
       if (force || (event && event.target.id === 'photoLightboxModal')) {
@@ -2831,8 +3023,10 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadScheduleStorage();
       loadCheckinStorage();
+      loadDiningPhotoPositions();
       loadDiningSpots();
       loadDiningPhotos();
+      loadShowPhotoPositions();
       loadShowSpots();
       loadShowPhotos();
       renderItinerary();
@@ -3004,7 +3198,45 @@
       }, (error) => {
         console.warn("Show photos sync notice:", error);
       });
+
+      onSnapshot(doc(db, "trip", "photo_positions"), (docSnap) => {
+        if (docSnap.exists()) {
+          const posData = docSnap.data();
+          if (posData.dining) {
+            diningPhotoPositions = posData.dining;
+            saveDiningPhotoPositions();
+          }
+          if (posData.shows) {
+            showPhotoPositions = posData.shows;
+            saveShowPhotoPositions();
+          }
+        }
+      }, (error) => {
+        console.warn("Photo positions sync notice:", error);
+      });
     }
+
+    window.syncDiningPositionToFirebase = async function(slotId, posY) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "photo_positions"), {
+          dining: { [slotId]: posY }
+        }, { merge: true });
+      } catch (err) {
+        console.error("Firestore syncDiningPosition error:", err);
+      }
+    };
+
+    window.syncShowPositionToFirebase = async function(slotId, posY) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "trip", "photo_positions"), {
+          shows: { [slotId]: posY }
+        }, { merge: true });
+      } catch (err) {
+        console.error("Firestore syncShowPosition error:", err);
+      }
+    };
 
     window.firebaseSyncShowCards = async function(showsList) {
       if (!db) return;
