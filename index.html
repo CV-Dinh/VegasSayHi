@@ -3193,15 +3193,21 @@
     function prevLightboxPhoto(event) {
       if (event) event.stopPropagation();
       if (isAlbumLightbox) {
-        if (activeAlbumFlattenedPhotos.length <= 1) return;
-        activeAlbumLightboxIdx = (activeAlbumLightboxIdx - 1 + activeAlbumFlattenedPhotos.length) % activeAlbumFlattenedPhotos.length;
+        if (activeAlbumLightboxIdx <= 0) {
+          closeLightbox(null, true);
+          return;
+        }
+        activeAlbumLightboxIdx = activeAlbumLightboxIdx - 1;
         updateLightboxDisplay();
         triggerLightboxSlideAnimation('down');
         return;
       }
       const checkin = checkinData[activeLightboxSlotId];
-      if (!checkin || !Array.isArray(checkin.photos) || checkin.photos.length <= 1) return;
-      activeLightboxPhotoIdx = (activeLightboxPhotoIdx - 1 + checkin.photos.length) % checkin.photos.length;
+      if (!checkin || !Array.isArray(checkin.photos) || activeLightboxPhotoIdx <= 0) {
+        closeLightbox(null, true);
+        return;
+      }
+      activeLightboxPhotoIdx = activeLightboxPhotoIdx - 1;
       updateLightboxDisplay();
       triggerLightboxSlideAnimation('down');
     }
@@ -3209,15 +3215,21 @@
     function nextLightboxPhoto(event) {
       if (event) event.stopPropagation();
       if (isAlbumLightbox) {
-        if (activeAlbumFlattenedPhotos.length <= 1) return;
-        activeAlbumLightboxIdx = (activeAlbumLightboxIdx + 1) % activeAlbumFlattenedPhotos.length;
+        if (activeAlbumLightboxIdx >= activeAlbumFlattenedPhotos.length - 1) {
+          closeLightbox(null, true);
+          return;
+        }
+        activeAlbumLightboxIdx = activeAlbumLightboxIdx + 1;
         updateLightboxDisplay();
         triggerLightboxSlideAnimation('up');
         return;
       }
       const checkin = checkinData[activeLightboxSlotId];
-      if (!checkin || !Array.isArray(checkin.photos) || checkin.photos.length <= 1) return;
-      activeLightboxPhotoIdx = (activeLightboxPhotoIdx + 1) % checkin.photos.length;
+      if (!checkin || !Array.isArray(checkin.photos) || activeLightboxPhotoIdx >= checkin.photos.length - 1) {
+        closeLightbox(null, true);
+        return;
+      }
+      activeLightboxPhotoIdx = activeLightboxPhotoIdx + 1;
       updateLightboxDisplay();
       triggerLightboxSlideAnimation('up');
     }
