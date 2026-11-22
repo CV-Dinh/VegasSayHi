@@ -645,14 +645,14 @@
 
     <!-- ================= FULLSCREEN PHOTO MODAL PREVIEW ================= -->
     <div id="photoLightboxModal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4" onclick="closeLightbox(event)">
-      <div class="flex items-center justify-between text-white pt-2">
-        <div>
-          <h4 id="lightboxTitle" class="text-sm font-bold">Check-In Photo</h4>
-          <p id="lightboxTime" class="text-[11px] text-gold-400 font-mono">Timestamp</p>
+      <div class="flex items-center justify-between gap-2 text-white pt-2">
+        <div class="min-w-0 flex-1 pr-1">
+          <h4 id="lightboxTitle" class="text-sm font-bold truncate">Check-In Photo</h4>
+          <p id="lightboxTime" class="text-[11px] text-gold-400 font-mono truncate">Timestamp</p>
         </div>
-        <div class="flex items-center gap-2">
-          <span id="lightboxCounter" class="hidden text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-1 rounded-full">1 / 1</span>
-          <button onclick="closeLightbox(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white tap-effect">
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span id="lightboxCounter" class="hidden text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0">1 / 1</span>
+          <button onclick="closeLightbox(null, true)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white tap-effect flex-shrink-0">
             <i class="ph-bold ph-x text-base"></i>
           </button>
         </div>
@@ -3425,38 +3425,49 @@
       }
       renderMapMarkers(cat);
     }
-
-    function resetMapView() {
-      if (leafletMapInstance) {
-        leafletMapInstance.setView([36.1200, -115.1720], 12);
-      }
+    function persistNavigationState(tabName, dayId) {
+      try {
+        if (tabName) localStorage.setItem('vegas_last_active_tab_v1', tabName);
+        if (dayId) localStorage.setItem('vegas_last_selected_day_v1', dayId);
+      } catch (e) {}
+      try {
+        const activeT = tabName || getSavedNavigationState().tab;
+        const activeD = dayId || currentSelectedDay || getSavedNavigationState().day;
+        history.replaceState(null, '', `#tab=${encodeURIComponent(activeT)}&day=${encodeURIComponent(activeD)}`);
+      } catch (e) {}
     }
 
-    function flyToMapStop(stopId) {
-      switchTab('map');
-      setTimeout(() => {
-        const target = tripDestinations.find(d => d.id === stopId);
-        if (target) {
-          const openInGmapsBtn = document.getElementById('btn-open-in-google-maps');
-          if (openInGmapsBtn) {
-            openInGmapsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${target.lat},${target.lng}`;
-          }
-
-          if (leafletMapInstance) {
-            leafletMapInstance.flyTo([target.lat, target.lng], 16, { duration: 1 });
-            const marker = mapMarkers.find(m => m.destinationId === stopId);
-            if (marker) {
-              setTimeout(() => marker.openPopup(), 900);
-            }
-          }
+    function getSavedNavigationState() {
+      let tab = 'schedule';
+      let day = 'fri';
+      try {
+        const storedTab = localStorage.getItem('vegas_last_active_tab_v1');
+        if (storedTab && ['schedule', 'map', 'food', 'shows', 'album'].includes(storedTab)) {
+          tab = storedTab;
         }
-      }, 150);
+        const storedDay = localStorage.getItem('vegas_last_selected_day_v1');
+        if (storedDay && ['fri', 'sat', 'sun', 'mon'].includes(storedDay)) {
+          day = storedDay;
+        }
+      } catch (e) {}
+
+      // Fallback / override from URL hash if present
+      try {
+        const hash = (window.location.hash || '').replace(/^#/, '');
+        if (hash) {
+          const params = new URLSearchParams(hash);
+          const hTab = params.get('tab');
+          const hDay = params.get('day');
+          if (hTab && ['schedule', 'map', 'food', 'shows', 'album'].includes(hTab)) tab = hTab;
+          if (hDay && ['fri', 'sat', 'sun', 'mon'].includes(hDay)) day = hDay;
+        }
+      } catch (e) {}
+
+      return { tab, day };
     }
 
     function switchTab(tabName) {
-      try {
-        localStorage.setItem('vegas_last_active_tab_v1', tabName);
-      } catch (e) {}
+      persistNavigationState(tabName, currentSelectedDay);
 
       document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -3488,9 +3499,7 @@
 
     function switchDay(dayId) {
       currentSelectedDay = dayId;
-      try {
-        localStorage.setItem('vegas_last_selected_day_v1', dayId);
-      } catch (e) {}
+      persistNavigationState(null, dayId);
 
       document.querySelectorAll('.day-pill').forEach(pill => {
         pill.classList.remove('bg-gold-500', 'text-dark-950', 'shadow-md', 'shadow-gold-500/20');
@@ -3530,6 +3539,14 @@
     window.addEventListener('DOMContentLoaded', async () => {
       loadAlbumSeenState();
       loadScheduleStorage();
+
+      // Restore last viewed day and tab immediately before async IndexedDB loads
+      const { tab: savedTab, day: savedDay } = getSavedNavigationState();
+      switchDay(savedDay);
+      if (savedTab !== 'schedule') {
+        switchTab(savedTab);
+      }
+
       await loadCheckinStorage();
       loadDiningPhotoPositions();
       loadDiningSpots();
@@ -3538,27 +3555,10 @@
       loadShowSpots();
       await loadShowPhotos();
 
-      // Restore last viewed day and tab on reload
-      let savedDay = 'fri';
-      let savedTab = 'schedule';
-      try {
-        const storedDay = localStorage.getItem('vegas_last_selected_day_v1');
-        if (storedDay && ['fri', 'sat', 'sun', 'mon'].includes(storedDay)) {
-          savedDay = storedDay;
-        }
-        const storedTab = localStorage.getItem('vegas_last_active_tab_v1');
-        if (storedTab && ['schedule', 'map', 'food', 'shows', 'album'].includes(storedTab)) {
-          savedTab = storedTab;
-        }
-      } catch (e) {}
-
-      switchDay(savedDay);
+      renderItinerary();
       renderAlbumView();
       updateCheckinProgress();
       updateVegasClock();
-      if (savedTab !== 'schedule') {
-        switchTab(savedTab);
-      }
     });
   </script>
 
