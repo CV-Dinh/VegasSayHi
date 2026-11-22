@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -468,6 +468,23 @@
           </div>
         </div>
 
+        <!-- 4-Day Las Vegas Weather Forecast -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between px-0.5">
+            <span class="text-xs font-extrabold text-white flex items-center gap-1.5">
+              <i class="ph-fill ph-sun text-amber-400"></i> Las Vegas 4-Day Forecast
+            </span>
+            <span id="vegasWeatherSourceLabel" class="text-[10px] text-slate-400 font-mono">Nov 27 – Nov 30</span>
+          </div>
+
+          <div id="vegasWeatherGrid" class="grid grid-cols-4 gap-2">
+            <!-- Populated dynamically with live/seasonal Vegas forecast -->
+          </div>
+          <p class="text-[10px] text-slate-400 px-0.5 flex items-center gap-1">
+            <i class="ph-bold ph-coat-hanger text-gold-400"></i> Crisp desert evenings (~43°F)—bring a light jacket for night walks!
+          </p>
+        </div>
+
         <!-- Flight Schedule Details -->
         <div class="space-y-2.5">
           <div class="text-xs font-extrabold text-white flex items-center justify-between px-0.5">
@@ -618,23 +635,6 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- 4-Day Las Vegas Weather Forecast -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between px-0.5">
-            <span class="text-xs font-extrabold text-white flex items-center gap-1.5">
-              <i class="ph-fill ph-sun text-amber-400"></i> Las Vegas 4-Day Forecast
-            </span>
-            <span id="vegasWeatherSourceLabel" class="text-[10px] text-slate-400 font-mono">Nov 27 – Nov 30</span>
-          </div>
-
-          <div id="vegasWeatherGrid" class="grid grid-cols-4 gap-2">
-            <!-- Populated dynamically with live/seasonal Vegas forecast -->
-          </div>
-          <p class="text-[10px] text-slate-400 px-0.5 flex items-center gap-1">
-            <i class="ph-bold ph-coat-hanger text-gold-400"></i> Crisp desert evenings (~43°F)—bring a light jacket for night walks!
-          </p>
         </div>
 
         <button onclick="closeTripEssentialsModal(null, true)" class="w-full py-2.5 rounded-xl bg-dark-800 border border-white/10 text-slate-200 font-bold text-xs tap-effect">
