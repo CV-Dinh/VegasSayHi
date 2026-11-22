@@ -3454,6 +3454,10 @@
     }
 
     function switchTab(tabName) {
+      try {
+        localStorage.setItem('vegas_last_active_tab_v1', tabName);
+      } catch (e) {}
+
       document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('text-gold-400');
@@ -3484,6 +3488,10 @@
 
     function switchDay(dayId) {
       currentSelectedDay = dayId;
+      try {
+        localStorage.setItem('vegas_last_selected_day_v1', dayId);
+      } catch (e) {}
+
       document.querySelectorAll('.day-pill').forEach(pill => {
         pill.classList.remove('bg-gold-500', 'text-dark-950', 'shadow-md', 'shadow-gold-500/20');
         pill.classList.add('bg-dark-800', 'text-slate-300', 'border', 'border-white/10');
@@ -3529,10 +3537,28 @@
       loadShowPhotoPositions();
       loadShowSpots();
       await loadShowPhotos();
-      renderItinerary();
+
+      // Restore last viewed day and tab on reload
+      let savedDay = 'fri';
+      let savedTab = 'schedule';
+      try {
+        const storedDay = localStorage.getItem('vegas_last_selected_day_v1');
+        if (storedDay && ['fri', 'sat', 'sun', 'mon'].includes(storedDay)) {
+          savedDay = storedDay;
+        }
+        const storedTab = localStorage.getItem('vegas_last_active_tab_v1');
+        if (storedTab && ['schedule', 'map', 'food', 'shows', 'album'].includes(storedTab)) {
+          savedTab = storedTab;
+        }
+      } catch (e) {}
+
+      switchDay(savedDay);
       renderAlbumView();
       updateCheckinProgress();
       updateVegasClock();
+      if (savedTab !== 'schedule') {
+        switchTab(savedTab);
+      }
     });
   </script>
 
