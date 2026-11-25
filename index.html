@@ -2892,7 +2892,8 @@
 
         let checkinSlotHtml = '';
         if (photos.length > 0) {
-          const verticalStorySlides = photos.map((p, idx) => {
+          const orderedPhotos = [...photos].sort((a, b) => (b.rawTime || 0) - (a.rawTime || 0));
+          const verticalStorySlides = orderedPhotos.map((p, idx) => {
             const isVideo = p.mediaType === 'video';
             const thumbSrc = isVideo ? (p.posterDataUrl || p.dataUrl) : p.dataUrl;
 
@@ -3110,15 +3111,23 @@
       );
     }
 
-    // Handle check-in photo selection
+    // Handle check-in photo & video selection
     document.getElementById('cameraFileInput').addEventListener('change', handleCheckinPhotoChosen);
     document.getElementById('directCameraInput').addEventListener('change', handleCheckinPhotoChosen);
+    document.getElementById('directVideoCameraInput').addEventListener('change', handleCheckinPhotoChosen);
+
+    function isVideoMediaFile(file) {
+      if (!file) return false;
+      if (file.type && file.type.startsWith('video/')) return true;
+      return /\.(mp4|mov|m4v|webm|3gp|avi|mkv)$/i.test(file.name || '');
+    }
 
     async function handleCheckinPhotoChosen(e) {
       const files = Array.from(e.target.files || []);
       if (!files.length || !activeSlotForPhoto) return;
 
-      showToast(files.length > 1 ? `Adding ${files.length} photos...` : `Loading photo...`);
+      const hasAnyVideo = files.some(f => isVideoMediaFile(f));
+      showToast(files.length > 1 ? `Adding ${files.length} stories...` : (hasAnyVideo ? 'Processing video...' : 'Loading photo...'));
       window.setCloudStatus('Processing...', 'text-amber-400');
 
       try {
@@ -3139,30 +3148,79 @@
 
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
+          const storyId = 'p-' + Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6);
+
           try {
-            if (files.length > 1) {
-              window.setCloudStatus(`Photo ${i + 1}/${files.length}...`, 'text-amber-400');
+            if (isVideoMediaFile(file)) {
+              if (file.size > 65 * 1024 * 1024) {
+                showToast('Video too large (max 65 MB)');
+                continue;
+              }
+              window.setCloudStatus('Preparing video...', 'text-amber-400');
+              let posterDataUrl = '';
+              let durationSec = 0;
+              try {
+                const meta = await extractVideoMetadataAndThumbnail(file);
+                posterDataUrl = meta.posterDataUrl;
+                durationSec = meta.durationSec;
+              } catch (thumbErr) {
+                // Fallback dark poster canvas if mobile browser blocks seeked frame extraction
+                const fallbackCanvas = document.createElement('canvas');
+                fallbackCanvas.width = 540;
+                fallbackCanvas.height = 960;
+                const fctx = fallbackCanvas.getContext('2d');
+                fctx.fillStyle = '#15161c';
+                fctx.fillRect(0, 0, 540, 960);
+                posterDataUrl = fallbackCanvas.toDataURL('image/jpeg', 0.8);
+              }
+
+              // Store raw video Blob locally in IndexedDB so playback works offline immediately
+              await window.vegasPhotoDB.set('video_blob_' + storyId, file);
+
+              // Upload video to Firebase Storage so girlfriend's phone can stream it
+              let videoUrl = '';
+              if (window.firebaseUploadVideoStory) {
+                window.setCloudStatus('Uploading video...', 'text-amber-400');
+                videoUrl = await window.firebaseUploadVideoStory(storyId, file);
+              }
+
+              checkinData[activeSlotForPhoto].photos.push({
+                id: storyId,
+                mediaType: 'video',
+                dataUrl: '',
+                posterDataUrl: posterDataUrl,
+                videoUrl: videoUrl,
+                durationSec: durationSec,
+                checkinTimestamp: formattedTimestamp,
+                rawTime: Date.now() + i
+              });
+              successCount++;
+            } else {
+              if (files.length > 1) {
+                window.setCloudStatus(`Photo ${i + 1}/${files.length}...`, 'text-amber-400');
+              }
+              const compressedData = await compressImageFile(file, 2160, 2160, 0.92);
+              checkinData[activeSlotForPhoto].photos.push({
+                id: storyId,
+                mediaType: 'image',
+                dataUrl: compressedData,
+                checkinTimestamp: formattedTimestamp,
+                rawTime: Date.now() + i
+              });
+              successCount++;
             }
-            const compressedData = await compressImageFile(file, 2160, 2160, 0.92);
-            checkinData[activeSlotForPhoto].photos.push({
-              id: 'p-' + Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 6),
-              dataUrl: compressedData,
-              checkinTimestamp: formattedTimestamp,
-              rawTime: Date.now() + i
-            });
-            successCount++;
           } catch (fileErr) {
             showToast(fileErr.message || 'File skipped');
           }
         }
 
         if (successCount === 0) {
-          throw new Error('Could not read photo. Try choosing from gallery.');
+          throw new Error('Could not process media. Try choosing from gallery.');
         }
 
         checkinData[activeSlotForPhoto].title = title;
         checkinData[activeSlotForPhoto].scheduledTime = scheduledTime;
-        // Mark our own newly posted photos as seen on this device
+        // Mark our own newly posted stories as seen on this device
         lastSeenAlbumPhotoTime = Date.now() + files.length + 5;
         try { localStorage.setItem('vegas_album_last_seen_v1', String(lastSeenAlbumPhotoTime)); } catch (err) {}
         await saveCheckinStorage();
@@ -3172,10 +3230,10 @@
           await window.firebaseSyncCheckin(activeSlotForPhoto, checkinData[activeSlotForPhoto]);
         }
 
-        showToast(`${successCount} stor${successCount > 1 ? 'ies' : 'y'} added! 📸`);
+        showToast(`${successCount} stor${successCount > 1 ? 'ies' : 'y'} added! 🎬`);
         window.setCloudStatus('Cloud Sync', 'text-emerald-400');
       } catch (err) {
-        showToast(err.message || 'Error saving picture.');
+        showToast(err.message || 'Error saving story.');
         window.setCloudStatus('Sync error', 'text-rose-400');
       } finally {
         e.target.value = '';
@@ -3189,9 +3247,10 @@
 
       window.showConfirmDialog(
         'Delete Story',
-        'Remove this check-in photo?',
+        'Remove this check-in story?',
         async () => {
           checkin.photos = checkin.photos.filter(p => p.id !== photoId);
+          await window.vegasPhotoDB.set('video_blob_' + photoId, null);
           if (window.firebaseDeleteSinglePhoto) {
             await window.firebaseDeleteSinglePhoto(photoId);
           }
@@ -3233,12 +3292,17 @@
       Object.entries(checkinData).forEach(([slotId, entry]) => {
         if (entry && Array.isArray(entry.photos)) {
           entry.photos.forEach((photo, pIdx) => {
-            if (photo && photo.dataUrl) {
+            if (photo && (photo.dataUrl || photo.posterDataUrl)) {
               flattened.push({
                 slotId,
                 photoIndex: pIdx,
                 photoId: photo.id,
-                dataUrl: photo.dataUrl,
+                id: photo.id,
+                mediaType: photo.mediaType || 'image',
+                dataUrl: photo.dataUrl || '',
+                posterDataUrl: photo.posterDataUrl || '',
+                videoUrl: photo.videoUrl || '',
+                durationSec: photo.durationSec || 0,
                 title: entry.title || 'Vegas',
                 scheduledTime: entry.scheduledTime || '',
                 checkinTimestamp: photo.checkinTimestamp || 'Checked In',
@@ -3248,7 +3312,7 @@
           });
         }
       });
-      flattened.sort((a, b) => (a.rawTime || 0) - (b.rawTime || 0));
+      flattened.sort((a, b) => (b.rawTime || 0) - (a.rawTime || 0));
       return flattened;
     }
 
@@ -3271,7 +3335,7 @@
     async function clearAllCheckinPhotos() {
       window.showConfirmDialog(
         'Clear Scrapbook',
-        'Delete all check-in photos across the entire trip?',
+        'Delete all check-in stories across the entire trip?',
         async () => {
           checkinData = {};
           await saveCheckinStorage();
@@ -3316,7 +3380,7 @@
 
       if (emptyState) emptyState.classList.add('hidden');
 
-      // Show unread badge only if there are photos newer than this device's last Album visit
+      // Show unread badge only if there are stories newer than this device's last Album visit
       const albumViewEl = document.getElementById('view-album');
       const isAlbumCurrentlyOpen = albumViewEl && !albumViewEl.classList.contains('hidden');
       if (isAlbumCurrentlyOpen) {
@@ -3333,19 +3397,33 @@
       }
 
       if (albumGrid) {
-        albumGrid.innerHTML = flattenedPhotos.map((item, albumIdx) => `
-          <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-1.5">
-            <div class="relative aspect-[9/16] rounded-xl overflow-hidden group cursor-pointer tap-effect bg-dark-900" onclick="openAlbumLightbox(${albumIdx})">
-              <img src="${item.dataUrl}" class="w-full h-full object-cover" alt="${item.title}">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
-                <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
+        albumGrid.innerHTML = flattenedPhotos.map((item, albumIdx) => {
+          const isVideo = item.mediaType === 'video';
+          const thumbSrc = isVideo ? (item.posterDataUrl || item.dataUrl) : item.dataUrl;
+          return `
+            <div class="glass-card rounded-2xl overflow-hidden border-white/10 p-2 space-y-1.5">
+              <div class="relative aspect-[9/16] rounded-xl overflow-hidden group cursor-pointer tap-effect bg-dark-900" onclick="openAlbumLightbox(${albumIdx})">
+                <img src="${thumbSrc}" class="w-full h-full object-cover" alt="${item.title}">
+                ${isVideo ? `
+                  <div class="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-rose-500/90 text-[9px] font-bold text-white font-mono shadow">
+                    ${formatVideoDuration(item.durationSec)}
+                  </div>
+                  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg">
+                      <i class="ph-fill ph-play text-base ml-0.5"></i>
+                    </div>
+                  </div>
+                ` : ''}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
+                  <span class="text-[10px] font-mono text-gold-300 font-bold truncate">${item.checkinTimestamp}</span>
+                </div>
+              </div>
+              <div class="px-1">
+                <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
               </div>
             </div>
-            <div class="px-1">
-              <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
     }
 
@@ -3358,6 +3436,53 @@
       const bar = document.getElementById('checkinProgressBar');
       if (text) text.textContent = `${completed} / ${totalSlots}`;
       if (bar) bar.style.width = `${pct}%`;
+    }
+
+    let activeLightboxObjectUrl = null;
+
+    async function renderLightboxMediaItem(item) {
+      const img = document.getElementById('lightboxImage');
+      const videoEl = document.getElementById('lightboxVideo');
+      if (!img || !videoEl || !item) return;
+
+      if (activeLightboxObjectUrl) {
+        try { URL.revokeObjectURL(activeLightboxObjectUrl); } catch (e) {}
+        activeLightboxObjectUrl = null;
+      }
+
+      if (item.mediaType === 'video') {
+        img.classList.add('hidden');
+        videoEl.pause();
+        videoEl.poster = item.posterDataUrl || '';
+        videoEl.classList.remove('hidden');
+
+        const storyKey = item.photoId || item.id;
+        let srcToPlay = item.videoUrl || '';
+
+        if (!srcToPlay && storyKey) {
+          const localBlob = await window.vegasPhotoDB.get('video_blob_' + storyKey);
+          if (localBlob instanceof Blob) {
+            activeLightboxObjectUrl = URL.createObjectURL(localBlob);
+            srcToPlay = activeLightboxObjectUrl;
+          }
+        }
+
+        if (srcToPlay) {
+          videoEl.src = srcToPlay;
+          videoEl.play().catch(() => {});
+        } else {
+          videoEl.classList.add('hidden');
+          img.src = item.posterDataUrl || '';
+          img.classList.remove('hidden');
+          showToast('Video still syncing to cloud...');
+        }
+      } else {
+        videoEl.pause();
+        videoEl.src = '';
+        videoEl.classList.add('hidden');
+        img.src = item.dataUrl || '';
+        img.classList.remove('hidden');
+      }
     }
 
     function openAlbumLightbox(albumIdx = 0) {
@@ -3376,6 +3501,7 @@
       const checkin = checkinData[slotId];
       if (!checkin || !Array.isArray(checkin.photos) || !checkin.photos.length) return;
 
+      checkin.photos.sort((a, b) => (b.rawTime || 0) - (a.rawTime || 0));
       isDiningLightbox = false;
       isAlbumLightbox = false;
       activeLightboxSlotId = slotId;
@@ -3388,7 +3514,6 @@
     function updateLightboxDisplay() {
       if (isDiningLightbox) return;
 
-      const img = document.getElementById('lightboxImage');
       const title = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
       const counter = document.getElementById('lightboxCounter');
@@ -3413,7 +3538,7 @@
         }
         title.textContent = item.title;
         time.textContent = item.checkinTimestamp;
-        img.src = item.dataUrl;
+        renderLightboxMediaItem(item);
         return;
       }
 
@@ -3688,6 +3813,34 @@
       }
       renderMapMarkers(cat);
     }
+
+    function resetMapView() {
+      if (leafletMapInstance) {
+        leafletMapInstance.setView([36.1200, -115.1720], 12);
+      }
+    }
+
+    function flyToMapStop(stopId) {
+      switchTab('map');
+      setTimeout(() => {
+        const target = tripDestinations.find(d => d.id === stopId);
+        if (target) {
+          const openInGmapsBtn = document.getElementById('btn-open-in-google-maps');
+          if (openInGmapsBtn) {
+            openInGmapsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${target.lat},${target.lng}`;
+          }
+
+          if (leafletMapInstance) {
+            leafletMapInstance.flyTo([target.lat, target.lng], 16, { duration: 1 });
+            const marker = mapMarkers.find(m => m.destinationId === stopId);
+            if (marker) {
+              setTimeout(() => marker.openPopup(), 900);
+            }
+          }
+        }
+      }, 150);
+    }
+
     function persistNavigationState(tabName, dayId) {
       try {
         if (tabName) localStorage.setItem('vegas_last_active_tab_v1', tabName);
@@ -3935,9 +4088,9 @@
         }
       });
 
-      // Sort each stop's stories chronologically
+      // Sort each stop's stories newest first
       Object.keys(merged).forEach(slotId => {
-        merged[slotId].photos.sort((a, b) => (a.rawTime || 0) - (b.rawTime || 0));
+        merged[slotId].photos.sort((a, b) => (b.rawTime || 0) - (a.rawTime || 0));
       });
 
       if (JSON.stringify(checkinData) !== JSON.stringify(merged)) {
