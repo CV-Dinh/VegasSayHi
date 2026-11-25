@@ -642,12 +642,11 @@
         </button>
       </div>
     </div>
-
-    <!-- ================= FULLSCREEN PHOTO MODAL PREVIEW ================= -->
+    <!-- ================= FULLSCREEN PHOTO & VIDEO MODAL PREVIEW ================= -->
     <div id="photoLightboxModal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4" onclick="closeLightbox(event)">
       <div class="flex items-center justify-between gap-2 text-white pt-2">
         <div class="min-w-0 flex-1 pr-1">
-          <h4 id="lightboxTitle" class="text-sm font-bold truncate">Check-In Photo</h4>
+          <h4 id="lightboxTitle" class="text-sm font-bold truncate">Check-In Story</h4>
           <p id="lightboxTime" class="text-[11px] text-gold-400 font-mono truncate">Timestamp</p>
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
@@ -661,6 +660,7 @@
       <div id="lightboxSwipeArea" class="flex-1 flex flex-col items-center justify-center py-2 touch-none select-none overflow-hidden">
         <div id="lightboxCardFrame" class="h-full max-h-[76vh] aspect-[9/16] rounded-2xl overflow-hidden bg-dark-900 border border-white/15 shadow-2xl relative flex items-center justify-center will-change-transform">
           <img id="lightboxImage" src="" alt="Full view" class="w-full h-full object-cover">
+          <video id="lightboxVideo" src="" playsinline controls loop class="hidden w-full h-full object-cover bg-black"></video>
         </div>
         <p id="lightboxSwipeHint" class="hidden text-[10px] text-slate-400 mt-2.5 flex items-center gap-1 font-medium">
           <i class="ph-bold ph-arrows-vertical text-gold-400"></i> Swipe up or down to browse
@@ -741,12 +741,15 @@
                 <option value="vegassign">Vegas Sign</option>
                 <option value="nyny">New York-New York</option>
                 <option value="bellagio">Bellagio</option>
+                <option value="eiffeltower">Eiffel Tower (Paris)</option>
                 <option value="flamingos">Flamingo Habitat</option>
                 <option value="phodalat">Phở Đà Lạt</option>
                 <option value="mollytea">Molly Tea</option>
                 <option value="atlantis">Fall of Atlantis</option>
                 <option value="phlive">PH Live (Concert)</option>
                 <option value="linq">The LINQ</option>
+                <option value="highroller">High Roller Wheel</option>
+                <option value="eiffeltower">Eiffel Tower (Paris)</option>
                 <option value="venetian">Venetian</option>
                 <option value="slotzilla">SlotZilla (Fremont)</option>
                 <option value="circus">Circus Circus</option>
@@ -941,7 +944,8 @@
 
     <!-- Hidden native file inputs -->
     <input type="file" id="directCameraInput" accept="image/*" capture="environment" class="hidden">
-    <input type="file" id="cameraFileInput" accept="image/*" multiple class="hidden">
+    <input type="file" id="directVideoCameraInput" accept="video/*" capture="environment" class="hidden">
+    <input type="file" id="cameraFileInput" accept="image/*,video/*" multiple class="hidden">
     <input type="file" id="diningCameraInput" accept="image/*" capture="environment" class="hidden">
     <input type="file" id="diningFileInput" accept="image/*" class="hidden">
     <input type="file" id="modalDiningCameraInput" accept="image/*" capture="environment" class="hidden">
@@ -951,12 +955,12 @@
     <input type="file" id="modalShowCameraInput" accept="image/*" capture="environment" class="hidden">
     <input type="file" id="modalShowGalleryInput" accept="image/*" class="hidden">
 
-    <!-- ================= NATIVE MOBILE ACTION SHEET: PHOTO SOURCE ================= -->
+    <!-- ================= NATIVE MOBILE ACTION SHEET: PHOTO / VIDEO SOURCE ================= -->
     <div id="photoSourceModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end justify-center p-3 sm:p-4" onclick="closePhotoSourceModal(event)">
       <div class="w-full max-w-sm bg-dark-850 border border-white/15 rounded-3xl p-4 space-y-2 shadow-2xl" onclick="event.stopPropagation()">
         <div class="text-center pb-2 border-b border-white/10">
-          <h4 id="photoSourceModalTitle" class="text-sm font-bold text-white">Add Check-In Story</h4>
-          <p class="text-[11px] text-slate-400">Choose photo source</p>
+          <h4 id="photoSourceModalTitle" class="text-sm font-bold text-white">Add Story</h4>
+          <p class="text-[11px] text-slate-400">Choose photo or video source</p>
         </div>
 
         <div class="space-y-2 pt-1">
@@ -965,9 +969,14 @@
             <span>Take Live Photo</span>
           </button>
 
+          <button id="btnRecordLiveVideo" onclick="pickFromLiveVideoCamera()" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold text-xs tap-effect flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20">
+            <i class="ph-bold ph-video-camera text-base"></i>
+            <span>Record Live Video</span>
+          </button>
+
           <button onclick="pickFromPhotoGallery()" class="w-full py-3 px-4 rounded-2xl bg-dark-750 border border-white/10 text-white font-semibold text-xs tap-effect flex items-center justify-center gap-2 hover:bg-dark-700">
             <i class="ph-bold ph-images text-base text-gold-400"></i>
-            <span>Choose from Gallery</span>
+            <span id="btnGalleryPickerLabel">Choose Photo or Video from Gallery</span>
           </button>
         </div>
 
@@ -1191,6 +1200,69 @@
         img.src = objectUrl;
       });
     };
+
+    // Extract a crisp poster thumbnail + duration from a video file (so story grids render fast & light)
+    window.extractVideoMetadataAndThumbnail = function(file) {
+      return new Promise((resolve, reject) => {
+        const videoUrl = URL.createObjectURL(file);
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.muted = true;
+        video.playsInline = true;
+
+        const cleanup = () => {
+          try { URL.revokeObjectURL(videoUrl); } catch (e) {}
+        };
+
+        video.onloadedmetadata = () => {
+          const duration = Number.isFinite(video.duration) ? video.duration : 0;
+          video.currentTime = Math.min(0.4, duration > 0 ? duration / 3 : 0);
+        };
+
+        video.onseeked = () => {
+          try {
+            const maxDim = 960;
+            let w = video.videoWidth || 720;
+            let h = video.videoHeight || 1280;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, w, h);
+            const posterDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            const durSec = Math.round(video.duration || 0);
+            cleanup();
+            resolve({ posterDataUrl, durationSec: durSec });
+          } catch (err) {
+            cleanup();
+            reject(err);
+          }
+        };
+
+        video.onerror = () => {
+          cleanup();
+          reject(new Error('Could not read video file.'));
+        };
+
+        video.src = videoUrl;
+      });
+    };
+
+    function formatVideoDuration(sec) {
+      const s = Math.max(0, Math.round(Number(sec) || 0));
+      const mins = Math.floor(s / 60);
+      const rem = s % 60;
+      return `${mins}:${rem < 10 ? '0' : ''}${rem}`;
+    }
 
     function updateVegasClock() {
       const now = new Date();
@@ -1960,16 +2032,52 @@
         address: ''
       },
       {
-        id: 'sun-linq',
+        id: 'sun-flylinq',
         day: 'sun',
-        sortTime: '11:30',
-        timeLabel: '',
+        sortTime: '12:00',
+        timeLabel: '12:00 PM PST',
         category: 'zipline',
-        tag: 'Mid-Strip',
-        title: 'LINQ Promenade & Venetian Canals',
-        desc: 'High Roller plaza, Fly LINQ zipline & indoor Venetian gondolas.',
+        tag: 'Fun Pass 1/3',
+        title: 'Fly LINQ Zipline',
+        desc: 'Soar 12 stories above The LINQ Promenade right toward the High Roller.',
         mapStop: 'linq',
-        address: '3535 S Las Vegas Blvd, Las Vegas, NV 89109'
+        address: '3545 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'sun-highroller',
+        day: 'sun',
+        sortTime: '12:45',
+        timeLabel: '12:45 PM PST',
+        category: 'sight',
+        tag: 'Fun Pass 2/3',
+        title: 'High Roller Observation Wheel',
+        desc: '30-minute full rotation 550 ft above the Strip right where Fly LINQ lands.',
+        mapStop: 'highroller',
+        address: '3545 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'sun-eiffel',
+        day: 'sun',
+        sortTime: '14:00',
+        timeLabel: '2:00 PM PST',
+        category: 'sight',
+        tag: 'Fun Pass 3/3',
+        title: 'Eiffel Tower Viewing Deck (Paris)',
+        desc: '46-story Strip panorama across from Bellagio (complete before 5 PM daytime pass cutoff).',
+        mapStop: 'eiffeltower',
+        address: '3655 S Las Vegas Blvd, Las Vegas, NV 89109'
+      },
+      {
+        id: 'sun-venetian',
+        day: 'sun',
+        sortTime: '15:15',
+        timeLabel: '',
+        category: 'sight',
+        tag: 'Mid-Strip',
+        title: 'The Venetian Canals & Late Lunch',
+        desc: 'Stroll the indoor Grand Canal Shoppes and grab a bite before heading downtown.',
+        mapStop: 'venetian',
+        address: '3377 S Las Vegas Blvd, Las Vegas, NV 89109'
       },
       {
         id: 'sun-fremont',
@@ -2097,6 +2205,63 @@
             scheduleCards[oldFlightIdx].desc = 'Head to LAS Terminal 3 by 10:45 PM.\n• F9 1650: LAS 12:55 AM PST ➔ DFW 5:35 AM CST\n• F9 3178: DFW 6:59 AM CST ➔ DTW 10:42 AM EST\n• Girlfriend (F9 1183): LAS 9:59 AM ➔ LAX 11:20 AM PST';
             needsSave = true;
           }
+          // Migrate combined Sunday LINQ card into 3 separate Fun Pass cards + Venetian
+          const oldSunLinqIdx = scheduleCards.findIndex(c => c.id === 'sun-linq');
+          if (oldSunLinqIdx !== -1) {
+            scheduleCards.splice(
+              oldSunLinqIdx,
+              1,
+              {
+                id: 'sun-flylinq',
+                day: 'sun',
+                sortTime: '12:00',
+                timeLabel: '12:00 PM PST',
+                category: 'zipline',
+                tag: 'Fun Pass 1/3',
+                title: 'Fly LINQ Zipline',
+                desc: 'Soar 12 stories above The LINQ Promenade right toward the High Roller.',
+                mapStop: 'linq',
+                address: '3545 S Las Vegas Blvd, Las Vegas, NV 89109'
+              },
+              {
+                id: 'sun-highroller',
+                day: 'sun',
+                sortTime: '12:45',
+                timeLabel: '12:45 PM PST',
+                category: 'sight',
+                tag: 'Fun Pass 2/3',
+                title: 'High Roller Observation Wheel',
+                desc: '30-minute full rotation 550 ft above the Strip right where Fly LINQ lands.',
+                mapStop: 'highroller',
+                address: '3545 S Las Vegas Blvd, Las Vegas, NV 89109'
+              },
+              {
+                id: 'sun-eiffel',
+                day: 'sun',
+                sortTime: '14:00',
+                timeLabel: '2:00 PM PST',
+                category: 'sight',
+                tag: 'Fun Pass 3/3',
+                title: 'Eiffel Tower Viewing Deck (Paris)',
+                desc: '46-story Strip panorama across from Bellagio (complete before 5 PM daytime pass cutoff).',
+                mapStop: 'eiffeltower',
+                address: '3655 S Las Vegas Blvd, Las Vegas, NV 89109'
+              },
+              {
+                id: 'sun-venetian',
+                day: 'sun',
+                sortTime: '15:15',
+                timeLabel: '',
+                category: 'sight',
+                tag: 'Mid-Strip',
+                title: 'The Venetian Canals & Late Lunch',
+                desc: 'Stroll the indoor Grand Canal Shoppes and grab a bite before heading downtown.',
+                mapStop: 'venetian',
+                address: '3377 S Las Vegas Blvd, Las Vegas, NV 89109'
+              }
+            );
+            needsSave = true;
+          }
           if (needsSave) saveScheduleStorage();
         } else {
           scheduleCards = JSON.parse(JSON.stringify(defaultSchedule));
@@ -2189,7 +2354,11 @@
       photoPickerTargetType = 'checkin';
       const modal = document.getElementById('photoSourceModal');
       const title = document.getElementById('photoSourceModalTitle');
+      const videoBtn = document.getElementById('btnRecordLiveVideo');
+      const galleryLabel = document.getElementById('btnGalleryPickerLabel');
       if (title) title.textContent = 'Add Story';
+      if (videoBtn) videoBtn.classList.remove('hidden');
+      if (galleryLabel) galleryLabel.textContent = 'Choose Photo or Video from Gallery';
       if (modal) modal.classList.remove('hidden');
     }
 
@@ -2212,6 +2381,15 @@
         input.click();
       } else {
         const input = document.getElementById('directCameraInput');
+        input.value = '';
+        input.click();
+      }
+    }
+
+    function pickFromLiveVideoCamera() {
+      closePhotoSourceModal(null, true);
+      const input = document.getElementById('directVideoCameraInput');
+      if (input) {
         input.value = '';
         input.click();
       }
@@ -2555,12 +2733,16 @@
       );
     }
 
-    function triggerShowPhotoUpload(slotId) {
-      activeShowSlot = slotId;
-      photoPickerTargetType = 'show';
+    function triggerDiningPhotoUpload(slotId) {
+      activeDiningSlot = slotId;
+      photoPickerTargetType = 'dining';
       const modal = document.getElementById('photoSourceModal');
       const title = document.getElementById('photoSourceModalTitle');
-      if (title) title.textContent = 'Add Show Photo';
+      const videoBtn = document.getElementById('btnRecordLiveVideo');
+      const galleryLabel = document.getElementById('btnGalleryPickerLabel');
+      if (title) title.textContent = 'Swap Dining Photo';
+      if (videoBtn) videoBtn.classList.add('hidden');
+      if (galleryLabel) galleryLabel.textContent = 'Choose from Gallery';
       if (modal) modal.classList.remove('hidden');
     }
 
@@ -2590,6 +2772,50 @@
       }
     }
 
+    function previewDiningPhoto(slotId, title) {
+      const spot = diningSpots.find(s => s.id === slotId);
+      const imgSrc = diningPhotos[slotId] || (spot && spot.defaultImage);
+      if (!imgSrc) return;
+
+      isDiningLightbox = true;
+      isAlbumLightbox = false;
+      const modal = document.getElementById('photoLightboxModal');
+      const img = document.getElementById('lightboxImage');
+      const videoEl = document.getElementById('lightboxVideo');
+      const modalTitle = document.getElementById('lightboxTitle');
+      const time = document.getElementById('lightboxTime');
+      const counter = document.getElementById('lightboxCounter');
+      const swipeHint = document.getElementById('lightboxSwipeHint');
+
+      if (counter) counter.classList.add('hidden');
+      if (swipeHint) swipeHint.classList.add('hidden');
+      if (videoEl) {
+        videoEl.pause();
+        videoEl.src = '';
+        videoEl.classList.add('hidden');
+      }
+
+      modalTitle.textContent = title;
+      time.textContent = spot ? spot.tag : 'Dining';
+      img.src = imgSrc;
+      img.classList.remove('hidden');
+
+      modal.classList.remove('hidden');
+    }
+
+    function triggerShowPhotoUpload(slotId) {
+      activeShowSlot = slotId;
+      photoPickerTargetType = 'show';
+      const modal = document.getElementById('photoSourceModal');
+      const title = document.getElementById('photoSourceModalTitle');
+      const videoBtn = document.getElementById('btnRecordLiveVideo');
+      const galleryLabel = document.getElementById('btnGalleryPickerLabel');
+      if (title) title.textContent = 'Add Show Photo';
+      if (videoBtn) videoBtn.classList.add('hidden');
+      if (galleryLabel) galleryLabel.textContent = 'Choose from Gallery';
+      if (modal) modal.classList.remove('hidden');
+    }
+
     function previewShowPhoto(slotId, title) {
       const show = showSpots.find(s => s.id === slotId);
       const imgSrc = showPhotos[slotId];
@@ -2599,6 +2825,7 @@
       isAlbumLightbox = false;
       const modal = document.getElementById('photoLightboxModal');
       const img = document.getElementById('lightboxImage');
+      const videoEl = document.getElementById('lightboxVideo');
       const modalTitle = document.getElementById('lightboxTitle');
       const time = document.getElementById('lightboxTime');
       const counter = document.getElementById('lightboxCounter');
@@ -2606,10 +2833,16 @@
 
       if (counter) counter.classList.add('hidden');
       if (swipeHint) swipeHint.classList.add('hidden');
+      if (videoEl) {
+        videoEl.pause();
+        videoEl.src = '';
+        videoEl.classList.add('hidden');
+      }
 
       modalTitle.textContent = title;
       time.textContent = show ? show.tag : 'Show';
       img.src = imgSrc;
+      img.classList.remove('hidden');
 
       modal.classList.remove('hidden');
     }
@@ -2659,26 +2892,41 @@
 
         let checkinSlotHtml = '';
         if (photos.length > 0) {
-          const verticalStorySlides = photos.map((p, idx) => `
-            <div class="story-slide-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-850" onclick="openLightbox('${card.id}', ${idx})">
-              <img src="${p.dataUrl}" alt="Story ${idx + 1}" class="w-full h-full object-cover">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/35 flex flex-col justify-between p-2.5">
-                <div class="flex items-center justify-between">
-                  <span class="px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono">
-                    ${idx + 1}/${photos.length}
-                  </span>
-                  <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 text-white/90 hover:text-rose-400 border border-white/20 flex items-center justify-center text-[10px] shadow tap-effect" title="Delete">
-                    <i class="ph-bold ph-x"></i>
-                  </button>
-                </div>
-                <div>
-                  <p class="text-[9px] text-gold-300 font-mono font-bold truncate flex items-center gap-1">
-                    <i class="ph-bold ph-clock"></i> ${p.checkinTimestamp}
-                  </p>
+          const verticalStorySlides = photos.map((p, idx) => {
+            const isVideo = p.mediaType === 'video';
+            const thumbSrc = isVideo ? (p.posterDataUrl || p.dataUrl) : p.dataUrl;
+
+            return `
+              <div class="story-slide-item relative aspect-[9/15] rounded-2xl overflow-hidden border border-white/15 group cursor-pointer tap-effect shadow-lg bg-dark-850" onclick="openLightbox('${card.id}', ${idx})">
+                <img src="${thumbSrc}" alt="Story ${idx + 1}" class="w-full h-full object-cover">
+                ${isVideo ? `
+                  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg">
+                      <i class="ph-fill ph-play text-base ml-0.5"></i>
+                    </div>
+                  </div>
+                ` : ''}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/35 flex flex-col justify-between p-2.5">
+                  <div class="flex items-center justify-between gap-1">
+                    <div class="flex items-center gap-1">
+                      <span class="px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[9px] font-bold text-white border border-white/15 font-mono">
+                        ${idx + 1}/${photos.length}
+                      </span>
+                      ${isVideo ? `<span class="px-1.5 py-0.5 rounded-full bg-rose-500/85 text-[9px] font-bold text-white font-mono">${formatVideoDuration(p.durationSec)}</span>` : ''}
+                    </div>
+                    <button onclick="deleteSinglePhoto('${card.id}', '${p.id}', event)" class="w-6 h-6 rounded-full bg-black/65 text-white/90 hover:text-rose-400 border border-white/20 flex items-center justify-center text-[10px] shadow tap-effect" title="Delete">
+                      <i class="ph-bold ph-x"></i>
+                    </button>
+                  </div>
+                  <div>
+                    <p class="text-[9px] text-gold-300 font-mono font-bold truncate flex items-center gap-1">
+                      <i class="ph-bold ph-clock"></i> ${p.checkinTimestamp}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          `).join('');
+            `;
+          }).join('');
 
           const addStorySlideHtml = `
             <div onclick="triggerCheckinSnap('${card.id}')" class="story-slide-item relative aspect-[9/15] rounded-2xl border-2 border-dashed border-gold-400/40 bg-dark-800/60 hover:bg-dark-800 hover:border-gold-400/80 flex flex-col items-center justify-center gap-2 cursor-pointer tap-effect transition-all group">
@@ -2708,7 +2956,10 @@
                 </div>
                 <span class="text-xs font-bold text-slate-200 group-hover:text-gold-400 transition-colors">Add Story</span>
               </div>
-              <i class="ph-bold ph-camera text-gold-400 text-sm"></i>
+              <div class="flex items-center gap-1.5 text-gold-400 text-sm">
+                <i class="ph-bold ph-video-camera text-rose-400"></i>
+                <i class="ph-bold ph-camera"></i>
+              </div>
             </div>
           `;
         }
@@ -3187,7 +3438,7 @@
 
       title.textContent = checkin.title;
       time.textContent = photo.checkinTimestamp;
-      img.src = photo.dataUrl;
+      renderLightboxMediaItem(photo);
     }
 
     function prevLightboxPhoto(event) {
@@ -3301,6 +3552,15 @@
 
     function closeLightbox(event, force = false) {
       if (force || (event && event.target.id === 'photoLightboxModal')) {
+        const videoEl = document.getElementById('lightboxVideo');
+        if (videoEl) {
+          videoEl.pause();
+          videoEl.src = '';
+        }
+        if (activeLightboxObjectUrl) {
+          try { URL.revokeObjectURL(activeLightboxObjectUrl); } catch (e) {}
+          activeLightboxObjectUrl = null;
+        }
         document.getElementById('photoLightboxModal').classList.add('hidden');
       }
     }
@@ -3316,12 +3576,15 @@
       { id: 'vegassign', name: 'Welcome to Las Vegas Sign', category: 'shows', lat: 36.0820, lng: -115.1728, time: 'Fri Night', desc: 'South Strip median plaza', icon: 'ph-camera', color: '#22c55e' },
       { id: 'nyny', name: 'New York-New York', category: 'shows', lat: 36.1024, lng: -115.1746, time: 'Fri Night', desc: 'Brooklyn Bridge & The Park', icon: 'ph-martini', color: '#c59b27' },
       { id: 'bellagio', name: 'Bellagio Fountains', category: 'shows', lat: 36.1126, lng: -115.1767, time: 'Sat Day & Night', desc: 'Dancing fountains & Conservatory', icon: 'ph-drop', color: '#22c55e' },
+      { id: 'eiffeltower', name: 'Eiffel Tower Viewing Deck', category: 'shows', lat: 36.1125, lng: -115.1723, time: 'Sun 2:00 PM', desc: 'Paris Las Vegas • 46th Floor Observation Deck', icon: 'ph-binoculars', color: '#22c55e' },
       { id: 'flamingos', name: 'Flamingo Wildlife Habitat', category: 'shows', lat: 36.1165, lng: -115.1708, time: 'Sat Morning', desc: 'Free live flamingos & waterfalls', icon: 'ph-bird', color: '#f472b6' },
       { id: 'phodalat', name: 'Phở Đà Lạt', category: 'food', lat: 36.1154, lng: -115.2023, time: 'Fri Dinner', desc: '4553 W Flamingo Rd (Chinatown)', icon: 'ph-bowl-food', color: '#fb923c' },
       { id: 'mollytea', name: 'Molly Tea 茉莉奶白', category: 'food', lat: 36.1287, lng: -115.2248, time: 'Fri Boba', desc: '3400 S Jones Blvd (Chinatown)', icon: 'ph-coffee', color: '#fb923c' },
       { id: 'atlantis', name: 'Fall of Atlantis', category: 'shows', lat: 36.1172, lng: -115.1752, time: 'Sat Afternoon', desc: 'Caesars Forum Shops', icon: 'ph-fire', color: '#22c55e' },
       { id: 'phlive', name: 'PH Live (Vũ Trụ Say Hi)', category: 'concert', lat: 36.1098, lng: -115.1706, time: 'Sat 7:00 PM', desc: 'Planet Hollywood Concert Venue', icon: 'ph-microphone-stage', color: '#a855f7' },
-      { id: 'linq', name: 'The LINQ Promenade', category: 'zipline', lat: 36.1178, lng: -115.1685, time: 'Sun Day', desc: 'High Roller & Fly LINQ Zipline', icon: 'ph-person-simple-throw', color: '#38bdf8' },
+      { id: 'linq', name: 'The LINQ Promenade', category: 'zipline', lat: 36.1178, lng: -115.1685, time: 'Sun 12:00 PM', desc: 'Fly LINQ Zipline & Promenade', icon: 'ph-person-simple-throw', color: '#38bdf8' },
+      { id: 'highroller', name: 'High Roller Observation Wheel', category: 'shows', lat: 36.1177, lng: -115.1681, time: 'Sun 12:45 PM', desc: '550-ft Strip observation wheel', icon: 'ph-aperture', color: '#22c55e' },
+      { id: 'eiffeltower', name: 'Eiffel Tower Viewing Deck', category: 'shows', lat: 36.1125, lng: -115.1722, time: 'Sun 2:00 PM', desc: 'Paris Las Vegas 46-story deck', icon: 'ph-binoculars', color: '#22c55e' },
       { id: 'venetian', name: 'The Venetian Canals', category: 'shows', lat: 36.1212, lng: -115.1697, time: 'Sun Day', desc: 'Indoor canals & gondolas', icon: 'ph-boat', color: '#22c55e' },
       { id: 'slotzilla', name: 'SlotZilla & Fremont St', category: 'zipline', lat: 36.1707, lng: -115.1438, time: 'Sun Night', desc: 'Downtown zipline & LED canopy', icon: 'ph-sparkle', color: '#c59b27' },
       { id: 'circus', name: 'Circus Circus Midway', category: 'shows', lat: 36.1367, lng: -115.1631, time: 'Mon Morning', desc: 'Free live acrobats & trapeze', icon: 'ph-mask-happy', color: '#22c55e' },
@@ -3576,6 +3839,13 @@
       deleteField, 
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import {
+      getStorage,
+      ref as storageRef,
+      uploadBytes,
+      getDownloadURL,
+      deleteObject
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAoSe3ptwtsq-AznzSy8hk2F6WrbRGumeM",
@@ -3587,7 +3857,7 @@
       measurementId: "G-Z6ZBGSWBFJ"
     };
 
-    let app, db;
+    let app, db, storage;
     let isSyncingCheckinUpload = false;
     let legacyCloudCheckins = {};
     let individualCloudPhotos = {};
@@ -3595,11 +3865,25 @@
     try {
       app = initializeApp(firebaseConfig);
       db = getFirestore(app);
+      storage = getStorage(app);
       window.setCloudStatus('Cloud Sync', 'text-emerald-400');
     } catch (e) {
       console.error("Firebase initialization failed:", e);
       window.setCloudStatus('Offline Mode', 'text-slate-400');
     }
+
+    window.firebaseUploadVideoStory = async function(storyId, file) {
+      if (!storage || !storyId || !file) return '';
+      try {
+        const ext = (file.name && file.name.split('.').pop()) || 'mp4';
+        const fileRef = storageRef(storage, `trip_videos/${storyId}.${ext}`);
+        await uploadBytes(fileRef, file, { contentType: file.type || 'video/mp4' });
+        return await getDownloadURL(fileRef);
+      } catch (err) {
+        console.warn("Firebase Storage video upload warning:", err);
+        return '';
+      }
+    };
 
     async function mergeAndApplyCloudCheckins() {
       if (isSyncingCheckinUpload) return;
@@ -3626,9 +3910,9 @@
         }
       });
 
-      // 2. Merge individual high-res photo documents from trip_photos collection
+      // 2. Merge individual high-res photo & video documents from trip_photos collection
       Object.values(individualCloudPhotos).forEach(photoDoc => {
-        if (!photoDoc || !photoDoc.slotId || !photoDoc.dataUrl) return;
+        if (!photoDoc || !photoDoc.slotId || (!photoDoc.dataUrl && !photoDoc.posterDataUrl)) return;
         if (!merged[photoDoc.slotId]) {
           merged[photoDoc.slotId] = {
             title: photoDoc.title || 'Vegas Activity',
@@ -3640,14 +3924,18 @@
         if (!exists) {
           merged[photoDoc.slotId].photos.push({
             id: photoDoc.id,
-            dataUrl: photoDoc.dataUrl,
+            mediaType: photoDoc.mediaType || 'image',
+            dataUrl: photoDoc.dataUrl || '',
+            posterDataUrl: photoDoc.posterDataUrl || '',
+            videoUrl: photoDoc.videoUrl || '',
+            durationSec: photoDoc.durationSec || 0,
             checkinTimestamp: photoDoc.checkinTimestamp || 'Checked In',
             rawTime: photoDoc.rawTime || 0
           });
         }
       });
 
-      // Sort each stop's photos chronologically
+      // Sort each stop's stories chronologically
       Object.keys(merged).forEach(slotId => {
         merged[slotId].photos.sort((a, b) => (a.rawTime || 0) - (b.rawTime || 0));
       });
@@ -3891,14 +4179,18 @@
       if (!db || !checkinObj || !Array.isArray(checkinObj.photos)) return;
       isSyncingCheckinUpload = true;
       try {
-        // Save each photo as its own separate Firestore document so every photo gets a full 1MB allowance
+        // Save each photo or video story as its own separate Firestore document
         for (const photo of checkinObj.photos) {
           if (!individualCloudPhotos[photo.id]) {
             await setDoc(doc(db, "trip_photos", photo.id), {
               slotId: slotId,
               title: checkinObj.title || 'Vegas Activity',
               scheduledTime: checkinObj.scheduledTime || '',
-              dataUrl: photo.dataUrl,
+              mediaType: photo.mediaType || 'image',
+              dataUrl: photo.dataUrl || '',
+              posterDataUrl: photo.posterDataUrl || '',
+              videoUrl: photo.videoUrl || '',
+              durationSec: photo.durationSec || 0,
               checkinTimestamp: photo.checkinTimestamp || 'Checked In',
               rawTime: photo.rawTime || Date.now()
             });
@@ -3916,6 +4208,12 @@
       if (!db || !photoId) return;
       isSyncingCheckinUpload = true;
       try {
+        const existingDoc = individualCloudPhotos[photoId];
+        if (storage && existingDoc && existingDoc.videoUrl) {
+          try {
+            await deleteObject(storageRef(storage, existingDoc.videoUrl));
+          } catch (stErr) {}
+        }
         await deleteDoc(doc(db, "trip_photos", photoId));
         // Also prune from legacy doc if it existed there
         for (const slotId of Object.keys(legacyCloudCheckins)) {
